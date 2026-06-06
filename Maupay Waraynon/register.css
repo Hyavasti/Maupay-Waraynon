@@ -123,10 +123,17 @@ body {
 .form-row {
     display: flex;
     gap: 1.5rem;
+    width: 100%;
+    margin-bottom: 1rem;
 }
 
 .flex-1 {
     flex: 1;
+}
+
+.form-row .form-input {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .form-group {
@@ -221,6 +228,16 @@ body {
     max-width: 100%;
     height: auto;
     object-fit: contain;
+}
+
+/* Custom Error Text Layout under inputs */
+.error-message {
+    color: #e12a32; /* Matches your brand crimson red */
+    font-size: 0.8rem;
+    font-weight: 600;
+    display: none; /* Keeps it hidden until triggered by JS */
+    margin-top: 0.4rem;
+    text-align: left;
 }
 
 @media (max-width: 900px) { 
