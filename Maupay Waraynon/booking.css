@@ -1,0 +1,349 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #0b4084;
+}
+
+/* --- Navigation Bar --- */
+.navbar {
+    background-color: #0b4084;
+    color: white;
+    padding: 1rem 2rem;
+    width: 100%;
+    z-index: 10;
+}
+
+.nav-container {
+    max-width: 1300px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+    font-weight: 800;
+}
+
+.logo-sub {
+    display: block;
+    font-size: 0.7rem;
+    color: #93c5fd;
+    font-weight: 400;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.nav-item {
+    color: white;
+    text-decoration: none;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+}
+
+.nav-item.active {
+    border-bottom: 2px solid white;
+    padding-bottom: 2px;
+}
+
+.btn {
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.btn-quote { background-color: #0066b2; color: white; }
+.btn-signin { background-color: #e12a32; color: white; }
+
+/* --- Blurred Background Wrapper Area --- */
+.booking-bg-overlay {
+    flex: 1;
+    /* 1. Applies the dark blue tint layer first, then loads your custom surrounding image */
+    background-image: linear-gradient(rgba(11, 64, 132, 0.75), rgba(11, 64, 132, 0.75)), url('bg-booking.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    min-height: calc(100vh - 70px);
+}
+
+.booking-scroll-container {
+    width: 100%;
+    padding: 3rem 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+/* --- Centered Master Container Block --- */
+.booking-master-card {
+    background-color: #dbeafe;
+    width: 100%;
+    max-width: 620px;
+    border-radius: 8px;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+    margin-bottom: 2rem;
+}
+
+/* --- Typography Content Headers --- */
+.header-section {
+    text-align: center; /* Centers all content inside the header block */
+    margin-bottom: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.section-indicator-link {
+    color: #0b4084; /* Deep brand blue matching your design style */
+    text-decoration: none; /* Remove the thin browser default underline */
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+    position: relative;
+    padding-bottom: 6px;
+}
+
+.section-indicator-link::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%; /* Makes sure the thick line perfectly spans the word width */
+    height: 4px; /* Gives it that distinct thick appearance from your image */
+    background-color: #0b4084; /* Matches the text blue color */
+    border-radius: 2px;
+}
+
+.main-page-title {
+    color: #0b4084;
+    font-size: 2.2rem;
+    font-weight: 800;
+    margin-bottom: 0.25rem;
+}
+
+.main-page-subtitle {
+    color: #64748b;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+/* --- Nested White Layout Card Blocks --- */
+.content-block-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+
+.card-group-title {
+    color: #0b4084;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+/* --- Shared Form Fields Structure Components --- */
+.form-row-grid {
+    display: flex;
+    gap: 1.25rem;
+    width: 100%;
+}
+
+.form-group-box {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.margin-top-slot {
+    margin-top: 1rem;
+}
+
+.field-label {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: bold;
+    margin-bottom: 0.35rem;
+}
+
+.grey-input-field {
+    width: 100%;
+    background-color: #e2e8f0;
+    border: 1px solid #94a3b8;
+    border-radius: 6px;
+    padding: 0.75rem 0.85rem;
+    font-size: 0.95rem;
+    color: #1e293b;
+    outline: none;
+}
+
+.grey-input-field:focus {
+    border-color: #0b4084;
+    background-color: #f1f5f9;
+}
+
+/* ---Dropdowns Styling --- */
+.select-dropdown-arrow {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%230b4084' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 16px;
+    padding-right: 2.5rem;
+    cursor: pointer;
+}
+
+/* --- Payment Toggles and Inline Selection --- */
+.payment-selection-row {
+    display: flex;
+    gap: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.toggle-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.native-check-box {
+    display: none;
+}
+
+.custom-check-box-square {
+    width: 18px;
+    height: 18px;
+    border: 1px solid #475569;
+    border-radius: 3px;
+    background-color: #ffffff;
+    position: relative;
+}
+
+.native-check-box:checked + .custom-check-box-square {
+    background-color: #0f172a;
+    border-color: #0f172a;
+}
+
+.native-check-box:checked + .custom-check-box-square::after {
+    content: "\f00c";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    color: white;
+    font-size: 10px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* --- File Upload Panel --- */
+.dropper-description-sub {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 0.75rem;
+}
+
+.receipt-drop-zone-box {
+    border: 2px dashed #94a3b8;
+    border-radius: 6px;
+    padding: 2rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    background-color: #ffffff;
+    position: relative;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.receipt-drop-zone-box:hover {
+    background-color: #f8fafc;
+    border-color: #0b4084;
+}
+
+.ghost-file-input {
+    display: none;
+}
+
+.cloud-upload-icon {
+    font-size: 1.8rem;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+
+.upload-callout-text {
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 500;
+}
+
+/* Thumbnail preview styling resets */
+.preview-thumbnail-holder {
+    display: none;
+    max-width: 100%;
+}
+
+.inserted-image-preview {
+    max-height: 150px;
+    border-radius: 4px;
+    object-fit: contain;
+}
+
+/* --- Master Submission CTA Blue Action Button --- */
+.master-booking-submit-btn {
+    width: 100%;
+    background-color: #0b4084;
+    color: white;
+    font-size: 1.3rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    padding: 1rem;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transition: background-color 0.2s;
+}
+
+.master-booking-submit-btn:hover {
+    background-color: #002d62;
+}
+
+/* --- Responsive Adaptability Rules --- */
+@media (max-width: 600px) {
+    .form-row-grid { flex-direction: column; gap: 1rem;}
+    .payment-selection-row { flex-direction: column; gap: 0.75rem;}
+    .booking-master-card { padding: 1.5rem 1rem; }
+}

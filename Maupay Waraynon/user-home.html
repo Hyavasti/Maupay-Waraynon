@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - Maupay Waraynon PC</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="home.css">
+    <style>
+        /* --- DYNAMIC INLINE OVERRIDES FOR THE USER HOMEPAGE LAYOUT --- */
+        
+        /* User Profile Icon Styling */
+        .nav-user-profile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.65rem; /* Clean, perfectly sized profile circle icon */
+            text-decoration: none;
+            transition: color 0.2s ease;
+            margin-left: 0.5rem;
+        }
+
+        .nav-user-profile:hover {
+            color: #93c5fd; /* Soft blue tint highlight on hover */
+        }
+
+        /* Active link indicator for current landing view */
+        .nav-item.active {
+            border-bottom: 2px solid white;
+            padding-bottom: 2px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <i class="fas fa-truck-moving"></i>
+                <div class="logo-text">MAUPAY WARAYNON <span class="logo-sub">Bacoor</span></div>
+            </div>
+            <div class="nav-links">
+                <a href="user-home.html" class="nav-item active">Home</a>
+                <a href="booking.html" class="nav-item">Book Shipment</a>
+                <a href="#" class="nav-item">Record</a>
+                <a href="#" class="nav-item">About Us</a>
+                <a href="#" class="nav-item">Contact</a>
+                
+                <a href="#" class="nav-user-profile" title="My Account">
+                    <i class="fas fa-user-circle"></i>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <header class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">Your satisfaction matters to us ,<br>and we strive to improve</h1>
+            <p class="hero-subtitle">we move goods with spread, precision, ad care. Count on<br>us to deliver your cargo safety, whereveer it needs to go</p>
+            
+            <div class="tracker-card-box">
+                <h3 class="tracker-box-label">Track your pacakge</h3>
+                <form class="tracker-input-row" action="#" method="GET">
+                    <input type="text" placeholder="Enter your tracking number" required class="tracker-field">
+                    <button type="submit" class="btn-track-submit">TRACK</button>
+                </form>
+            </div>
+        </div>
+    </header>
+
+    <section class="value-props-container">
+        <div class="grid-layout-wrapper">
+            
+            <div class="info-card">
+                <div class="icon-square-container blue-fill">
+                    <i class="fas fa-map-marker-alt card-vector-icon"></i>
+                </div>
+                <h4 class="card-feature-title">Real-Time Tracking</h4>
+                <p class="card-feature-text">Track your shipment from pickup to delivery with live updates and accurate status monitoring.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="icon-square-container blue-fill">
+                    <i class="fas fa-shield-alt card-vector-icon"></i>
+                </div>
+                <h4 class="card-feature-title">Secure Payment Verification</h4>
+                <p class="card-feature-text">Upload proof of payment via GCash or bank transfer with fast and reliable verification.</p>
+            </div>
+
+            <div class="info-card">
+                <div class="icon-square-container blue-fill">
+                    <i class="fas fa-shipping-fast card-vector-icon"></i>
+                </div>
+                <h4 class="card-feature-title">Fast & Reliable Delivery</h4>
+                <p class="card-feature-text">Efficient cargo handling with FIFO system to ensure timely dispatch of all shipments.</p>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="about-summary-block">
+        <div class="summary-split-wrapper">
+            
+            <div class="summary-text-side">
+                <h2 class="summary-heading-title">WHY CHOOSE US</h2>
+                <p class="summary-paragraph-body">
+                    Maupay Waraynon Padala Center provides a modern logistics solution by replacing manual processes with a centralized digital system. Our platform ensures transparency, efficiency, and accuracy in every shipment.
+                </p>
+            </div>
+
+            <div class="summary-image-side">
+                <img src="image_ba5fff.png" alt="Maupay Waraynon Logistics Cargo Truck" class="truck-showcase-img">
+            </div>
+
+        </div>
+    </section>
+
+</body>
+</html>
