@@ -672,24 +672,21 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* --- User Icon for User-Home Page --- */
-.nav-links .nav-user-profile i {
-    color: #ffffff !important;
-    font-size: 1.85rem !important; 
-    display: inline-block;
-}
-
+/* ---User Profile ---*/
+/* --- Fix for the Hidden User Profile Icon --- */
 .nav-links .nav-user-profile {
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    color: #ffffff !important; /* Forces the icon to be crisp white */
+    font-size: 1.85rem;        /* Gives it a slightly larger, cleaner look */
     text-decoration: none;
     margin-left: 1rem;
-    transition: transform 0.2s ease;
+    transition: opacity 0.2s ease;
 }
 
 .nav-links .nav-user-profile:hover {
-    transform: scale(1.08);
+    opacity: 0.8; /* Creates a clean fading effect when hovered */
 }
 
 @media (max-width: 768px) {
