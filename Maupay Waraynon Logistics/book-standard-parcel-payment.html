@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Payment</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="book-standard-parcel-payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="parcel-payment-body-bg">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Standard Parcel</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <div class="wizard-progress-bar">
+                <div class="progress-step completed">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Details</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step completed">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Package</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step current">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Payment</span>
+                </div>
+            </div>
+
+            <div class="checkout-layout-grid">
+                
+                <div class="payment-selection-panel">
+                    
+                    <h3 class="panel-title">Payment Option</h3>
+                    <div class="selection-stack gap-bottom">
+                        
+                        <label class="custom-selection-card active" for="payerSender">
+                            <input type="radio" id="payerSender" name="payerType" value="Sender" checked class="hidden-native-radio">
+                            <div class="ui-radio-circle"></div>
+                            <div class="card-text-block">
+                                <h4>Sender</h4>
+                                <p>Fees are settled by the origin point shipper</p>
+                            </div>
+                        </label>
+
+                        <label class="custom-selection-card" for="payerReceiver">
+                            <input type="radio" id="payerReceiver" name="payerType" value="Receiver" class="hidden-native-radio">
+                            <div class="ui-radio-circle"></div>
+                            <div class="card-text-block">
+                                <h4>Receiver</h4>
+                                <p>Fees are collected upon arrival destination point</p>
+                            </div>
+                        </label>
+                    </div>
+
+                    <h3 class="panel-title">Payment Method</h3>
+                    <div class="selection-stack">
+                        
+                        <div class="method-card-wrapper active" id="wrapperCOD">
+                            <label class="custom-selection-card" for="methodCOD">
+                                <input type="radio" id="methodCOD" name="paymentMethod" value="Cash" checked class="hidden-native-radio">
+                                <div class="ui-radio-circle"></div>
+                                <div class="card-text-block">
+                                    <h4>Cash / COD</h4>
+                                    <p>Pay in cash at dropoff or pickup destination point</p>
+                                </div>
+                            </label>
+                            
+                            <div class="conditional-details-panel">
+                                <div class="cod-notice-alert-box">
+                                    <i class="fas fa-info-circle"></i>
+                                    <span><strong>COD Notice:</strong> Please prepare the complete calculated payment balance to hand over directly to our agents/drivers once shipment operations reach the target address.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="method-card-wrapper" id="wrapperGCash">
+                            <label class="custom-selection-card" for="methodGCash">
+                                <input type="radio" id="methodGCash" name="paymentMethod" value="GCash" class="hidden-native-radio">
+                                <div class="ui-radio-circle"></div>
+                                <div class="card-text-block">
+                                    <h4>GCash</h4>
+                                    <p>Settle instantly using GCash mobile wallet transfer</p>
+                                </div>
+                            </label>
+                            
+                            <div class="conditional-details-panel">
+                                <div class="gateway-invoice-container">
+                                    <div class="invoice-details-header">
+                                        <i class="fas fa-wallet"></i> <strong>GCash Transfer Instructions</strong>
+                                    </div>
+                                    <p class="invoice-helper-text">Settle your calculated grand total balance to our verified corporate merchant number:</p>
+                                    <div class="invoice-data-card">
+                                        <div><strong>Account Name:</strong> Maupay Waraynon Padala Center</div>
+                                        <div><strong>Account Number:</strong> 0917 123 4567</div>
+                                    </div>
+                                    <div class="reference-input-element">
+                                        <label class="reference-label">Reference Number</label>
+                                        <input type="text" id="gcashRefNum" class="reference-field-input" placeholder="Enter 13-digit reference code">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="method-card-wrapper" id="wrapperBank">
+                            <label class="custom-selection-card" for="methodBank">
+                                <input type="radio" id="methodBank" name="paymentMethod" value="BankTransfer" class="hidden-native-radio">
+                                <div class="ui-radio-circle"></div>
+                                <div class="card-text-block">
+                                    <h4>Bank Transfer</h4>
+                                    <p>Transfer directly to our secure banking endpoints</p>
+                                </div>
+                            </label>
+                            
+                            <div class="conditional-details-panel">
+                                <div class="gateway-invoice-container">
+                                    <div class="invoice-details-header">
+                                        <i class="fas fa-university"></i> <strong>Bank Transfer Details</strong>
+                                    </div>
+                                    <p class="invoice-helper-text">Deposit invoice total securely through standard bank transfer pathways:</p>
+                                    <div class="invoice-data-card">
+                                        <div><strong>Bank Vendor:</strong> BDO Unibank (Banco de Oro)</div>
+                                        <div><strong>Account Name:</strong> Maupay Waraynon Padala Center</div>
+                                        <div><strong>Account Number:</strong> 0012 3456 7890</div>
+                                    </div>
+                                    <div class="reference-input-element">
+                                        <label class="reference-label">Transaction Reference / Reference Code</label>
+                                        <input type="text" id="bankRefNum" class="reference-field-input" placeholder="Enter bank authorization tracker value">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="back-navigation-container">
+                        <button type="button" id="btnBackToPackage" class="payment-btn-back">&lt; Back</button>
+                    </div>
+                </div>
+
+                <div class="order-summary-panel">
+                    <h3 class="panel-title">Order Summary</h3>
+                    
+                    <div class="summary-ledger-lines">
+                        <div class="ledger-line">
+                            <span class="ledger-label">Base Rate</span>
+                            <span class="ledger-value">PHP <span id="summaryBaseRate">150.00</span></span>
+                        </div>
+                        <div class="ledger-line">
+                            <span class="ledger-label">Weight Surcharge</span>
+                            <span class="ledger-value">PHP <span id="summaryWeightSurcharge">0.00</span></span>
+                        </div>
+                        <div class="ledger-line">
+                            <span class="ledger-label">Insurance</span>
+                            <span class="ledger-value">PHP <span id="summaryInsurance">0.00</span></span>
+                        </div>
+                        <div class="ledger-line current-payer-row">
+                            <span class="ledger-label">Assigned Payer</span>
+                            <span class="ledger-value highlighted-payer-tag" id="summaryPayer">Sender</span>
+                        </div>
+                        
+                        <hr class="summary-divider">
+                        
+                        <div class="ledger-line total-line">
+                            <span class="total-label">Total</span>
+                            <span class="total-price-value">Php <span id="summaryGrandTotal">150.00</span></span>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btnConfirmBooking" class="payment-btn-confirm">Confirm Booking</button>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <div class="modal-overlay-backdrop" id="bookingReviewModal">
+        <div class="order-details-modal-box">
+            <div class="modal-modal-header">
+                <h3><i class="fas fa-file-invoice"></i> Review Shipment Orders</h3>
+                <button type="button" class="close-modal-x-btn" id="btnCloseModalX">&times;</button>
+            </div>
+            
+            <div class="modal-modal-body">
+                <p class="modal-intent-helper">Please take a moment to look over your logistics distribution configurations before submitting.</p>
+                
+                <div class="summary-review-grid-layout">
+                    <div class="review-block-group">
+                        <h4 class="group-sub-header">Routing Details</h4>
+                        <div class="review-data-line"><strong>Delivery Mode:</strong> <span id="popDeliveryMode">Pickup</span></div>
+                        <div class="review-data-line"><strong>Sender:</strong> <span id="popSenderName">Juan Dela Cruz</span></div>
+                        <div class="review-data-line"><strong>Receiver:</strong> <span id="popReceiverName">Maria Clara</span></div>
+                    </div>
+                    
+                    <div class="review-block-group">
+                        <h4 class="group-sub-header">Package Dimensions</h4>
+                        <div class="review-data-line"><strong>Description:</strong> <span id="popItemDesc">General Goods</span></div>
+                        <div class="review-data-line"><strong>Scale/Weight:</strong> <span id="popWeight">0 kg</span></div>
+                        <div class="review-data-line"><strong>Volume Metrics:</strong> <span id="popVolume">0x0x0 cm</span></div>
+                    </div>
+                </div>
+
+                <div class="review-block-group statement-block-highlight">
+                    <h4 class="group-sub-header">Settlement Terms</h4>
+                    <div class="billing-split-flex-row">
+                        <div><strong>Who Pays:</strong> <span id="popPayer" class="pop-highlighted-tag">Sender</span></div>
+                        <div><strong>Method:</strong> <span id="popMethod">Cash on Delivery</span></div>
+                        <div class="pop-grand-total-row"><strong>Amount Due:</strong> <span id="popGrandTotal">PHP 150.00</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-modal-footer">
+                <button type="button" id="btnCancelModal" class="modal-action-btn btn-dismiss">Cancel</button>
+                <button type="button" id="btnFinalSubmitModal" class="modal-action-btn btn-submit-order">Submit Booking</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="book-standard-parcel-payment.js"></script>
+</body>
+</html>

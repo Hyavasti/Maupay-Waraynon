@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Package Details</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="book-standard-parcel-package.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="parcel-package-body-bg">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Standard Parcel</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <div class="wizard-progress-bar">
+                <div class="progress-step completed">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Details</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step current">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Package</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step upcoming">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Payment</span>
+                </div>
+            </div>
+
+            <div class="form-wrapper-center">
+                <form id="packageDetailsForm" class="package-card-panel">
+                    
+                    <h3 class="card-title-header">Package Details</h3>
+
+                    <div class="form-row-grid split-2-1">
+                        <div class="form-input-element">
+                            <label class="form-element-label">Item Description</label>
+                            <input type="text" id="itemDescription" class="form-field-input" placeholder="e.g., Clothing, Electronics, Vegetables" required>
+                        </div>
+                        <div class="form-input-element">
+                            <label class="form-element-label">Category</label>
+                            <div class="select-field-wrapper">
+                                <select id="itemCategory" class="form-field-select" required>
+                                    <option value="General" selected>General</option>
+                                    <option value="Fragile">Fragile / Glassware</option>
+                                    <option value="Electronics">Electronics / Gadgets</option>
+                                    <option value="Perishable">Perishable Food</option>
+                                    <option value="Documents">Documents / Papers</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-row-grid quad-4-columns spacing-top">
+                        <div class="form-input-element">
+                            <label class="form-element-label">Length (cm)</label>
+                            <input type="number" id="pkgLength" class="form-field-input pricing-trigger" placeholder="0" min="0" value="0" required>
+                        </div>
+                        <div class="form-input-element">
+                            <label class="form-element-label">Width (cm)</label>
+                            <input type="number" id="pkgWidth" class="form-field-input pricing-trigger" placeholder="0" min="0" value="0" required>
+                        </div>
+                        <div class="form-input-element">
+                            <label class="form-element-label">Height (cm)</label>
+                            <input type="number" id="pkgHeight" class="form-field-input pricing-trigger" placeholder="0" min="0" value="0" required>
+                        </div>
+                        <div class="form-input-element">
+                            <label class="form-element-label">Weight (kg)</label>
+                            <input type="number" id="pkgWeight" class="form-field-input pricing-trigger" placeholder="0" min="0" step="0.1" value="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-input-element spacing-top half-width-block">
+                        <label class="form-element-label">Declared value (PHP)</label>
+                        <input type="number" id="declaredValue" class="form-field-input pricing-trigger" placeholder="0" min="0" value="0" required>
+                    </div>
+
+                    <div class="form-input-element spacing-top">
+                        <label class="form-element-label">Special Handling Instructions</label>
+                        <textarea id="specialInstructions" class="form-field-textarea" placeholder="Optional: Any special handling instructions"></textarea>
+                    </div>
+
+                    <div class="estimated-fare-highlight-box spacing-top">
+                        <span class="fare-box-title-label">Estimated Fare</span>
+                        <div class="fare-box-price-display">PHP <span id="displayFare">150.00</span></div>
+                        <span class="fare-box-footnote-text">Final quote shown before payment</span>
+                    </div>
+
+                    <div class="form-actions-navigation-row">
+                        <button type="button" id="btnBackToDetails" class="action-btn-back">&lt; Back</button>
+                        <button type="submit" class="action-btn-next">Next &gt;</button>
+                    </div>
+
+                </form>
+            </div>
+
+        </main>
+    </div>
+
+    
+
+    <script src="book-standard-parcel-package.js"></script>
+</body>
+</html>

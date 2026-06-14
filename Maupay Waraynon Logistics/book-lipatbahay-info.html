@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Move Info</title>
+    <link rel="stylesheet" href="dashboard.css"> 
+    <link rel="stylesheet" href="book-shipment.css"> 
+    <link rel="stylesheet" href="book-lipatbahay-info.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Lipat Bahay (Moving Services)</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <form id="lipatBahayInfoForm" class="booking-wizard-card">
+                
+                <div class="wizard-progress-bar">
+                    <div class="progress-step completed">
+                        <span class="step-dot"><i class="fas fa-check"></i></span>
+                        <span class="step-label">Details</span>
+                    </div>
+                    <i class="fas fa-chevron-right step-arrow active-arrow"></i>
+                    <div class="progress-step current">
+                        <span class="step-dot"></span>
+                        <span class="step-label">Move Info</span>
+                    </div>
+                    <i class="fas fa-chevron-right step-arrow"></i>
+                    <div class="progress-step pending">
+                        <span class="step-dot"></span>
+                        <span class="step-label">Payment</span>
+                    </div>
+                </div>
+
+                <div class="info-forms-stack">
+                    
+                    <fieldset class="info-block-card">
+                        <legend class="info-card-title">Move Details</legend>
+                        
+                        <div class="form-fields-row-grid">
+                            <div class="form-input-cell">
+                                <label for="typeOfMove">Type of Move</label>
+                                <div class="select-wrapper">
+                                    <select id="typeOfMove" required>
+                                        <option value="Residential">Residential</option>
+                                        <option value="Commercial">Commercial / Office</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down dropdown-arrow-icon"></i>
+                                </div>
+                            </div>
+                            <div class="form-input-cell">
+                                <label for="moveDate">Preferred Move Date</label>
+                                <input type="date" id="moveDate" required>
+                            </div>
+                        </div>
+
+                        <div class="form-fields-row-grid">
+                            <div class="form-input-cell">
+                                <label for="estimatedItems">Estimated Items Count</label>
+                                <input type="text" id="estimatedItems" placeholder="e.g., 50-100 items" required>
+                            </div>
+                            <div class="form-input-cell">
+                                <label for="valuableItems">Special/Valuable Items</label>
+                                <input type="text" id="valuableItems" placeholder="e.g., Artwork, Antiques, Electronics">
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="info-block-card">
+                        <legend class="info-card-title">Vehicle Type</legend>
+                        <div class="vehicle-options-list">
+                            
+                            <label class="vehicle-card-label active-vehicle">
+                                <input type="radio" name="vehicleType" value="van" data-price="8000" checked>
+                                <span class="custom-radio-dot"></span>
+                                <div class="vehicle-details-meta">
+                                    <span class="vehicle-name-title">Van (5cbm)</span>
+                                    <span class="vehicle-subtext-price">Starting from PHP 8,000</span>
+                                </div>
+                            </label>
+
+                            <label class="vehicle-card-label">
+                                <input type="radio" name="vehicleType" value="6wheeler" data-price="15000">
+                                <span class="custom-radio-dot"></span>
+                                <div class="vehicle-details-meta">
+                                    <span class="vehicle-name-title">6-Wheeler Truck (12cbm)</span>
+                                    <span class="vehicle-subtext-price">Starting from PHP 15,000</span>
+                                </div>
+                            </label>
+
+                            <label class="vehicle-card-label">
+                                <input type="radio" name="vehicleType" value="10wheeler" data-price="28000">
+                                <span class="custom-radio-dot"></span>
+                                <div class="vehicle-details-meta">
+                                    <span class="vehicle-name-title">10-Wheeler Truck (12cbm)</span>
+                                    <span class="vehicle-subtext-price">Starting from PHP 28,000</span>
+                                </div>
+                            </label>
+
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="info-block-card">
+                        <legend class="info-card-title">Additionals</legend>
+                        <div class="additionals-checkbox-stack">
+                            
+                            <label class="addon-tick-item">
+                                <input type="checkbox" class="addon-calc-trigger" data-flat-price="1000" id="addonPacking">
+                                <span class="addon-square-box"></span>
+                                <span class="addon-label-text">Packing materials (+PHP 1,000)</span>
+                            </label>
+
+                            <label class="addon-tick-item">
+                                <input type="checkbox" class="addon-calc-trigger" data-flat-price="400" id="addon2Stops">
+                                <span class="addon-square-box"></span>
+                                <span class="addon-label-text">Up to 2 stops by extra helper (+PHP 400)</span>
+                            </label>
+
+                            <label class="addon-tick-item">
+                                <input type="checkbox" class="addon-calc-trigger" data-flat-price="450" id="addon4Stops">
+                                <span class="addon-square-box"></span>
+                                <span class="addon-label-text">Up to 4 stops by extra helper (+PHP 450)</span>
+                            </label>
+
+                            <label class="addon-tick-item">
+                                <input type="checkbox" class="addon-calc-trigger" data-flat-price="600" id="addonMoreStops">
+                                <span class="addon-square-box"></span>
+                                <span class="addon-label-text">More than 4 stops by extra helper (+PHP 600)</span>
+                            </label>
+
+                            <label class="addon-tick-item">
+                                <input type="checkbox" class="addon-calc-trigger" data-percentage="0.70" id="addonRoundTrip">
+                                <span class="addon-square-box"></span>
+                                <span class="addon-label-text">Round trip (+70%)</span>
+                            </label>
+
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="info-block-card">
+                        <legend class="info-card-title">Special Handling Instructions</legend>
+                        <div class="form-input-cell">
+                            <textarea id="specialInstructions" placeholder="Optional: Any special handling instructions" rows="3"></textarea>
+                        </div>
+                    </fieldset>
+
+                    <div class="quote-summary-panel-card">
+                        <span class="quote-heading-label">Estimated Quote</span>
+                        <div class="quote-price-amount" id="displayTotalQuote">PHP 8,000.00</div>
+                        <span class="quote-disclaimer-subtext">Final quote shown before payment</span>
+                    </div>
+
+                </div>
+
+                <div class="form-wizard-navigation-buttons">
+                    <button type="button" id="btnBackToDetails" class="btn-wizard-back">&lt; Back</button>
+                    <button type="submit" class="btn-wizard-next">Next &gt;</button>
+                </div>
+
+            </form>
+        </main>
+    </div>
+
+    <script src="book-lipatbahay-info.js"></script>
+</body>
+</html>

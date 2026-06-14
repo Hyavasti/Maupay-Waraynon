@@ -1,0 +1,275 @@
+.track-parcel-body-bg {
+    background-color: #f4f7fc !important;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Master Core Map Viewport Framing Wrapper */
+.map-view-wrapper {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 120px);
+    min-height: 520px;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid #e2e8f0;
+    background-color: #e5e7eb;
+}
+
+/* Forcing Google Custom Map Iframe to work as an absolute canvas backdrop */
+.embedded-custom-mymap {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 1;
+}
+
+/* Floating Overlay Action Tracker Card Panel */
+.floating-tracker-card {
+    position: absolute;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 680px;
+    background-color: rgba(255, 255, 255, 0.98);
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.18);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-sizing: border-box;
+}
+
+.search-prompt-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #475569;
+    letter-spacing: 0.2px;
+}
+
+.search-action-input-row {
+    display: flex;
+    gap: 12px;
+    width: 100%;
+}
+
+.input-icon-wrapper {
+    position: relative;
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.barcode-search-icon {
+    position: absolute;
+    left: 16px;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+.input-icon-wrapper input {
+    width: 100%;
+    height: 46px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    padding: 0 16px 0 44px;
+    font-size: 0.95rem;
+    color: #0f172a;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.input-icon-wrapper input:focus {
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.08);
+}
+
+.btn-primary-track-action {
+    background-color: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 0 32px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    transition: background-color 0.2s;
+}
+
+.btn-primary-track-action:hover {
+    background-color: #b91c1c;
+}
+
+/* Center Screen Visual Welcome HUD Panel Notice Badge */
+.map-center-welcome-overlay {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+    text-align: center;
+    pointer-events: none;
+    background-color: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(4px);
+    padding: 24px 32px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    max-width: 340px;
+}
+
+.welcome-icon-bubble {
+    width: 56px;
+    height: 56px;
+    background-color: #1e3a8a;
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px auto;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+}
+
+.map-center-welcome-overlay h3 {
+    margin: 0 0 6px 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    color: #1e3a8a;
+    letter-spacing: 0.5px;
+}
+
+.map-center-welcome-overlay p {
+    margin: 0;
+    font-size: 0.82rem;
+    color: #dc2626;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Bottom Left Dynamic Slide Up Logistics Milestone Drawer */
+.logistics-milestone-drawer {
+    position: absolute;
+    bottom: 24px;
+    left: 24px;
+    width: 320px;
+    background-color: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.2);
+    z-index: 15;
+    padding: 20px;
+    box-sizing: border-box;
+    border: 1px solid #e2e8f0;
+    transform: translateY(130%);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.logistics-milestone-drawer.is-expanded {
+    transform: translateY(0);
+    opacity: 1;
+}
+
+.close-drawer-btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.parcel-meta-summary h4 {
+    margin: 0 0 4px 0;
+    font-size: 1rem;
+    color: #0f172a;
+    font-weight: 700;
+}
+
+.status-pill {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+.status-pill.moving { background-color: #eff6ff; color: #2563eb; }
+
+.drawer-divider {
+    border: 0;
+    border-top: 1px solid #f1f5f9;
+    margin: 14px 0;
+}
+
+/* Milestone Pipeline Timeline Track Elements */
+.milestone-vertical-pipeline {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    position: relative;
+}
+
+.milestone-vertical-pipeline::before {
+    content: '';
+    position: absolute;
+    left: 11px;
+    top: 10px;
+    bottom: 10px;
+    width: 2px;
+    background-color: #e2e8f0;
+    z-index: 1;
+}
+
+.pipeline-node {
+    display: flex;
+    gap: 14px;
+    position: relative;
+    z-index: 2;
+}
+
+.node-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background-color: #ffffff;
+    border: 2px solid #cbd5e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: #94a3b8;
+    box-sizing: border-box;
+}
+
+.node-details h5 {
+    margin: 0 0 2px 0;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #475569;
+}
+
+.node-details span {
+    font-size: 0.74rem;
+    color: #94a3b8;
+}
+
+.pipeline-node.complete .node-marker { background-color: #16a34a; border-color: #16a34a; color: #ffffff; }
+.pipeline-node.complete .node-details h5 { color: #0f172a; }
+.pipeline-node.complete .node-details span { color: #64748b; }
+
+.pipeline-node.current .node-marker { background-color: #2563eb; border-color: #2563eb; color: #ffffff; }
+.pipeline-node.current .node-details h5 { color: #2563eb; }
+.pipeline-node.current .node-details span { color: #64748b; font-weight: 500; }

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | User Dashboard</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item active"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="track-parcel.html" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+    
+    <header class="content-header">
+        <h2>Overview</h2>
+        <div class="user-profile-badge">
+            <div class="avatar-circle" id="profileAvatar">U</div>
+        </div>
+    </header>
+
+    <div class="dashboard-grid-layout">
+        
+        <div class="primary-column">
+            
+            <!-- WELCOME BANNER -->
+            <section class="welcome-banner">
+                <span class="banner-date" id="liveDashboardDate">Sunday, 19 April 2026</span>
+                <h1 id="welcomeGreeting">Good Evening, User</h1>
+                <p id="welcomeSummaryLabel">You have 0 active shipments recorded.</p>
+            </section>
+
+            <!-- LIVE CALCULATED METRICS ROW -->
+            <section class="satisfaction-hero">
+                <div class="hero-overlay-text">
+                    <h2>Your <span>satisfaction</span> matters to us, and we strive to improve</h2>
+                    <p>We move goods with speed, precision, and care. Count on us to deliver your cargo safely, wherever it needs to go.</p>
+                </div>
+                
+                <div class="metrics-row">
+                    <div class="metric-mini-card">
+                        <div class="metric-block-icon blue-bg"><i class="fas fa-box" style="color: white; margin: 12px;"></i></div>
+                        <div class="metric-data-info">
+                            <span class="lbl">Total Bookings</span>
+                            <h3 id="metricTotalBookings">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-mini-card">
+                        <div class="metric-block-icon lightblue-bg"><i class="fas fa-truck-ramp-box" style="color: white; margin: 12px;"></i></div>
+                        <div class="metric-data-info">
+                            <span class="lbl">Lipat-Bahay</span>
+                            <h3 id="metricLipatBahay">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-mini-card">
+                        <div class="metric-block-icon blue-bg"><i class="fas fa-parcel" style="color: white; margin: 12px;"></i></div>
+                        <div class="metric-data-info">
+                            <span class="lbl">Standard Parcel</span>
+                            <h3 id="metricStandardParcel">0</h3>
+                        </div>
+                    </div>
+                    <div class="metric-mini-card">
+                        <div class="metric-block-icon lightblue-bg"><i class="fas fa-dolly" style="color: white; margin: 12px;"></i></div>
+                        <div class="metric-data-info">
+                            <span class="lbl">Heavy Cargo</span>
+                            <h3 id="metricHeavyCargo">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ACTIVE SHIPMENTS PROGRESS SECTION -->
+            <section class="data-block-section">
+                <div class="section-header-row">
+                    <h3>Active Shipments Tracker</h3>
+                </div>
+                <!-- This container will hold dynamic layout injectors -->
+                <div id="activeShipmentsProgressContainer">
+                    <!-- Dynamic JavaScript will populate cards here -->
+                </div>
+            </section>
+
+            <!-- RECENT BOOKINGS DATA TABLE -->
+            <section class="data-block-section">
+                <div class="section-header-row">
+                    <h3>Recent Bookings Ledger</h3>
+                </div>
+                <div class="table-scroll-container">
+                    <table class="bookings-data-table">
+                       <thead>
+                            <tr>
+                                <th>Tracking ID</th>
+                                <th>Service Type</th>
+                                <th>Destination</th>
+                                <th>Date Booked</th>
+                                <th>Status</th>
+                            </tr>
+                       </thead>
+                       <tbody id="bookingsTableBody">
+                            <!-- Dynamic JavaScript rows go here -->
+                       </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- RIGHT REAR SIDEBAR COLUMN -->
+        <div class="secondary-column">
+            <section class="sidebar-card-box">
+                <h3>Quick Track</h3>
+                <form id="quickTrackForm" class="quick-track-form">
+                    <input type="text" id="quickTrackInput" placeholder="Enter tracking control number" required>
+                    <button type="submit" class="btn-track-action">TRACK</button>
+                </form>
+            </section>
+
+            <section class="sidebar-card-box announcements-card">
+                <h3>Announcements</h3>
+                <div class="announcement-item-node">
+                    <h4>Bacoor Hub Operational Notice</h4>
+                    <p>Standard parcel pick-ups and Lipat-Bahay regional routes remain unhampered.</p>
+                    <span class="announcement-timestamp">Current Status</span>
+                </div>
+            </section>
+        </div>
+
+    </div>
+</main>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

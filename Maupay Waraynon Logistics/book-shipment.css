@@ -1,0 +1,201 @@
+/* BOOKING MODULE MAIN WORKSPACE */
+.booking-wizard-card {
+    background-color: #ffffff;
+    border-radius: 14px;
+    padding: 40px 30px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
+    min-height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* MULTI-STEP PROGRESS BAR */
+.wizard-progress-bar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 50px;
+}
+
+.progress-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.step-dot {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.progress-step.current .step-dot {
+    background-color: #0d47a1;
+}
+
+.progress-step.pending .step-dot {
+    background-color: #e0e0e0;
+}
+
+.step-label {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #444444;
+}
+
+.step-arrow {
+    font-size: 0.75rem;
+    color: #888888;
+}
+
+/* TYPOGRAPHY HEADINGS */
+.wizard-welcome-heading {
+    text-align: center;
+    margin-bottom: 45px;
+}
+
+.wizard-welcome-heading h1 {
+    font-size: 1.85rem;
+    font-weight: 800;
+    color: #0c2340; 
+    letter-spacing: 0.5px;
+}
+
+.wizard-welcome-heading p {
+    font-size: 0.95rem;
+    color: #ef5350; 
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+/* SERVICE OPTION CARDS SELECTION GRID */
+.services-selection-grid {
+    display: flex;
+    gap: 24px;
+    width: 100%;
+    max-width: 1050px;
+    margin-bottom: 50px;
+}
+
+.service-option-card {
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 14px;
+    flex: 1;
+    padding: 35px 25px;
+    text-align: center;
+    position: relative;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.01);
+}
+
+/* Card Selection Active Border State overrides */
+.service-option-card.selected {
+    border: 2px solid #0d47a1;
+    box-shadow: 0 8px 25px rgba(13, 71, 161, 0.08);
+}
+
+/* Corner indicator active confirmation */
+.selection-indicator-dot {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: transparent;
+    border: 2px solid #e0e0e0;
+    transition: all 0.2s ease;
+}
+
+.service-option-card.selected .selection-indicator-dot {
+    background-color: #0d47a1;
+    border-color: #0d47a1;
+}
+
+/* Icon Presentation Blocks styling */
+.service-icon-box {
+    width: 70px;
+    height: 70px;
+    background-color: #0d47a1;
+    color: #ffffff;
+    border-radius: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+}
+
+.service-option-card h3 {
+    font-size: 1.22rem;
+    color: #0d47a1;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.service-description {
+    font-size: 0.84rem;
+    color: #666666;
+    line-height: 1.5;
+    margin-bottom: 25px;
+    flex-grow: 1;
+}
+
+.service-badge {
+    background-color: #eaeaea;
+    color: #444444;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+/* Hover effects for unselected option configurations */
+.service-option-card:not(.selected):hover {
+    transform: translateY(-4px);
+    border-color: #b0bec5;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.04);
+}
+
+/* WIZARD FOOTER NAVIGATION BUTTONS */
+.wizard-actions-footer {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.btn-primary-wizard {
+    background-color: #ef5350; 
+    color: #ffffff;
+    border: none;
+    padding: 14px 60px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 15px rgba(239, 83, 80, 0.2);
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.btn-primary-wizard:hover {
+    background-color: #e53935;
+}
+
+.btn-primary-wizard:active {
+    transform: scale(0.98);
+}
+
+/* Responsive Media */
+@media (max-width: 900px) {
+    .services-selection-grid { flex-direction: column; }
+    .service-option-card { width: 100%; }
+}

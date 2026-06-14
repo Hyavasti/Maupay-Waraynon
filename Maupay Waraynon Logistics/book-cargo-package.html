@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Cargo Specifications</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="book-cargo-package.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="cargo-package-body-bg">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Commercial Cargo</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <div class="wizard-progress-bar">
+                <div class="progress-step complete">
+                    <span class="step-dot"><i class="fas fa-check" style="font-size: 10px; color: white;"></i></span>
+                    <span class="step-label">Details</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step current">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Cargo</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Payment</span>
+                </div>
+            </div>
+
+            <form id="cargoPackageForm" class="cargo-package-scroll-container" novalidate>
+                
+                <div class="form-card-panel">
+                    <h3 class="panel-section-title">Cargo Details</h3>
+                    
+                    <div class="form-row-grid split-custom-cargo">
+                        <div class="input-element-group">
+                            <label>Cargo Description</label>
+                            <input type="text" id="cargoDescription" placeholder="e.g., Clothing, Electronics, Vegetables" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Type of Cargo</label>
+                            <select id="cargoType" required>
+                                <option value="General">General</option>
+                                <option value="Perishable">Perishable</option>
+                                <option value="Fragile">Fragile</option>
+                                <option value="Hazardous">Hazardous/DG</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row-grid split-4">
+                        <div class="input-element-group">
+                            <label>Length (cm)</label>
+                            <input type="number" id="cargoLength" placeholder="0" min="1" value="0" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Width (cm)</label>
+                            <input type="number" id="cargoWidth" placeholder="0" min="1" value="0" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Height (cm)</label>
+                            <input type="number" id="cargoHeight" placeholder="0" min="1" value="0" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Weight (kg)</label>
+                            <input type="number" id="cargoWeight" placeholder="0" min="1" value="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row-grid split-2">
+                        <div class="input-element-group">
+                            <label>Declared Value (PHP)</label>
+                            <input type="number" id="declaredValue" placeholder="0" min="0" value="0" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Number of Pieces</label>
+                            <input type="number" id="numPieces" placeholder="0" min="1" value="1" required>
+                        </div>
+                    </div>
+
+                    <div class="input-element-group" style="margin-bottom: 16px;">
+                        <label>Documentation Requirements</label>
+                        <input type="text" id="docRequirements" placeholder="e.g., Invoices, Customs documents, Certificates of Origin">
+                    </div>
+
+                    <div class="input-element-group" style="margin-bottom: 24px;">
+                        <label>Special Handling Instructions</label>
+                        <input type="text" id="handlingInstructions" placeholder="Optional: Any special handling instructions">
+                    </div>
+
+                    <div class="fare-estimation-summary-box">
+                        <h4 class="summary-box-header">Estimated Fare</h4>
+                        <div class="summary-line-item">
+                            <span>Base Rate</span>
+                            <span id="lblBaseRate">PHP 0</span>
+                        </div>
+                        <div class="summary-line-item">
+                            <span>Weight Surcharge</span>
+                            <span id="lblWeightSurcharge">PHP 0</span>
+                        </div>
+                        <div class="summary-line-item">
+                            <span>Cargo Insurance</span>
+                            <span id="lblCargoInsurance">PHP 0</span>
+                        </div>
+                        <div class="summary-total-price-row">
+                            <span id="lblMasterTotal">PHP 150.00</span>
+                            <span class="total-disclaimer-note">Final quote shown before payment</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="wizard-action-toolbar">
+                    <button type="button" id="btnBackToDetails" class="cargo-btn-secondary">&lt; Back</button>
+                    <button type="submit" class="cargo-btn-primary">Next &gt;</button>
+                </div>
+
+            </form>
+
+        </main>
+    </div>
+
+    <script src="book-cargo-package.js"></script>
+</body>
+</html>

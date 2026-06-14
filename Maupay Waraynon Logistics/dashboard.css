@@ -1,0 +1,491 @@
+/* GLOBAL SETTINGS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f4f8;
+    color: #333333;
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* LEFT VIEWPORT SIDEBAR */
+.sidebar {
+    width: 260px;
+    background-color: #0d47a1; 
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    flex-shrink: 0;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 24px;
+    margin-bottom: 35px;
+}
+
+.sidebar-logo-img {
+    width: 35px;
+    height: auto;
+}
+
+.brand-text h3 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.brand-text span {
+    font-size: 0.72rem;
+    color: #b0bec5;
+    display: block;
+}
+
+.menu-section-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #90caf9;
+    padding: 0 24px;
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.menu-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 24px;
+    color: #cfd8dc;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.menu-item i {
+    width: 18px;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.menu-item:hover, .menu-item.active {
+    background-color: #1565c0; 
+    color: #ffffff;
+}
+
+.menu-item.active {
+    border-left: 4px solid #ef5350; 
+    padding-left: 20px;
+}
+
+.logout-link {
+    margin-top: auto;
+    color: #ff8a80;
+}
+.logout-link:hover {
+    background-color: #c62828;
+    color: #ffffff;
+}
+
+/* MAIN DASHBOARD WORKSPACE GRID PANELS */
+.main-content {
+    flex: 1;
+    padding: 25px 35px;
+    background-color: #f4f7fa;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.content-header h2 {
+    color: #0c2340;
+    font-size: 1.6rem;
+    font-weight: 700;
+}
+
+.avatar-circle {
+    width: 40px;
+    height: 40px;
+    background-color: #1e88e5;
+    color: #ffffff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 1.1rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* Master Layout Splitting Column System Grid mapping */
+.dashboard-grid-layout {
+    display: flex;
+    gap: 30px;
+    align-items: flex-start;
+}
+
+.primary-column {
+    flex: 2.3;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.secondary-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* Welcome Header Banner Card Row Elements */
+.welcome-banner {
+    background-color: #1a5ca3;
+    color: #ffffff;
+    padding: 24px 28px;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(26, 92, 163, 0.12);
+}
+
+.banner-date {
+    font-size: 0.8rem;
+    color: #90caf9;
+    font-weight: 600;
+}
+
+.welcome-banner h1 {
+    font-size: 1.65rem;
+    font-weight: 700;
+    margin: 4px 0 2px 0;
+}
+
+.welcome-banner p {
+    font-size: 0.85rem;
+    color: #e3f2fd;
+}
+
+/* Satisfaction Banner Graphic Box Panel Elements */
+.satisfaction-hero {
+    background: linear-gradient(rgba(12, 35, 64, 0.75), rgba(12, 35, 64, 0.85)), url('images/bglogin.png');
+    background-size: cover;
+    background-position: center 35%;
+    border-radius: 14px;
+    padding: 30px;
+    color: #ffffff;
+}
+
+.hero-overlay-text h2 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    line-height: 1.3;
+    max-width: 550px;
+    margin-bottom: 12px;
+}
+
+.hero-overlay-text h2 span {
+    color: #90caf9;
+}
+
+.hero-overlay-text p {
+    font-size: 0.85rem;
+    color: #cfd8dc;
+    line-height: 1.5;
+    max-width: 600px;
+    margin-bottom: 30px;
+}
+
+/* Symmetrical Sub Card Mini Grid Row Boxes */
+.metrics-row {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.metric-mini-card {
+    background: #ffffff;
+    flex: 1;
+    border-radius: 10px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #333333;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.metric-block-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    flex-shrink: 0;
+}
+.blue-bg { background-color: #1e88e5; }
+.lightblue-bg { background-color: #4fc3f7; }
+
+.metric-data-info .lbl {
+    font-size: 0.72rem;
+    color: #777777;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.metric-data-info h3 {
+    font-size: 1.2rem;
+    color: #0c2340;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.trend-pct {
+    font-size: 0.7rem;
+    color: #2e7d32;
+    background-color: #e8f5e9;
+    padding: 1px 4px;
+    border-radius: 4px;
+}
+
+/* Content block grouping segments layout fields */
+.data-block-section {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.section-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+}
+
+.section-header-row h3 {
+    font-size: 1.05rem;
+    color: #0c2340;
+    font-weight: 700;
+}
+
+.view-all-link {
+    font-size: 0.8rem;
+    color: #1e88e5;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Progress indicator row panels configuration mapping */
+.shipment-progress-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid #e3f2fd;
+    padding: 14px 20px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    gap: 20px;
+}
+.shipment-progress-card:last-child { margin-bottom: 0; }
+
+.shipment-meta-icon {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 180px;
+}
+
+.meta-box {
+    width: 35px;
+    height: 35px;
+    border-radius: 8px;
+}
+
+.meta-labels h4 {
+    font-size: 0.88rem;
+    color: #0c2340;
+    font-weight: 700;
+}
+
+.meta-labels span {
+    font-size: 0.75rem;
+    color: #777777;
+}
+
+.progress-track-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.progress-bar-container {
+    flex: 1;
+    height: 8px;
+    background-color: #e3f2fd;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill-line {
+    height: 100%;
+    background-color: #0d47a1;
+    border-radius: 10px;
+}
+
+.progress-pct-lbl {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #555555;
+    min-width: 32px;
+}
+
+/* Badge framework styles classification */
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-align: center;
+    min-width: 110px;
+}
+.status-transit { background-color: #e3f2fd; color: #0d47a1; }
+.status-delivery { background-color: #fff8e1; color: #f57f17; }
+.status-delivered { background-color: #e8f5e9; color: #1b5e20; }
+
+/* Grid data lists responsive layout configuration tracking tables */
+.table-scroll-container {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.bookings-data-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+}
+
+.bookings-data-table th {
+    font-size: 0.75rem;
+    color: #777777;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 12px 16px;
+    border-bottom: 2px solid #f0f4f8;
+}
+
+.bookings-data-table td {
+    padding: 14px 16px;
+    font-size: 0.85rem;
+    color: #444444;
+    border-bottom: 1px solid #f0f4f8;
+}
+
+/* RIGHT ACTION AND NOTIFICATION BOARD PANELS */
+.sidebar-card-box {
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 22px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+    width: 100%;
+}
+
+.sidebar-card-box h3 {
+    font-size: 1rem;
+    color: #0c2340;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+.quick-track-form input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    outline: none;
+    margin-bottom: 12px;
+    background-color: #fafafa;
+}
+
+.btn-track-action {
+    width: 100%;
+    background-color: #ef5350;
+    color: #ffffff;
+    border: none;
+    padding: 11px;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 12px rgba(239, 83, 80, 0.15);
+}
+
+.announcements-card {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.announcement-item-node {
+    border: 1px solid #f0f4f8;
+    padding: 14px;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+
+.announcement-item-node h4 {
+    font-size: 0.85rem;
+    color: #0c2340;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.announcement-item-node p {
+    font-size: 0.76rem;
+    color: #666666;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.announcement-timestamp {
+    font-size: 0.7rem;
+    color: #999999;
+    font-weight: 600;
+    display: block;
+}
+
+/* RESPONSIVE DESIGN ADAPTATIONS */
+@media (max-width: 1200px) {
+    .dashboard-grid-layout { flex-direction: column; }
+    .primary-column, .secondary-column { width: 100%; }
+}
+
+@media (max-width: 768px) {
+    .dashboard-container { flex-direction: column; }
+    .sidebar { width: 100%; height: auto; }
+    .metrics-row { flex-wrap: wrap; }
+    .metric-mini-card { min-width: calc(50% - 10px); }
+}

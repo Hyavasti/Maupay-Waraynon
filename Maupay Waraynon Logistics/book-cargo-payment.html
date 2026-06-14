@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Cargo Payment Checkout</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="book-cargo-payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="cargo-payment-body-bg">
+
+    <div class="dashboard-container">
+        
+        <!-- SIDEBAR NAVIGATION PANEL -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Commercial Cargo</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <!-- PROGRESS TIMELINE BAR -->
+            <div class="wizard-progress-bar">
+                <div class="progress-step complete">
+                    <span class="step-dot"><i class="fas fa-check" style="font-size: 10px; color: white;"></i></span>
+                    <span class="step-label">Details</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step complete">
+                    <span class="step-dot"><i class="fas fa-check" style="font-size: 10px; color: white;"></i></span>
+                    <span class="step-label">Cargo</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step current">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Payment</span>
+                </div>
+            </div>
+
+            <!-- MAIN CHECKOUT SPLIT WORKSPACE -->
+            <div class="checkout-split-layout">
+                
+                <!-- LEFT SIDE: OPTIONS & METHODS SELECTION -->
+                <div class="payment-selection-panel">
+                    
+                    <!-- SECTION A: PAYMENT OPTION -->
+                    <h3 class="panel-section-title">Payment Option</h3>
+                    <div class="payment-options-stack" style="margin-bottom: 25px;">
+                        <label class="payment-option-card checked">
+                            <input type="radio" name="paymentOption" value="Sender" checked>
+                            <div class="option-meta-text">
+                                <strong>Sender</strong>
+                                <span>Fees are settled by the origin point shipper</span>
+                            </div>
+                        </label>
+
+                        <label class="payment-option-card">
+                            <input type="radio" name="paymentOption" value="Receiver">
+                            <div class="option-meta-text">
+                                <strong>Receiver</strong>
+                                <span>Fees are collected upon arrival destination point</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- SECTION B: PAYMENT METHOD -->
+                    <h3 class="panel-section-title">Payment Method</h3>
+                    <div class="payment-options-stack">
+                        <!-- Cash / COD -->
+                        <label class="payment-option-card checked clickable-method-card">
+                            <input type="radio" name="paymentMethod" value="Cash / COD" checked>
+                            <div class="option-meta-text">
+                                <strong>Cash / COD</strong>
+                                <span>Pay in cash at dropoff or pickup destination point</span>
+                            </div>
+                            <!-- Inline Notice Box -->
+                            <div class="cod-notice-box" id="codNoticeWrapper">
+                                <i class="fas fa-info-circle notice-icon"></i>
+                                <p><strong>COD Notice:</strong> Please prepare the complete calculated payment balance to hand over directly to our agents/drivers once shipment operations reach the target address.</p>
+                            </div>
+                        </label>
+
+                        <!-- GCash -->
+                        <label class="payment-option-card clickable-method-card">
+                            <input type="radio" name="paymentMethod" value="GCash">
+                            <div class="option-meta-text">
+                                <strong>GCash</strong>
+                                <span>Settle instantly using GCash mobile wallet transfer</span>
+                            </div>
+                        </label>
+
+                        <!-- Bank Transfer -->
+                        <label class="payment-option-card clickable-method-card">
+                            <input type="radio" name="paymentMethod" value="Bank Transfer">
+                            <div class="option-meta-text">
+                                <strong>Bank Transfer</strong>
+                                <span>Transfer directly to our secure banking endpoints</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- BOTTOM TOOLBAR NAVIGATION -->
+                    <div style="margin-top: 30px;">
+                        <button type="button" id="btnBackToPackage" class="cargo-btn-secondary">&lt; Back</button>
+                    </div>
+                </div>
+
+                <!-- RIGHT SIDE: ORDER SUMMARY BOX FROM image_4910fe.png -->
+                <aside class="order-summary-sticky-card">
+                    <h3 class="panel-section-title" style="color: #1e3a8a;">Order Summary</h3>
+                    
+                    <div class="summary-breakdown-table">
+                        <div class="table-line-item">
+                            <span>Base Rate</span>
+                            <span id="summaryBaseRate">PHP 150.00</span>
+                        </div>
+                        <div class="table-line-item">
+                            <span>Weight Surcharge</span>
+                            <span id="summarySurcharge">PHP 0.00</span>
+                        </div>
+                        <div class="table-line-item">
+                            <span>Insurance</span>
+                            <span id="summaryInsurance">PHP 0.00</span>
+                        </div>
+                        <div class="table-line-item align-center-row">
+                            <span>Assigned Payer</span>
+                            <span id="summaryPayer" class="payer-inline-badge">Sender</span>
+                        </div>
+                        
+                        <hr class="summary-divider">
+
+                        <div class="table-line-item grand-total-row">
+                            <span>Total</span>
+                            <span id="summaryGrandTotal">Php 150.00</span>
+                        </div>
+                    </div>
+
+                    <button type="button" id="btnConfirmBooking" class="cargo-btn-primary full-width-btn">Confirm Booking</button>
+                </aside>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ==========================================================================
+       MODAL REVIEW CONTAINER ATTACHMENT FROM STANDARD PARCEL
+       ========================================================================== -->
+    <div class="review-modal-overlay" id="bookingReviewModal">
+        <div class="review-modal-card">
+            <div class="modal-header-bar">
+                <h3>Review Shipment Details</h3>
+                <button type="button" class="close-x-btn" id="btnCloseModalX">&times;</button>
+            </div>
+            
+            <div class="modal-body-content">
+                <p class="modal-notice-intro">Please confirm your cargo profile details before sending data to our systems.</p>
+                
+                <table class="review-details-table">
+                    <tr>
+                        <td><strong>Service Type:</strong></td>
+                        <td id="popDeliveryMode">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sender Company:</strong></td>
+                        <td id="popSenderName">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Contact Person:</strong></td>
+                        <td id="popReceiverName">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Cargo Content:</strong></td>
+                        <td id="popItemDesc">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Total Weight:</strong></td>
+                        <td id="popWeight">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Box Dimensions:</strong></td>
+                        <td id="popVolume">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Assigned Payer:</strong></td>
+                        <td id="popPayer">-</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Payment Channel:</strong></td>
+                        <td id="popMethod">-</td>
+                    </tr>
+                    <tr class="highlighted-total-row">
+                        <td><strong>Total Charge:</strong></td>
+                        <td id="popGrandTotal">-</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="modal-footer-toolbar">
+                <button type="button" class="modal-cancel-btn" id="btnCancelModal">Cancel</button>
+                <button type="button" class="modal-submit-btn" id="btnFinalSubmitModal">Finalize & Submit</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="book-cargo-payment.js"></script>
+</body>
+</html>

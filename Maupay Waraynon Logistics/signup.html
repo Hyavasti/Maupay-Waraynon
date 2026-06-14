@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Create An Account</title>
+    <link rel="stylesheet" href="signup.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <header>
+        <div class="logo-container">
+            <img src="images/logo.png" alt="Maupay Waraynon Logo" class="header-logo-img">
+            <div class="logo-text">
+                <h2>MAUPAY WARAYNON</h2>
+                <span>Bacoor</span>
+            </div>
+        </div>
+
+        <input type="checkbox" id="nav-toggle" class="nav-toggle">
+        <label for="nav-toggle" class="nav-toggle-label">
+            <span></span>
+        </label>
+
+        <nav>
+            <a href="home.html">HOME</a>
+            <a href="home.html#services">SERVICES</a>
+            <a href="home.html#about">ABOUT US</a>
+            <a href="home.html#tracking">TRACK BY</a>
+            <a href="#" class="btn-quote">GET QUOTE</a>
+            <a href="signin.html" class="btn-signin">SIGN IN</a>
+        </nav>
+    </header>
+
+    <main class="portal-container">
+        <div class="portal-wrapper">
+            
+            <section class="login-card">
+                <span class="portal-sub">USER PORTAL</span>
+                <h1>Create an Account</h1>
+                <p class="portal-desc">Create your free account and start booking, tracking, and managing shipments online — anytime, anywhere.</p>
+                
+                <form id="signup-form" class="signin-form">
+                    <div class="input-row">
+                        <div class="input-group">
+                            <label for="firstName">First Name</label>
+                            <input type="text" id="firstName" placeholder="Juan" required>
+                            <div id="firstname-error" class="error-msg"></div>
+                        </div>
+                        <div class="input-group">
+                            <label for="lastName">Last Name</label>
+                            <input type="text" id="lastName" placeholder="Dela Cruz" required>
+                            <div id="lastname-error" class="error-msg"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="you@gmail.com" required>
+                        <div id="email-error" class="error-msg"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="phone">Phone Number</label>
+                        <div class="phone-input-container">
+                            <select id="countryCode" class="phone-dropdown">
+                                <option value="">Loading...</option>
+                            </select>
+                            <input type="tel" id="phone" placeholder="9123456789" required>
+                        </div>
+                        <div id="phone-error" class="error-msg"></div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="password">Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="password" placeholder="***************" required>
+                            <i class="fas fa-eye toggle-password-icon" id="togglePassword"></i>
+                        </div>
+                        <div id="password-error" class="error-msg"></div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="confirmPassword">Confirm Password</label>
+                        <div class="password-wrapper">
+                            <input type="password" id="confirmPassword" placeholder="***************" required>
+                            <i class="fas fa-eye toggle-password-icon" id="toggleConfirmPassword"></i>
+                        </div>
+                        <div id="confirm-error" class="error-msg"></div>
+                    </div>
+                    
+                    <div class="tos-box">
+                        <p>By creating an account, you agree to our <a href="#">Terms of Service and Privacy Policy</a>. Your data is handled securely in accordance with company policy.</p>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit-login">Create an Account</button>
+                    
+                    <p class="signup-redirect">Already have an account? <a href="signin.html">Sign In</a></p>
+                </form>
+            </section>
+            
+            <section class="portal-graphic">
+                <img src="images/bglogin.png" alt="Delivery Rider Logistics Service Graphic" class="rider-img">
+            </section>
+
+        </div>
+    </main>
+
+    <div id="successModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-icon">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+            <h2>Registration Successful!</h2>
+            <p>An email verification link has been sent to:</p>
+            <p class="target-email-highlight" id="modalTargetEmail">user@example.com</p>
+            <p class="modal-instruction">Please check your inbox (and spam folder) to activate your user portal access link.</p>
+            <button id="closeModalBtn" class="btn-modal-close">Proceed to Sign In</button>
+        </div>
+    </div>
+
+    <script src="signup.js"></script>
+</body>
+</html>

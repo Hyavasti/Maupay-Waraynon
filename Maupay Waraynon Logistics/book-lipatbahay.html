@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Lipat Bahay Details</title>
+    <link rel="stylesheet" href="dashboard.css"> 
+    <link rel="stylesheet" href="book-shipment.css"> 
+    <link rel="stylesheet" href="book-lipatbahay.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Lipat Bahay (Moving Services)</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <form id="lipatBahayDetailsForm" class="booking-wizard-card" style="align-items: stretch; padding-top: 30px;">
+                
+                <div class="wizard-progress-bar" style="margin-bottom: 35px;">
+                    <div class="progress-step current">
+                        <span class="step-dot" style="background-color: #0d47a1;"></span>
+                        <span class="step-label">Details</span>
+                    </div>
+                    <i class="fas fa-chevron-right step-arrow"></i>
+                    <div class="progress-step pending">
+                        <span class="step-dot"></span>
+                        <span class="step-label">Move Info</span>
+                    </div>
+                    <i class="fas fa-chevron-right step-arrow"></i>
+                    <div class="progress-step pending">
+                        <span class="step-dot"></span>
+                        <span class="step-label">Payment</span>
+                    </div>
+                </div>
+
+                <div class="address-forms-stack">
+                    
+                    <fieldset class="address-block-card">
+                        <div class="card-header-row">
+                            <legend class="card-legend-title">Current Address (From)</legend>
+                            <div class="select-shortcut-wrapper">
+                                <select id="dropdownPickupShortcut" class="shortcut-select-menu">
+                                    <option value="" disabled selected>Use saved information</option>
+                                    <option value="profile">My Account Profile Data</option>
+                                    <option value="clear">Clear Form Fields</option>
+                                </select>
+                                <i class="fas fa-chevron-down shortcut-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-fields-row-grid">
+                            <div class="form-input-cell">
+                                <label for="pickupContact">Contact Person</label>
+                                <input type="text" id="pickupContact" placeholder="Juan Dela Cruz" required>
+                            </div>
+                            <div class="form-input-cell">
+                                <label for="pickupMobile">Mobile Number</label>
+                                <input type="text" id="pickupMobile" placeholder="09XX XXX XXXX" required>
+                            </div>
+                        </div>
+
+                        <div class="form-fields-row-grid triplets">
+                            <div class="form-input-cell">
+                                <label for="pickupProvince">Province</label>
+                                <div class="select-shortcut-wrapper inline-input-select">
+                                    <select id="pickupProvince" required>
+                                        <option value="" disabled selected>Select province</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down shortcut-icon"></i>
+                                </div>
+                            </div>
+                            <div class="form-input-cell">
+                                <label for="pickupCity">City/Municipality</label>
+                                <div class="select-shortcut-wrapper inline-input-select">
+                                    <select id="pickupCity" required disabled>
+                                        <option value="" disabled selected>Select city/municipality</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down shortcut-icon"></i>
+                                </div>
+                            </div>
+                            <div class="form-input-cell">
+                                <label for="pickupBarangay">Barangay</label>
+                                <div class="select-shortcut-wrapper inline-input-select">
+                                    <select id="pickupBarangay" required disabled>
+                                        <option value="" disabled selected>Select barangay</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down shortcut-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-fields-row-grid single-full-width-cell">
+                            <div class="form-input-cell">
+                                <label for="pickupStreetAddress">Street Address</label>
+                                <textarea id="pickupStreetAddress" placeholder="Street, Barangay, City, Province" rows="2" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-action-row">
+                            <label class="custom-tick-container">
+                                <input type="checkbox" id="chkSavePickupAddress">
+                                <span class="checkmark-box"></span>
+                                Save address
+                            </label>
+                        </div>
+                    </fieldset>
+
+                    <fieldset class="address-block-card">
+                        <div class="card-header-row">
+                            <legend class="card-legend-title">New Address (To)</legend>
+                            <div class="select-shortcut-wrapper">
+                                <select id="dropdownDropoffShortcut" class="shortcut-select-menu">
+                                    <option value="" disabled selected>Use saved address</option>
+                                    <option value="clear">Clear Address Fields</option>
+                                </select>
+                                <i class="fas fa-chevron-down shortcut-icon"></i>
+                            </div>
+                        </div>
+
+                        <div class="form-fields-row-grid">
+                            <div class="form-input-cell">
+                                <label for="dropoffContact">Contact Person</label>
+                                <input type="text" id="dropoffContact" placeholder="Juan Dela Cruz" required>
+                            </div>
+                            <div class="form-input-cell">
+                                <label for="dropoffMobile">Mobile Number</label>
+                                <input type="text" id="dropoffMobile" placeholder="09XX XXX XXXX" required>
+                            </div>
+                        </div>
+
+                        <div class="form-fields-row-grid triplets">
+                            <div class="form-input-cell">
+                                <label for="dropoffProvince">Province</label>
+                                <div class="select-shortcut-wrapper inline-input-select">
+                                    <select id="dropoffProvince" required>
+                                        <option value="" disabled selected>Select province</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down shortcut-icon"></i>
+                                </div>
+                            </div>
+                            <div class="form-input-cell">
+                                <label for="dropoffCity">City/Municipality</label>
+                                <div class="select-shortcut-wrapper inline-input-select">
+                                    <select id="dropoffCity" required disabled>
+                                        <option value="" disabled selected>Select city/municipality</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down shortcut-icon"></i>
+                                </div>
+                            </div>
+                            <div class="form-input-cell">
+                                <label for="dropoffBarangay">Barangay</label>
+                                <div class="select-shortcut-wrapper inline-input-select">
+                                    <select id="dropoffBarangay" required disabled>
+                                        <option value="" disabled selected>Select barangay</option>
+                                    </select>
+                                    <i class="fas fa-chevron-down shortcut-icon"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-fields-row-grid single-full-width-cell">
+                            <div class="form-input-cell">
+                                <label for="dropoffStreetAddress">Street Address</label>
+                                <textarea id="dropoffStreetAddress" placeholder="Street, Barangay, City, Province" rows="2" required></textarea>
+                            </div>
+                        </div>
+
+                        <div class="checkbox-action-row">
+                            <label class="custom-tick-container">
+                                <input type="checkbox" id="chkSaveDropoffAddress">
+                                <span class="checkmark-box"></span>
+                                Save address
+                            </label>
+                        </div>
+                    </fieldset>
+
+                </div>
+
+                <div class="form-wizard-navigation-buttons">
+                    <button type="button" id="btnBackToServices" class="btn-wizard-back">&lt; Back</button>
+                    <button type="submit" class="btn-wizard-next">Next &gt;</button>
+                </div>
+
+            </form>
+        </main>
+    </div>
+
+    <script src="book-lipatbahay.js"></script>
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Commercial Cargo</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="book-cargo-details.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="cargo-details-body-bg">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Commercial Cargo</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <div class="wizard-progress-bar">
+                <div class="progress-step current">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Details</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Cargo</span>
+                </div>
+                <div class="step-separator">&gt;</div>
+                <div class="progress-step">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Payment</span>
+                </div>
+            </div>
+
+            <form id="cargoDetailsForm" class="cargo-form-scroll-container" novalidate>
+                
+                <div class="form-card-panel">
+                    <h3 class="panel-section-title">Company Information</h3>
+                    
+                    <div class="form-row-grid split-2">
+                        <div class="input-element-group">
+                            <label>Company Name</label>
+                            <input type="text" id="companyName" placeholder="STI College Las Pinas" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Contact Person</label>
+                            <input type="text" id="companyContact" placeholder="Mc Lloyd Dolorito" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row-grid split-2">
+                        <div class="input-element-group">
+                            <label>Mobile Number</label>
+                            <input type="text" id="companyMobile" placeholder="09XXXXXXXXX" maxlength="11" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>TIN/ Registration</label>
+                            <input type="text" id="companyTin" placeholder="TIN or Business Registration" required>
+                        </div>
+                    </div>
+
+                    <div class="input-element-group">
+                        <label>Company Address</label>
+                        <textarea id="companyAddress" placeholder="Street, Barangay, City, Province" rows="2" required></textarea>
+                    </div>
+                </div>
+
+                <div class="form-card-panel">
+                    <div class="panel-header-with-action">
+                        <h3 class="panel-section-title">Pickup Location</h3>
+                        <select class="address-shortcut-select" id="pickupSavedShortcut">
+                            <option value="">Use saved address shortcut</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row-grid split-2">
+                        <div class="input-element-group">
+                            <label>Contact Person</label>
+                            <input type="text" id="pickupContact" placeholder="Juan Dela Cruz" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Mobile Number</label>
+                            <input type="text" id="pickupMobile" placeholder="09XXXXXXXXX" maxlength="11" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row-grid split-4">
+                        <div class="input-element-group">
+                            <label>Region</label>
+                            <select id="pickupRegion" required>
+                                <option value="">Loading regions...</option>
+                            </select>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Province</label>
+                            <select id="pickupProvince" required disabled>
+                                <option value="">Select province</option>
+                            </select>
+                        </div>
+                        <div class="input-element-group">
+                            <label>City/Municipality</label>
+                            <select id="pickupCity" required disabled>
+                                <option value="">Select city/municipality</option>
+                            </select>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Barangay</label>
+                            <select id="pickupBarangay" required disabled>
+                                <option value="">Select barangay</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-element-group" style="margin-bottom: 12px;">
+                        <label>Street Address</label>
+                        <textarea id="pickupStreet" placeholder="Street name, Building No, Unit Floor" rows="2" required></textarea>
+                    </div>
+
+                    <div class="checkbox-element-wrapper">
+                        <input type="checkbox" id="savePickupAddress">
+                        <label for="savePickupAddress">Save this address to my profile shortcut registry</label>
+                    </div>
+                </div>
+
+                <div class="form-card-panel">
+                    <div class="panel-header-with-action">
+                        <h3 class="panel-section-title">Delivery Location</h3>
+                        <select class="address-shortcut-select" id="deliverySavedShortcut">
+                            <option value="">Use saved address shortcut</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-row-grid split-2">
+                        <div class="input-element-group">
+                            <label>Contact Person</label>
+                            <input type="text" id="deliveryContact" placeholder="Maria Clara" required>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Mobile Number</label>
+                            <input type="text" id="deliveryMobile" placeholder="09XXXXXXXXX" maxlength="11" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row-grid split-4">
+                        <div class="input-element-group">
+                            <label>Region</label>
+                            <select id="deliveryRegion" required>
+                                <option value="">Loading regions...</option>
+                            </select>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Province</label>
+                            <select id="deliveryProvince" required disabled>
+                                <option value="">Select province</option>
+                            </select>
+                        </div>
+                        <div class="input-element-group">
+                            <label>City/Municipality</label>
+                            <select id="deliveryCity" required disabled>
+                                <option value="">Select city/municipality</option>
+                            </select>
+                        </div>
+                        <div class="input-element-group">
+                            <label>Barangay</label>
+                            <select id="deliveryBarangay" required disabled>
+                                <option value="">Select barangay</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="input-element-group" style="margin-bottom: 12px;">
+                        <label>Street Address</label>
+                        <textarea id="deliveryStreet" placeholder="Street name, Building No, Unit Floor" rows="2" required></textarea>
+                    </div>
+
+                    <div class="checkbox-element-wrapper">
+                        <input type="checkbox" id="saveDeliveryAddress">
+                        <label for="saveDeliveryAddress">Save this address to my profile shortcut registry</label>
+                    </div>
+                </div>
+
+                <div class="wizard-action-toolbar">
+                    <button type="button" id="btnBackToSelection" class="cargo-btn-secondary">&lt; Back</button>
+                    <button type="submit" class="cargo-btn-primary">Next &gt;</button>
+                </div>
+
+            </form>
+
+        </main>
+    </div>
+
+    <script src="book-cargo-details.js"></script>
+</body>
+</html>

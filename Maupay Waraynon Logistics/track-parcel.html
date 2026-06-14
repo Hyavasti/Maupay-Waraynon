@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Track Parcel</title>
+    <link rel="stylesheet" href="dashboard.css">
+    <link rel="stylesheet" href="track-parcel.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="track-parcel-body-bg">
+
+    <div class="dashboard-container">
+        
+        <!-- SIDEBAR NAVIGATION PANEL -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="track-parcel.html" class="menu-item active"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <!-- MAIN CONTENT AREA -->
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Track Parcel</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <!-- MAP WRAPPER PORTAL -->
+            <div class="map-view-wrapper">
+                
+                <!-- YOUR GOOGLE MY MAPS LIVE LAYER EMBED -->
+                <iframe 
+                    src="https://www.google.com/maps/d/u/2/embed?mid=19pZLcN8MskKB0hNdEEOKjysg94Knb94&ehbc=2E312F&noprof=1" 
+                    class="embedded-custom-mymap" 
+                    allowfullscreen="" 
+                    loading="lazy">
+                </iframe>
+
+                <!-- FLOATING OVERLAY SEARCH BAR HEADER CARD (Matching image_48fa3b.png) -->
+                <div class="floating-tracker-card">
+                    <span class="search-prompt-label">Enter the control number from your waybill or confirmation</span>
+                    <div class="search-action-input-row">
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-search barcode-search-icon"></i>
+                            <input type="text" id="txtWaybillControlNumber" placeholder="e.g., BAC-01234567-8" autocomplete="off">
+                        </div>
+                        <button type="button" id="btnExecuteTrackingSearch" class="btn-primary-track-action">TRACK</button>
+                    </div>
+                </div>
+
+                <!-- DYNAMIC LOGISTICS MILESTONE DRAWER PANEL (Slides up upon execution) -->
+                <div class="logistics-milestone-drawer" id="logisticsTimelineDrawer">
+                    <button type="button" class="close-drawer-btn" id="btnCloseDrawer">&times;</button>
+                    
+                    <div class="parcel-meta-summary">
+                        <h4 id="lblParcelIdDisplay">BAC-XXXXXXXX-X</h4>
+                        <span id="lblParcelStatusBadge" class="status-pill moving">IN TRANSIT</span>
+                    </div>
+
+                    <hr class="drawer-divider">
+
+                    <!-- TIMELINE ROADMAP STATIONS -->
+                    <div class="milestone-vertical-pipeline">
+                        <div class="pipeline-node complete">
+                            <div class="node-marker"><i class="fas fa-check"></i></div>
+                            <div class="node-details">
+                                <h5>Shipment Manifest Document Compiled</h5>
+                                <span>Bacoor Hub Station &bull; 08:30 AM</span>
+                            </div>
+                        </div>
+
+                        <div class="pipeline-node current">
+                            <div class="node-marker"><i class="fas fa-truck"></i></div>
+                            <div class="node-details">
+                                <h5>In Transit - Out for Delivery</h5>
+                                <span>En Route via Molino Highway &bull; 11:45 AM</span>
+                            </div>
+                        </div>
+
+                        <div class="pipeline-node pending">
+                            <div class="node-marker"><i class="fas fa-home"></i></div>
+                            <div class="node-details">
+                                <h5>Arrived at Target Destination</h5>
+                                <span>Pending Delivery Handshake Dropoff</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- INITIAL WELCOME NOTICE GRAPHIC OVERLAY (Matching image_48fa3b.png layout position) -->
+                <div class="map-center-welcome-overlay" id="mapCenterWelcomeMessage">
+                    <div class="welcome-icon-bubble">
+                        <i class="fas fa-map-marker-alt"></i>
+                    </div>
+                    <h3>TRACK YOUR SHIPMENT</h3>
+                    <p>Enter your control number above to see the real-time status of your parcel.</p>
+                </div>
+
+            </div>
+
+        </main>
+    </div>
+
+    <script src="track-parcel.js"></script>
+</body>
+</html>

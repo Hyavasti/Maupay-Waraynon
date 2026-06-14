@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Standard Parcel Details</title>
+    <link rel="stylesheet" href="dashboard.css"> 
+    <link rel="stylesheet" href="book-shipment.css"> 
+    <link rel="stylesheet" href="book-standard-parcel-details.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="parcel-details-bg">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Standard Parcel</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <div class="wizard-progress-bar">
+                <div class="progress-step current">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Details</span>
+                </div>
+                <i class="fas fa-chevron-right step-arrow"></i>
+                <div class="progress-step upcoming">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Package</span>
+                </div>
+                <i class="fas fa-chevron-right step-arrow"></i>
+                <div class="progress-step upcoming">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Payment</span>
+                </div>
+            </div>
+
+            <form id="standardParcelDetailsForm" class="parcel-workspace-form">
+                
+                <div class="parcel-card-panel">
+                    <div class="card-section-title">
+                        <h3>Delivery Option</h3>
+                    </div>
+
+                    <div class="delivery-options-grid">
+                        <div class="delivery-option-card active-card" data-option="DoorToDoor">
+                            <label class="delivery-card-wrapper">
+                                <input type="radio" name="deliveryOption" value="DoorToDoor" checked class="native-delivery-radio">
+                                <div class="delivery-meta-info">
+                                    <span class="delivery-title-text">Door-to-Door</span>
+                                    <span class="delivery-desc-text">We pick up from your location and deliver to the receiver's address</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="delivery-option-card" data-option="PickupOutlet">
+                            <label class="delivery-card-wrapper">
+                                <input type="radio" name="deliveryOption" value="PickupOutlet" class="native-delivery-radio">
+                                <div class="delivery-meta-info">
+                                    <span class="delivery-title-text">Pickup to Outlet</span>
+                                    <span class="delivery-desc-text">We pick up from your location, receiver claims at outlet</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="parcel-card-panel">
+                    <div class="card-header-with-action">
+                        <h3>Sender Information</h3>
+                        <div class="dropdown-select-wrapper">
+                            <select class="action-select-box" id="selectSavedSender">
+                                <option value="">Use saved address</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-input-split-grid">
+                        <div class="form-group-element">
+                            <label class="custom-field-label">Contact Person</label>
+                            <input type="text" id="senderName" class="custom-input-control" placeholder="Juan Dela Cruz" required>
+                        </div>
+                        <div class="form-group-element">
+                            <label class="custom-field-label">Mobile Number</label>
+                            <input type="text" id="senderMobile" class="custom-input-control" placeholder="09XX XXX XXXX" required>
+                        </div>
+                    </div>
+
+                    <div class="form-input-split-grid spacing-top-modifier">
+                        <div class="form-group-element">
+                            <label class="custom-field-label">Region</label>
+                            <select id="senderRegion" class="custom-select-control" required>
+                                <option value="" disabled selected>Select region</option>
+                            </select>
+                        </div>
+                        <div class="form-group-element">
+                            <label class="custom-field-label">Province</label>
+                            <select id="senderProvince" class="custom-select-control" required>
+                                <option value="" disabled selected>Select province</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-input-split-grid spacing-top-modifier">
+                        <div class="form-group-element">
+                            <label class="custom-field-label">City/Municipality</label>
+                            <select id="senderCity" class="custom-select-control" required>
+                                <option value="" disabled selected>Select city/municipality</option>
+                            </select>
+                        </div>
+                        <div class="form-group-element">
+                            <label class="custom-field-label">Barangay</label>
+                            <select id="senderBarangay" class="custom-select-control" required>
+                                <option value="" disabled selected>Select barangay</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group-element spacing-top-modifier">
+                        <label class="custom-field-label">Street Address</label>
+                        <input type="text" id="senderStreet" class="custom-input-control" placeholder="Street, Barangay, City, Province" required>
+                    </div>
+
+                    <div class="save-address-wrapper">
+                        <label class="save-address-label">
+                            <input type="checkbox" id="saveSenderAddress" class="native-save-checkbox">
+                            <span class="save-address-text">Save address to address book</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="parcel-card-panel">
+                    <div class="card-header-with-action">
+                        <h3>Receiver Information</h3>
+                        <div class="dropdown-select-wrapper">
+                            <select class="action-select-box" id="selectSavedReceiver">
+                                <option value="">Use saved address</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-input-split-grid">
+                        <div class="form-group-element">
+                            <label class="custom-field-label">Contact Person</label>
+                            <input type="text" id="receiverName" class="custom-input-control" placeholder="Juan Dela Cruz" required>
+                        </div>
+                        <div class="form-group-element">
+                            <label class="custom-field-label">Mobile Number</label>
+                            <input type="text" id="receiverMobile" class="custom-input-control" placeholder="09XX XXX XXXX" required>
+                        </div>
+                    </div>
+
+                    <div id="receiverDoorToDoorFields">
+                        <div class="form-input-split-grid spacing-top-modifier">
+                            <div class="form-group-element">
+                                <label class="custom-field-label">Region</label>
+                                <select id="receiverRegion" class="custom-select-control">
+                                    <option value="" disabled selected>Select region</option>
+                                </select>
+                            </div>
+                            <div class="form-group-element">
+                                <label class="custom-field-label">Province</label>
+                                <select id="receiverProvince" class="custom-select-control">
+                                    <option value="" disabled selected>Select province</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-input-split-grid spacing-top-modifier">
+                            <div class="form-group-element">
+                                <label class="custom-field-label">City/Municipality</label>
+                                <select id="receiverCity" class="custom-select-control">
+                                    <option value="" disabled selected>Select city/municipality</option>
+                                </select>
+                            </div>
+                            <div class="form-group-element">
+                                <label class="custom-field-label">Barangay</label>
+                                <select id="receiverBarangay" class="custom-select-control">
+                                    <option value="" disabled selected>Select barangay</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group-element spacing-top-modifier">
+                            <label class="custom-field-label">Street Address</label>
+                            <input type="text" id="receiverStreet" class="custom-input-control" placeholder="Street, Barangay, City, Province">
+                        </div>
+                    </div>
+
+                    <div id="receiverPickupOutletFields" class="hidden-field-block">
+                        <div class="form-group-element spacing-top-modifier">
+                            <label class="custom-field-label">Outlet</label>
+                            <select id="receiverOutlet" class="custom-select-control">
+                                <option value="" disabled selected>Select outlet</option>
+                                <option value="Bacoor Main Hub">Bacoor Main Hub - Molino Boulevard</option>
+                                <option value="Imus Logistics Center">Imus Logistics Center - Anabu II</option>
+                                <option value="Dasmariñas Branch">Dasmariñas Branch - Pala-Pala</option>
+                                <option value="Las Piñas Express Outlet">Las Piñas Express Outlet - Alabang-Zapote Rd</option>
+                                <option value="Pasay Sorting Headquarters">Pasay Sorting Headquarters - Domestic Rd</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="save-address-wrapper">
+                        <label class="save-address-label">
+                            <input type="checkbox" id="saveReceiverAddress" class="native-save-checkbox">
+                            <span class="save-address-text">Save address to address book</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-navigation-actions-row">
+                    <button type="button" id="btnBackToShipmentMenu" class="screenshot-btn-back">&lt; Back</button>
+                    <button type="submit" class="screenshot-btn-confirm">Next ></button>
+                </div>
+
+            </form>
+
+        </main>
+    </div>
+
+    <script src="book-standard-parcel-details.js"></script>
+</body>
+</html>

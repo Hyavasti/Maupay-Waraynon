@@ -1,0 +1,402 @@
+/* GLOBAL STYLE SETTINGS */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #e3f2fd;
+    color: #333333;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* HEADER NAVIGATION BAR */
+header {
+    background-color: #0d47a1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5%;
+    height: 60px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.header-logo-img {
+    height: 38px;
+    width: auto;
+}
+
+.logo-text h2 {
+    color: #ffffff;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.logo-text span {
+    display: block;
+    font-size: 0.72rem;
+    color: #b0bec5;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+}
+
+nav a {
+    color: #ffffff;
+    text-decoration: none;
+    margin: 0 14px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.btn-quote, .btn-signin {
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+.btn-quote { background-color: #0288d1; }
+.btn-signin { background-color: #ef5350; }
+
+.nav-toggle, .nav-toggle-label { display: none; }
+
+/* PORTAL COMPONENT SYSTEM CONTAINER */
+.portal-container {
+    flex: 1;
+    height: calc(100vh - 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 5%;
+}
+
+.portal-wrapper {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+}
+
+/* REGISTRATION CARD */
+.login-card {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 480px; 
+    padding: 20px 30px; 
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(13, 71, 161, 0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.portal-sub {
+    color: #ef5350;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.login-card h1 {
+    color: #0d47a1;
+    font-size: 1.9rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.portal-desc {
+    color: #666666;
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+    line-height: 1.3;
+}
+
+/* Row wrapper for First Name and Last Name */
+.input-row {
+    display: flex;
+    gap: 15px;
+}
+
+.input-row .input-group {
+    flex: 1;
+}
+
+.input-group {
+    margin-bottom: 8px;
+    text-align: left;
+}
+
+.input-group label {
+    display: block;
+    color: #0d47a1;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 3px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 9px 12px; 
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #333333;
+    outline: none;
+    background-color: #fafafa;
+}
+
+.input-group input:focus {
+    border-color: #0d47a1;
+    background-color: #ffffff;
+}
+
+/* International Dropdown */
+.phone-input-container {
+    display: flex;
+    gap: 8px;
+}
+
+.phone-dropdown {
+    padding: 9px;
+    border: 1px solid #cccccc;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background-color: #fafafa;
+    color: #333333;
+    outline: none;
+    max-width: 120px;
+}
+
+/* Terms and Conditions */
+.tos-box {
+    background-color: #f4f8fc;
+    border: 1px solid #d1e3f8;
+    padding: 8px 12px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.tos-box p {
+    font-size: 0.72rem;
+    color: #444444;
+    line-height: 1.3;
+}
+
+.tos-box a {
+    color: #0288d1;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* Action Form Control Buttons */
+.btn-submit-login {
+    width: 100%;
+    background-color: #ef5350;
+    color: #ffffff;
+    border: none;
+    padding: 11px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(239, 83, 80, 0.15);
+}
+
+.btn-submit-login:hover {
+    background-color: #d32f2f;
+}
+
+.signup-redirect {
+    text-align: center;
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #666666;
+}
+
+.signup-redirect a {
+    color: #0288d1;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+/* Real-time Validation */
+.error-msg {
+    color: #ef5350;
+    font-size: 0.7rem;
+    font-weight: 600;
+    margin-top: 1px;
+    min-height: 11px;
+}
+
+/* Password Wrapper */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 40px !important; 
+}
+
+.toggle-password-icon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777777;
+    font-size: 0.95rem;
+    transition: color 0.2s, opacity 0.2s;
+    opacity: 0; 
+    pointer-events: none;
+}
+
+.toggle-password-icon.visible {
+    opacity: 1;
+    pointer-events: auto; 
+}
+
+.toggle-password-icon:hover {
+    color: #0d47a1;
+}
+
+/* ILLUSTRATION GRAPHIC */
+.portal-graphic {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    max-height: 80vh;
+}
+
+.rider-img {
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    object-fit: contain;
+}
+
+/* SUCCESS MODAL POP-UP STYLES */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(13, 71, 161, 0.4);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    display: none;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-card {
+    background: #ffffff;
+    padding: 30px 35px;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    animation: slideUpModal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUpModal {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-icon {
+    width: 65px;
+    height: 65px;
+    background-color: #e3f2fd;
+    color: #0d47a1;
+    font-size: 1.8rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin: 0 auto 18px auto;
+}
+
+.modal-card h2 {
+    color: #0d47a1;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.modal-card p {
+    color: #555555;
+    font-size: 0.88rem;
+    line-height: 1.4;
+}
+
+.target-email-highlight {
+    font-weight: 700;
+    color: #ef5350 !important;
+    margin: 6px 0 14px 0;
+    font-size: 0.95rem !important;
+    word-break: break-all;
+}
+
+.modal-instruction {
+    font-size: 0.78rem !important;
+    color: #777777 !important;
+    margin-bottom: 22px;
+}
+
+.btn-modal-close {
+    background-color: #0d47a1;
+    color: #ffffff;
+    border: none;
+    width: 100%;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.btn-modal-close:hover {
+    background-color: #0a357a;
+}
+
+/* MEDIA RESPONSIVE */
+@media (max-width: 992px) {
+    body { overflow-y: auto; height: auto; }
+    .portal-container { height: auto; padding: 30px 5%; }
+    .portal-wrapper { flex-direction: column; gap: 30px; }
+    .portal-graphic { order: -1; }
+    .rider-img { max-width: 300px; }
+}
+
+@media (max-width: 480px) {
+    .input-row { flex-direction: column; gap: 0; }
+    .login-card { padding: 20px 15px; }
+}

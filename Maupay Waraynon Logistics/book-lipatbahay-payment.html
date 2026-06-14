@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Payment Details</title>
+    <link rel="stylesheet" href="dashboard.css"> 
+    <link rel="stylesheet" href="book-shipment.css"> 
+    <link rel="stylesheet" href="book-lipatbahay-payment.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="payment-body-bg">
+
+    <div class="dashboard-container">
+        
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <main class="main-content">
+            
+            <header class="content-header">
+                <h2>Lipat Bahay (Moving Services)</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <div class="wizard-progress-bar">
+                <div class="progress-step completed">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Details</span>
+                </div>
+                <i class="fas fa-chevron-right step-arrow"></i>
+                <div class="progress-step completed">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Move Info</span>
+                </div>
+                <i class="fas fa-chevron-right step-arrow"></i>
+                <div class="progress-step current">
+                    <span class="step-dot"></span>
+                    <span class="step-label">Payment</span>
+                </div>
+            </div>
+
+            <form id="lipatBahayPaymentForm" class="payment-workspace-form">
+                
+                <div class="payment-split-columns-container">
+                    
+                    <div class="payment-card-panel">
+                        <div class="card-section-title">
+                            <h3>Payment Method</h3>
+                        </div>
+
+                        <div class="vertical-payment-stack">
+                            
+                            <div class="payment-selection-row active-row" data-value="COD">
+                                <label class="row-label-wrapper">
+                                    <input type="radio" name="paymentOption" value="COD" checked class="native-payment-radio">
+                                    <div class="row-text-block">
+                                        <span class="payment-method-title">Cash on Delivery</span>
+                                        <span class="payment-method-desc">Pay when your packages arrives</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="payment-selection-row" data-value="GCash">
+                                <label class="row-label-wrapper">
+                                    <input type="radio" name="paymentOption" value="GCash" class="native-payment-radio">
+                                    <div class="row-text-block">
+                                        <span class="payment-method-title">GCash</span>
+                                        <span class="payment-method-desc">Pay via GCash e-wallet</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <div class="payment-selection-row" data-value="Bank">
+                                <label class="row-label-wrapper">
+                                    <input type="radio" name="paymentOption" value="Bank" class="native-payment-radio">
+                                    <div class="row-text-block">
+                                        <span class="payment-method-title">Bank Transfer</span>
+                                        <span class="payment-method-desc">Transfer to our bank account</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                        </div>
+
+                        <div class="dynamic-payment-fields-zone">
+                            <div id="gcashDetailsContainer" class="collapsible-input-alert">
+                                <div class="merchant-info-card">
+                                    <p><strong>Merchant Name:</strong> Maupay Waraynon Padala</p>
+                                    <p><strong>GCash Number:</strong> 0917 123 4567</p>
+                                    <input type="text" id="gcashReferenceNumber" class="custom-field-box" placeholder="Enter 13-digit Reference Number" maxlength="13">
+                                </div>
+                            </div>
+
+                            <div id="bankDetailsContainer" class="collapsible-input-alert">
+                                <div class="merchant-info-card">
+                                    <p><strong>Bank Vendor:</strong> BDO Unibank</p>
+                                    <p><strong>Account Number:</strong> 0012 3456 7890</p>
+                                    <input type="text" id="bankTransactionRef" class="custom-field-box" placeholder="Enter Bank Transaction Reference">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="payment-card-panel summary-panel-stretch">
+                        <div class="card-section-title">
+                            <h3>Order Summary</h3>
+                        </div>
+
+                        <div class="summary-breakdown-table">
+                            <div class="summary-item-line">
+                                <span class="summary-label-text">Base Rate</span>
+                                <span class="summary-value-text" id="summaryBaseRate">PHP 150.00</span>
+                            </div>
+                            <div class="summary-item-line">
+                                <span class="summary-label-text">Weight Surcharge</span>
+                                <span class="summary-value-text" id="summarySurcharge">PHP 0.00</span>
+                            </div>
+                            <div class="summary-item-line">
+                                <span class="summary-label-text">Insurance</span>
+                                <span class="summary-value-text" id="summaryInsurance">PHP 0.00</span>
+                            </div>
+
+                            <div class="summary-item-line total-price-row">
+                                <span class="total-label-text">Total</span>
+                                <span class="total-value-price" id="displayFinalPaymentDue">Php 150</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="form-navigation-actions-row">
+                    <button type="button" id="btnBackToInfo" class="screenshot-btn-back">&lt; Back</button>
+                    <button type="submit" class="screenshot-btn-confirm">Confirm Booking</button>
+                </div>
+
+            </form>
+
+        </main>
+    </div>
+
+    <script src="book-lipatbahay-payment.js"></script>
+</body>
+</html>

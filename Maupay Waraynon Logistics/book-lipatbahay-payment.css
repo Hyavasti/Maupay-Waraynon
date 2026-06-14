@@ -1,0 +1,237 @@
+/* GLOBAL SETTINGS */
+.payment-body-bg {
+    background-color: #eef5fc !important; /* Matches background shade across sections */
+}
+
+.payment-workspace-form {
+    width: 100%;
+    max-width: 1050px;
+    margin: 40px auto 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* SIDE-BY-SIDE CARD PANEL CORES */
+.payment-split-columns-container {
+    display: grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap: 30px;
+    align-items: start;
+    width: 100%;
+}
+
+.payment-card-panel {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.015);
+    border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.card-section-title {
+    margin-bottom: 22px;
+    width: 100%;
+}
+
+.card-section-title h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #0e4085;
+    margin: 0;
+}
+
+/* VERTICAL STACK SELECTION BOXES */
+.vertical-payment-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+}
+
+.payment-selection-row {
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    background-color: #ffffff;
+    transition: all 0.2s ease-in-out;
+}
+
+.payment-selection-row:hover {
+    border-color: #cbd5e1;
+    background-color: #f8fafc;
+}
+
+/* Matching selected outline */
+.payment-selection-row.active-row {
+    border: 2px solid #2563eb;
+    background-color: #ffffff;
+}
+
+.row-label-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 22px;
+    cursor: pointer;
+    width: 100%;
+}
+
+.native-payment-radio {
+    accent-color: #2563eb;
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    cursor: pointer;
+}
+
+.row-text-block {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.payment-method-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.payment-method-desc {
+    font-size: 0.82rem;
+    color: #94a3b8;
+}
+
+/* DYNAMIC PAYMENT FORM EXTENSIONS */
+.dynamic-payment-fields-zone {
+    margin-top: 15px;
+    width: 100%;
+}
+
+.collapsible-input-alert {
+    display: none;
+}
+
+.collapsible-input-alert.visible {
+    display: block;
+}
+
+.merchant-info-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.merchant-info-card p {
+    margin: 0 0 8px 0;
+    font-size: 0.88rem;
+    color: #475569;
+}
+
+.custom-field-box {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    outline: none;
+}
+
+.custom-field-box:focus {
+    border-color: #2563eb;
+}
+
+/* SUMMARY TABLE DETAILS BREAKDOWN */
+.summary-breakdown-table {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.summary-item-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.summary-label-text {
+    color: #64748b;
+    font-weight: 500;
+}
+
+.summary-value-text {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.total-price-row {
+    border-top: 1px solid #e2e8f0;
+    margin-top: 10px;
+    padding-top: 20px;
+}
+
+.total-label-text {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.total-value-price {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1d4ed8;
+}
+
+/* DUAL ACTION NAVIGATION BUTTON ROW */
+.form-navigation-actions-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 10px;
+}
+
+/* Back Button Box Layout */
+.screenshot-btn-back {
+    background-color: #ebf3fc;  
+    color: #1e293b;
+    border: 1px solid #d0e1f5;
+    border-radius: 10px;
+    padding: 14px 45px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.screenshot-btn-back:hover {
+    background-color: #deeaf7;
+    border-color: #bccee7;
+}
+
+/* Confirm Booking Button Layout */
+.screenshot-btn-confirm {
+    background-color: #e11d48; 
+    color: #ffffff;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 45px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+    transition: background-color 0.2s ease;
+}
+
+.screenshot-btn-confirm:hover {
+    background-color: #be123c;
+}
+
+/* RESPONSIVE CONSTRAINTS */
+@media(max-width: 850px) {
+    .payment-split-columns-container {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}
