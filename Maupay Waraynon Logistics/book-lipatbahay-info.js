@@ -20,9 +20,28 @@ document.addEventListener("DOMContentLoaded", () => {
         moveDate.setAttribute('min', todayISO);
     }
 
+    // =========================================================
+    // 🛡️ INPUT VALIDATION & CHARACTER RESTRICTIONS
+    // =========================================================
     
-    // INTERACTIVE REAL-TIME COMPUTATION ENGINE
-    
+    // 1. Estimated Items Count: Strictly allow integers only (No letters, spaces, or special characters)
+    if (estimatedItems) {
+        estimatedItems.addEventListener("input", (e) => {
+            e.target.value = e.target.value.replace(/\D/g, "");
+        });
+    }
+
+    // 2. Special/Valuable Items: Allow ONLY letters and spaces (No numbers or special characters)
+    if (valuableItems) {
+        valuableItems.addEventListener("input", (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+        });
+    }
+
+
+    // =========================================================
+    // 1. INTERACTIVE REAL-TIME COMPUTATION ENGINE
+    // =========================================================
     function calculateLiveQuote() {
         let baseVehiclePrice = 0;
         let flatAddonCharges = 0;
@@ -30,11 +49,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Check selected vehicle class option
         vehicleRadios.forEach(radio => {
+            const cardLabel = radio.closest('.vehicle-card-label');
             if (radio.checked) {
-                baseVehiclePrice = parseFloat(radio.getAttribute('data-price'));
-                radio.closest('.vehicle-card-label').classList.add('active-vehicle');
+                baseVehiclePrice = parseFloat(radio.getAttribute('data-price')) || 0;
+                if (cardLabel) cardLabel.classList.add('active-vehicle');
             } else {
-                radio.closest('.vehicle-card-label').classList.remove('active-vehicle');
+                if (cardLabel) cardLabel.classList.remove('active-vehicle');
             }
         });
 
@@ -42,10 +62,10 @@ document.addEventListener("DOMContentLoaded", () => {
         addonCheckboxes.forEach(checkbox => {
             if (checkbox.checked) {
                 if (checkbox.hasAttribute('data-flat-price')) {
-                    flatAddonCharges += parseFloat(checkbox.getAttribute('data-flat-price'));
+                    flatAddonCharges += parseFloat(checkbox.getAttribute('data-flat-price')) || 0;
                 }
                 if (checkbox.hasAttribute('data-percentage')) {
-                    scalePercentageMultiplier += parseFloat(checkbox.getAttribute('data-percentage'));
+                    scalePercentageMultiplier += parseFloat(checkbox.getAttribute('data-percentage')) || 0;
                 }
             }
         });
@@ -63,15 +83,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // Wire up UX wrapper modifiers and pricing triggers
     vehicleRadios.forEach(radio => radio.addEventListener('change', calculateLiveQuote));
     addonCheckboxes.forEach(box => box.addEventListener('change', calculateLiveQuote));
 
     // Initialize layout display value at startup
     calculateLiveQuote();
 
-    
-    // BACK AND NEXT REDIRECT ACTIONS
-    
+    // =========================================================
+    // 2. BACK AND NEXT REDIRECT ACTIONS (CONSOLIDATED SUBMIT)
+    // =========================================================
     if (btnBack) {
         btnBack.addEventListener("click", () => {
             // Directs cleanly back to address form file
@@ -83,87 +104,84 @@ document.addEventListener("DOMContentLoaded", () => {
         infoForm.addEventListener("submit", (e) => {
             e.preventDefault();
 
-            let chosenVehicle = "";
+            // 1. Gather vehicle type label text from layout meta data safely
+            let chosenVehicle = "Unknown";
+            let baseVehiclePrice = 0;
             vehicleRadios.forEach(r => { 
-                if (r.checked) chosenVehicle = r.closest('.vehicle-details-meta').querySelector('.vehicle-name-title').innerText; 
+                if (r.checked) {
+                    baseVehiclePrice = parseFloat(r.getAttribute('data-price')) || 0;
+                    const detailsMeta = r.closest('.vehicle-details-meta');
+                    if (detailsMeta) {
+                        const titleEl = detailsMeta.querySelector('.vehicle-name-title');
+                        chosenVehicle = titleEl ? titleEl.innerText.trim() : r.value;
+                    } else {
+                        chosenVehicle = r.value;
+                    }
+                } 
             });
 
+            // 2. Extract active addon textual descriptions
             let activeAddonsList = [];
             addonCheckboxes.forEach(box => {
                 if (box.checked) {
-                    activeAddonsList.push(box.closest('.addon-tick-item').querySelector('.addon-label-text').innerText);
+                    const tickItem = box.closest('.addon-tick-item');
+                    if (tickItem) {
+                        const labelText = tickItem.querySelector('.addon-label-text');
+                        if (labelText) activeAddonsList.push(labelText.innerText.trim());
+                    }
                 }
             });
 
-            const step2Payload = {
+            // 3. Extract the current raw price text string representation
+            const currentQuoteText = displayTotalQuote ? displayTotalQuote.innerText : "PHP 0.00";
+            // Convert currency string back to a pure numeric float for mathematical manipulations
+            const currentQuoteNumeric = parseFloat(currentQuoteText.replace(/[^0-9.]/g, '')) || 0;
+
+            // 4. Pull active location data logged by book-lipatbahay.js
+            const primaryAddressPayloadRaw = localStorage.getItem('activeBookingFormStep2');
+            const primaryAddressPayload = primaryAddressPayloadRaw ? JSON.parse(primaryAddressPayloadRaw) : {};
+            
+            // 5. Build an omni-compatible consolidated object payload architecture
+            const consolidatedOrderManifest = {
+                ...primaryAddressPayload,
+                
+                // Style A: Properties mapped from your raw snippet structure
                 moveSpecifications: {
-                    typeOfMove: typeOfMove.value,
-                    scheduledDate: moveDate.value,
-                    loadQuantityEstimate: estimatedItems.value,
-                    valuableHighTierItems: valuableItems.value || "None stated",
-                    specialInstructionsText: specialInstructions.value || "None stated"
+                    typeOfMove: typeOfMove ? typeOfMove.value : "",
+                    scheduledDate: moveDate ? moveDate.value : "",
+                    loadQuantityEstimate: estimatedItems ? estimatedItems.value : "",
+                    valuableHighTierItems: (valuableItems && valuableItems.value.trim()) ? valuableItems.value.trim() : "None stated",
+                    specialInstructionsText: (specialInstructions && specialInstructions.value.trim()) ? specialInstructions.value.trim() : "None stated"
                 },
                 logisticsArrangements: {
                     vehicleClassSelected: chosenVehicle,
                     selectedAddonServices: activeAddonsList,
-                    computedQuoteSummaryValue: displayTotalQuote.innerText
-                }
+                    computedQuoteSummaryValue: currentQuoteText
+                },
+
+                // Style B: Redundant fallbacks expected by book-lipatbahay-payment.js hooks
+                moveDetails: {
+                    typeOfMove: typeOfMove ? typeOfMove.value : "",
+                    preferredDate: moveDate ? moveDate.value : "",
+                    estimatedItemsCount: estimatedItems ? estimatedItems.value : "",
+                    specialValuableItems: (valuableItems && valuableItems.value.trim()) ? valuableItems.value.trim() : "None stated",
+                    specialHandlingInstructions: (specialInstructions && specialInstructions.value.trim()) ? specialInstructions.value.trim() : "None stated"
+                },
+                vehicleSelection: {
+                    code: chosenVehicle.toLowerCase().replace(/\s+/g, '-'),
+                    displayName: chosenVehicle,
+                    basePrice: baseVehiclePrice
+                },
+                selectedAddons: activeAddonsList,
+                estimatedTotalQuote: currentQuoteNumeric
             };
 
-            // Collect values to compile an overall transaction matrix manifest safely
-            const primaryAddressPayload = JSON.parse(localStorage.getItem('activeBookingFormStep2')) || {};
-            const consolidatedOrderManifest = { ...primaryAddressPayload, ...step2Payload };
-
+            // 6. Write tracking maps concurrently to both keys for zero layout friction
+            localStorage.setItem('activeBookingFormStep2', JSON.stringify(consolidatedOrderManifest));
             localStorage.setItem('consolidatedBookingManifest', JSON.stringify(consolidatedOrderManifest));
             
-            alert(`Step 2 completed! Moving info captured successfully. Proceeding to Step 3: Payment details...`);
+            // Route seamlessly down the funnel line to your step 3 landing screen (Alert Popup Removed)
+            window.location.href = "book-lipatbahay-payment.html";
         });
     }
-
-    // ... [Your existing Step 2 pricing validation logic remains untouched here] ...
-
-if (infoForm) {
-    infoForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        // 1. Gather vehicle type and selected addon values
-        const selectedVehicleRadio = document.querySelector('input[name="vehicleType"]:checked');
-        const chosenVehicle = selectedVehicleRadio ? selectedVehicleRadio.value : "Unknown";
-
-        const activeAddonsList = [];
-        addonCheckboxes.forEach(box => {
-            if (box.checked) {
-                activeAddonsList.push(box.closest('.addon-tick-item').querySelector('.addon-label-text').innerText);
-            }
-        });
-
-        // 2. Formulate your Step 2 payload matching your original structure
-        const step2Payload = {
-            moveSpecifications: {
-                typeOfMove: typeOfMove.value,
-                scheduledDate: moveDate.value,
-                loadQuantityEstimate: estimatedItems.value,
-                valuableHighTierItems: valuableItems.value || "None stated",
-                specialInstructionsText: specialInstructions.value || "None stated"
-            },
-            logisticsArrangements: {
-                vehicleClassSelected: chosenVehicle,
-                selectedAddonServices: activeAddonsList,
-                computedQuoteSummaryValue: displayTotalQuote.innerText
-            }
-        };
-
-        // 3. Unify Step 1 (Address Logs) and Step 2 Data Matrix payloads safely
-        const primaryAddressPayload = JSON.parse(localStorage.getItem('activeBookingFormStep2')) || {};
-        const consolidatedOrderManifest = { ...primaryAddressPayload, ...step2Payload };
-
-        // 4. Commit unified manifest record back to client-side persistent cache storage
-        localStorage.setItem('consolidatedBookingManifest', JSON.stringify(consolidatedOrderManifest));
-        
-        alert(`Step 2 completed! Moving info captured successfully. Proceeding to Step 3: Payment details...`);
-        
-        // --- LINK CODE ACTION: Change this line to route to Step 3 ---
-        window.location.href = "book-lipatbahay-payment.html";
-    });
-}
 });

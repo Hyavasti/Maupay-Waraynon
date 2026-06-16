@@ -363,7 +363,7 @@ label.custom-selection-card {
     color: #94a3b8;
 }
 
-/* INTERACTIVE POPUP MODAL STYLES (ORDER DETAILS SUMMARY REVIEW OVERLAY) */
+/* INTERACTIVE POPUP MODAL STYLES */
 
 .modal-overlay-backdrop {
     display: none;
@@ -549,4 +549,115 @@ label.custom-selection-card {
 
 .btn-submit-order:hover {
     background-color: #b91c1c;
+}
+
+/* Custom Success Modal Styles */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.custom-modal-overlay.display-modal-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.success-modal-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 24px;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.custom-modal-overlay.display-modal-active .success-modal-card {
+    transform: scale(1);
+}
+
+.success-icon-circle {
+    width: 72px;
+    height: 72px;
+    background-color: #f0fdf4;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+}
+
+.success-check-svg {
+    width: 40px;
+    height: 40px;
+    fill: #16a34a;
+}
+
+.success-title {
+    color: #0f172a;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.success-message {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.tracking-display-box {
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 28px;
+}
+
+.tracking-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.tracking-id-value {
+    font-family: monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.btn-success-redirect {
+    width: 100%;
+    background-color: #0284c7;
+    color: #ffffff;
+    border: none;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-success-redirect:hover {
+    background-color: #0369a1;
 }

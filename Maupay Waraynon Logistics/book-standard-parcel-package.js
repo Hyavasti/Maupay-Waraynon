@@ -53,6 +53,13 @@ document.addEventListener("DOMContentLoaded", () => {
     calculationInputElements.forEach(inputComponent => {
         inputComponent.addEventListener("input", runLiveDynamicFareQuote);
         
+        // ✨ FIXED: Auto-clear default '0' values when the user clicks/focuses on the input
+        inputComponent.addEventListener("focus", (event) => {
+            if (event.target.value === "0" || parseFloat(event.target.value) === 0) {
+                event.target.value = "";
+            }
+        });
+
         // Zero-value protection fallback rule on out-of-bounds focus losses
         inputComponent.addEventListener("blur", (event) => {
             if (event.target.value.trim() === "" || parseFloat(event.target.value) < 0) {

@@ -1,151 +1,195 @@
-/* GLOBAL SETTINGS */
+/* ==========================================================================
+   BASE LAYOUT FORM & SELECTION STYLES
+   ========================================================================== */
+
 .payment-body-bg {
-    background-color: #eef5fc !important; /* Matches background shade across sections */
+    background-color: #f8fafc;
+    font-family: 'Inter', sans-serif;
+    margin: 0;
 }
 
-.payment-workspace-form {
-    width: 100%;
-    max-width: 1050px;
-    margin: 40px auto 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 25px;
-}
-
-/* SIDE-BY-SIDE CARD PANEL CORES */
 .payment-split-columns-container {
-    display: grid;
-    grid-template-columns: 1.3fr 1fr;
-    gap: 30px;
-    align-items: start;
-    width: 100%;
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+    margin-top: 24px;
 }
 
 .payment-card-panel {
     background: #ffffff;
-    border-radius: 16px;
-    padding: 30px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.015);
-    border: 1px solid rgba(226, 232, 240, 0.8);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    padding: 24px;
+    flex: 1.5;
 }
 
-.card-section-title {
-    margin-bottom: 22px;
-    width: 100%;
+.summary-panel-stretch {
+    flex: 1;
 }
 
 .card-section-title h3 {
     font-size: 1.1rem;
-    font-weight: 700;
-    color: #0e4085;
-    margin: 0;
+    color: #1e3a8a;
+    margin: 0 0 16px 0;
+    font-weight: 600;
 }
 
-/* VERTICAL STACK SELECTION BOXES */
 .vertical-payment-stack {
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    width: 100%;
+    gap: 12px;
 }
 
 .payment-selection-row {
     border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    background-color: #ffffff;
-    transition: all 0.2s ease-in-out;
+    border-radius: 8px;
+    padding: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: #ffffff;
 }
 
-.payment-selection-row:hover {
-    border-color: #cbd5e1;
-    background-color: #f8fafc;
-}
-
-/* Matching selected outline */
 .payment-selection-row.active-row {
-    border: 2px solid #2563eb;
-    background-color: #ffffff;
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 1px #1e3a8a;
 }
 
 .row-label-wrapper {
     display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 18px 22px;
+    align-items: flex-start;
+    gap: 12px;
     cursor: pointer;
     width: 100%;
 }
 
 .native-payment-radio {
-    accent-color: #2563eb;
-    width: 18px;
-    height: 18px;
-    margin: 0;
-    cursor: pointer;
+    margin-top: 4px;
+    accent-color: #1e3a8a;
 }
 
 .row-text-block {
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
 }
 
 .payment-method-title {
     font-size: 0.95rem;
-    font-weight: 700;
+    font-weight: 600;
     color: #1e293b;
 }
 
 .payment-method-desc {
     font-size: 0.82rem;
-    color: #94a3b8;
+    color: #64748b;
 }
 
-/* DYNAMIC PAYMENT FORM EXTENSIONS */
-.dynamic-payment-fields-zone {
-    margin-top: 15px;
-    width: 100%;
-}
+/* ==========================================================================
+   INLINE ACCORDION & COLLAPSIBLE TRANSITIONS
+   ========================================================================== */
 
-.collapsible-input-alert {
+.nested-collapsible-zone {
     display: none;
+    width: 100%;
+    margin-top: 14px;
 }
 
-.collapsible-input-alert.visible {
+.nested-collapsible-zone.active-zone {
     display: block;
 }
 
-.merchant-info-card {
-    background-color: #f8fafc;
-    border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 16px;
+.inline-divider-line {
+    border-top: 1px dashed #cbd5e1;
+    margin-bottom: 14px;
+    width: 100%;
 }
 
-.merchant-info-card p {
-    margin: 0 0 8px 0;
+.nested-instruction-content {
+    text-align: left;
+    padding: 0 4px;
+}
+
+.instruction-block-heading {
+    font-size: 0.95rem;
+    color: #1e293b;
+    margin: 0 0 6px 0;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.instruction-subtext-para {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin: 0 0 12px 0;
+}
+
+.account-details-highlight-well {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 14px;
+}
+
+.account-details-highlight-well p {
+    margin: 0;
     font-size: 0.88rem;
+    color: #334155;
+    line-height: 1.5;
+}
+
+.input-field-group-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.field-label-caption {
+    font-size: 0.82rem;
+    font-weight: 500;
     color: #475569;
 }
 
 .custom-field-box {
     width: 100%;
-    padding: 10px 14px;
+    box-sizing: border-box;
+    padding: 10px 12px;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
     font-size: 0.9rem;
+    color: #1e293b;
     outline: none;
 }
 
-.custom-field-box:focus {
-    border-color: #2563eb;
+.alert-warning-box {
+    background-color: #fffbeb;
+    border: 1px solid #fef3c7;
+    padding: 12px;
+    border-radius: 6px;
 }
 
-/* SUMMARY TABLE DETAILS BREAKDOWN */
+.alert-warning-box p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #b45309;
+    line-height: 1.45;
+}
+
+.alert-title-gold {
+    color: #d97706;
+}
+
+/* ==========================================================================
+   RIGHT SIDEBAR ORDER SUMMARY LAYOUT
+   ========================================================================== */
+
 .summary-breakdown-table {
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    gap: 12px;
 }
 
 .summary-item-line {
@@ -156,19 +200,18 @@
 }
 
 .summary-label-text {
-    color: #64748b;
-    font-weight: 500;
+    color: #475569;
 }
 
 .summary-value-text {
-    font-weight: 600;
     color: #1e293b;
+    font-weight: 500;
 }
 
 .total-price-row {
     border-top: 1px solid #e2e8f0;
-    margin-top: 10px;
-    padding-top: 20px;
+    padding-top: 14px;
+    margin-top: 4px;
 }
 
 .total-label-text {
@@ -178,60 +221,404 @@
 }
 
 .total-value-price {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: #1d4ed8;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #2563eb;
 }
 
-/* DUAL ACTION NAVIGATION BUTTON ROW */
-.form-navigation-actions-row {
+.screenshot-btn-back {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    color: #475569;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.summary-confirm-booking-btn {
+    width: 100%;
+    background-color: #dc2626;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ==========================================================================
+   REVIEW OVERLAY MODAL WINDOW CONFIGURATIONS
+   ========================================================================== */
+
+.review-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.review-modal-overlay.display-modal-active {
+    display: flex;
+}
+
+.review-modal-container {
+    background-color: #ffffff;
+    width: 100%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+    animation: popModalScaleUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.review-modal-header {
+    background-color: #1e3a8a;
+    padding: 14px 20px;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    width: 100%;
-    margin-top: 10px;
+    color: #ffffff;
 }
 
-/* Back Button Box Layout */
-.screenshot-btn-back {
-    background-color: #ebf3fc;  
-    color: #1e293b;
-    border: 1px solid #d0e1f5;
-    border-radius: 10px;
-    padding: 14px 45px;
-    font-size: 0.95rem;
-    font-weight: 700;
+.modal-header-title-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-close-x-icon {
+    font-size: 1.35rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    line-height: 1;
+    opacity: 0.8;
+    transition: opacity 0.15s ease;
 }
 
-.screenshot-btn-back:hover {
-    background-color: #deeaf7;
-    border-color: #bccee7;
+.modal-close-x-icon:hover {
+    opacity: 1;
 }
 
-/* Confirm Booking Button Layout */
-.screenshot-btn-confirm {
-    background-color: #e11d48; 
+.review-modal-body-content {
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.modal-intro-instructions {
+    font-size: 0.88rem;
+    color: #64748b;
+    margin: 0 0 18px 0;
+    line-height: 1.5;
+}
+
+.modal-flex-two-columns {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.modal-details-card {
+    flex: 1;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 14px;
+    background-color: #f8fafc;
+}
+
+.modal-details-card h5 {
+    font-size: 0.8rem;
+    color: #1e40af;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.detail-data-item-row {
+    display: flex;
+    margin-bottom: 6px;
+    font-size: 0.84rem;
+    line-height: 1.4;
+}
+
+.detail-data-item-row:last-of-type {
+    margin-bottom: 0;
+}
+
+.detail-item-label {
+    color: #475569;
+    font-weight: 600;
+    width: 105px;
+    flex-shrink: 0;
+}
+
+.detail-item-val {
+    color: #1e293b;
+}
+
+/* 🌟 BULLETED LIST FORMATTING FOR MODAL ADD-ONS */
+.addons-list-container {
+    margin: 0;
+    padding-left: 14px;
+    list-style-type: disc;
+    color: #1e293b;
+    font-weight: 500;
+}
+
+.addons-list-container li {
+    margin-bottom: 2px;
+}
+
+.addons-list-container li:last-child {
+    margin-bottom: 0;
+}
+
+/* ==========================================================================
+   BOTTOM SETTLEMENT TERMS CARDS
+   ========================================================================== */
+
+.modal-settlement-full-well {
+    border: 1px solid #dbeafe;
+    background-color: #f0fdfa;
+    border-radius: 6px;
+    padding: 14px;
+}
+
+.modal-settlement-full-well h5 {
+    font-size: 0.8rem;
+    color: #1e40af;
+    margin: 0 0 10px 0;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+}
+
+.settlement-flex-inline-items {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.settlement-sub-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.88rem;
+}
+
+.settlement-sub-label {
+    color: #475569;
+    font-weight: 500;
+}
+
+.settlement-sub-value {
+    color: #1e293b;
+    font-weight: 600;
+}
+
+.modal-payer-badge-element {
+    background-color: #1e3a8a;
+    color: #ffffff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.amount-due-right-align {
+    margin-left: auto;
+}
+
+.amount-due-label-text {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.amount-due-numeric-highlight {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #2563eb;
+}
+
+/* ==========================================================================
+   FOOTER ACTIONS ACTION BAR
+   ========================================================================== */
+
+.review-modal-footer-actions {
+    background-color: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.modal-action-btn-dismiss {
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    border-radius: 6px;
+    padding: 8px 20px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.modal-action-btn-dismiss:hover {
+    background-color: #f1f5f9;
+}
+
+.modal-action-btn-commit {
+    background-color: #dc2626;
+    border: none;
+    color: #ffffff;
+    border-radius: 6px;
+    padding: 8px 22px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.modal-action-btn-commit:hover {
+    background-color: #b91c1c;
+}
+
+/* Custom Success Modal Styles */
+.custom-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 23, 42, 0.6); /* Modern slate dark tint */
+    backdrop-filter: blur(4px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s ease;
+}
+
+.custom-modal-overlay.display-modal-active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.success-modal-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 420px;
+    padding: 32px 24px;
+    border-radius: 16px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    text-align: center;
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+}
+
+.custom-modal-overlay.display-modal-active .success-modal-card {
+    transform: scale(1);
+}
+
+.success-icon-circle {
+    width: 72px;
+    height: 72px;
+    background-color: #f0fdf4; /* Light emerald green */
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px auto;
+}
+
+.success-check-svg {
+    width: 40px;
+    height: 40px;
+    fill: #16a34a; /* Deep emerald green check */
+}
+
+.success-title {
+    color: #0f172a;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.success-message {
+    color: #64748b;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.tracking-display-box {
+    background-color: #f8fafc;
+    border: 1px dashed #cbd5e1;
+    border-radius: 8px;
+    padding: 12px;
+    margin-bottom: 28px;
+}
+
+.tracking-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #94a3b8;
+    letter-spacing: 0.05em;
+    margin-bottom: 4px;
+}
+
+.tracking-id-value {
+    font-family: monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.btn-success-redirect {
+    width: 100%;
+    background-color: #0284c7; /* Primary blue button */
     color: #ffffff;
     border: none;
-    border-radius: 10px;
-    padding: 14px 45px;
-    font-size: 0.95rem;
-    font-weight: 700;
+    padding: 14px;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
-    transition: background-color 0.2s ease;
+    transition: background 0.2s ease;
 }
 
-.screenshot-btn-confirm:hover {
-    background-color: #be123c;
+.btn-success-redirect:hover {
+    background-color: #0369a1;
 }
 
-/* RESPONSIVE CONSTRAINTS */
-@media(max-width: 850px) {
-    .payment-split-columns-container {
-        grid-template-columns: 1fr;
-        gap: 20px;
+/* ==========================================================================
+   ANIMATIONS KEYFRAMES
+   ========================================================================== */
+
+@keyframes popModalScaleUp {
+    from {
+        opacity: 0;
+        transform: scale(0.96) translateY(4px);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
     }
 }

@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    //INLINE FORM EXTRA VALIDATION & SMART ZERO CLEARING
+    // INLINE FORM EXTRA VALIDATION & SMART ZERO CLEARING
     function showInlineError(element, message) {
         removeInlineError(element);
         const err = document.createElement("span");
@@ -54,28 +54,63 @@ document.addEventListener("DOMContentLoaded", () => {
     numericInputs.forEach(input => {
         if (!input) return;
 
-        //Clear the default '0' when the user clicks/focuses on the field
-        input.addEventListener("focus", () => {
-            if (parseFloat(input.value) === 0) {
-                input.value = "";
-            }
-        });
+        // Special treatment for the Pieces Input to allow smooth typing but block 0/negatives
+        if (input === txtPieces) {
+            
+            // 1. Automatically select the text on click so typing a new number replaces the 1 instantly
+            input.addEventListener("focus", () => {
+                input.select();
+            });
 
-        //Revert back to '0' if they leave it empty when clicking away
-        input.addEventListener("blur", () => {
-            if (input.value.trim() === "" || parseFloat(input.value) < 0) {
-                input.value = 0;
-            }
-            calculateLiveRates();
-        });
+            // 2. Prevent entering 0 if the field is empty
+            input.addEventListener("keydown", (e) => {
+                if (input.value === "" && e.key === "0") {
+                    e.preventDefault();
+                }
+            });
 
-        input.addEventListener("input", () => {
-            // If they type a negative sign or something invalid, don't let it slide
-            if (parseFloat(input.value) < 0) {
-                input.value = 0;
-            }
-            calculateLiveRates();
-        });
+            // 3. Monitor live inputs to clear out negatives or leading zeros
+            input.addEventListener("input", () => {
+                let val = parseInt(input.value);
+                
+                // If they typed a negative or invalid setup, reset to 1
+                if (val < 0) {
+                    input.value = 1;
+                }
+                calculateLiveRates();
+            });
+
+            // 4. The safety net: If they leave it blank or 0 when clicking away, force it back to 1
+            input.addEventListener("blur", () => {
+                let val = parseInt(input.value);
+                if (isNaN(val) || val <= 0) {
+                    input.value = 1;
+                }
+                calculateLiveRates();
+            });
+
+        } else {
+            // Default handling for other fields (Length, Width, Height, Weight, Value)
+            input.addEventListener("focus", () => {
+                if (parseFloat(input.value) === 0) {
+                    input.value = "";
+                }
+            });
+
+            input.addEventListener("blur", () => {
+                if (input.value.trim() === "" || parseFloat(input.value) < 0) {
+                    input.value = 0;
+                }
+                calculateLiveRates();
+            });
+
+            input.addEventListener("input", () => {
+                if (parseFloat(input.value) < 0) {
+                    input.value = 0;
+                }
+                calculateLiveRates();
+            });
+        }
     });
 
 
@@ -104,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
             weightSurchargeValue += (volumetricWeight - weight) * 15;
         }
 
-        //Cargo Valuation Insurance premium structure (1% of total value declared)
+        //Cargo Valuation Insurance premium structure (10% of total value declared)
         const insuranceValue = declaredVal * 0.10;
 
         // Multiply calculations against item counts
@@ -138,6 +173,14 @@ document.addEventListener("DOMContentLoaded", () => {
             if (parseFloat(txtHeight.value) <= 0 || txtHeight.value === "") { showInlineError(txtHeight, "⚠️ Height must be greater than 0."); holdsErrors = true; } else { removeInlineError(txtHeight); }
             if (parseFloat(txtWeight.value) <= 0 || txtWeight.value === "") { showInlineError(txtWeight, "⚠️ Weight must be greater than 0."); holdsErrors = true; } else { removeInlineError(txtWeight); }
             
+            // Hard Validation check against Number of Pieces explicitly equaling 0
+            if (parseInt(txtPieces.value) <= 0 || txtPieces.value === "") { 
+                showInlineError(txtPieces, "⚠️ Total pieces configuration value must be 1 or higher."); 
+                holdsErrors = true; 
+            } else { 
+                removeInlineError(txtPieces); 
+            }
+
             const txtDesc = document.getElementById("cargoDescription");
             if (!txtDesc.value.trim()) {
                 showInlineError(txtDesc, "⚠️ Please enter a descriptive label for the parcel cargo.");
@@ -182,8 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
             consolidatedManifest.cargoStep2Specifications = cargoSpecificationsDataset;
             localStorage.setItem('consolidatedBookingManifest', JSON.stringify(consolidatedManifest));
 
-            // Proceed to the Payment stage dashboard!
-            alert("Booking specifications compiled successfully! Transitioning to step 3...");
             window.location.href = "book-cargo-payment.html";
         });
     }

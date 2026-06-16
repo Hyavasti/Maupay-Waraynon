@@ -11,6 +11,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCancelModal = document.getElementById("btnCancelModal");
     const btnFinalSubmitModal = document.getElementById("btnFinalSubmitModal");
 
+    // Custom Success Modal Elements Reference Hooks
+    const successModalOverlay = document.getElementById("successModalOverlay");
+    const successTrackingId = document.getElementById("successTrackingId");
+    const btnSuccessDashboard = document.getElementById("btnSuccessDashboard");
+
     // Modal Target Data Value fields pointers
     const popDeliveryMode = document.getElementById("popDeliveryMode");
     const popSenderName = document.getElementById("popSenderName");
@@ -18,6 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const popItemDesc = document.getElementById("popItemDesc");
     const popWeight = document.getElementById("popWeight");
     const popVolume = document.getElementById("popVolume");
+    const popInstructions = document.getElementById("popInstructions");
     const popPayer = document.getElementById("popPayer");
     const popMethod = document.getElementById("popMethod");
     const popGrandTotal = document.getElementById("popGrandTotal");
@@ -52,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const currentBookingDataManifest = JSON.parse(rawManifestStringData);
     
-    // Auto-populate Ledger Breakdown Numbers using your step 2 pricing sub-object keys
+    // Auto-populate Ledger Breakdown Numbers
     const step2Data = currentBookingDataManifest.cargoStep2Specifications || {};
     if (step2Data && step2Data.pricing) {
         const pricing = step2Data.pricing;
@@ -160,13 +166,22 @@ document.addEventListener("DOMContentLoaded", () => {
                 popVolume.textContent = "0x0x0 cm";
             }
 
+            // POPULATE SPECIAL HANDLING INSTRUCTIONS
+            if (popInstructions) {
+                if (s2.handlingInstructions && s2.handlingInstructions.trim() !== "") {
+                    popInstructions.textContent = s2.handlingInstructions;
+                } else {
+                    popInstructions.textContent = "None";
+                }
+            }
+
             // POPULATING THE PAYMENT TERMS BLOCK INSIDE REVIEW CARD
             const selectedPayerRadio = document.querySelector('input[name="paymentOption"]:checked');
             const finalPayerChoice = selectedPayerRadio ? selectedPayerRadio.value : "Sender";
             
             if (popPayer) popPayer.textContent = finalPayerChoice;
             if (popMethod) popMethod.textContent = finalMethodChoice;
-            if (popGrandTotal) popGrandTotal.textContent = summaryGrandTotal ? summaryGrandTotal.textContent : "PHP 150.00";
+            if (popGrandTotal) popGrandTotal.textContent = summaryGrandTotal ? `PHP ${summaryGrandTotal.textContent}` : "PHP 150.00";
 
             // Open up the confirmation dialog screen!
             openReviewModalPopup();
@@ -188,11 +203,36 @@ document.addEventListener("DOMContentLoaded", () => {
             if (finalMethodChoice === "GCash" && gcashRefInput) referenceVerificationCodeValue = gcashRefInput.value.trim();
             if (finalMethodChoice === "Bank Transfer" && bankRefInput) referenceVerificationCodeValue = bankRefInput.value.trim();
 
+            //Generate Unique Cargo Tracking ID String
+            const uniqueTrackingId = "CRG-" + Math.floor(10000000 + Math.random() * 90000000) + "-PH";
+
+            //Format Summary Record Payload for the Master Shipment System Index
+            const s1 = currentBookingDataManifest.cargoStep1Details || {};
+            const companyNode = s1.company || {};
+
+            // Real-world standardization: "Recipient Name (City Location)"
+            const standardRecipient = companyNode.contactPerson || "Authorized Receiver";
+            const standardDestination = s1.destinationAddress || "Tacloban City, Leyte";
+
+            const finalDashboardRecord = {
+                trackingId: uniqueTrackingId,
+                serviceType: currentBookingDataManifest.serviceType || "Commercial Cargo",
+                destination: `${standardRecipient} - ${standardDestination}`,
+                dateBooked: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                status: "In Transit"
+};
+
+            //  Append directly to Dashboard Master Array Ledger Storage
+            const masterShipmentsDatabase = JSON.parse(localStorage.getItem("maupayShipments")) || [];
+            masterShipmentsDatabase.push(finalDashboardRecord);
+            localStorage.setItem("maupayShipments", JSON.stringify(masterShipmentsDatabase));
+
             // Append operational metadata fields to payload object parameters
             currentBookingDataManifest.assignedPayer = finalPayerChoice;
             currentBookingDataManifest.paymentMethodSelected = finalMethodChoice;
             currentBookingDataManifest.transactionReferenceCode = referenceVerificationCodeValue;
             currentBookingDataManifest.bookingTimestamp = new Date().toISOString();
+            currentBookingDataManifest.generatedTrackingId = uniqueTrackingId;
             currentBookingDataManifest.status = (finalMethodChoice === "Cash / COD") ? "Pending Pickup" : "Verifying Settle Signature";
 
             // Save the complete manifest out to data memory space registry
@@ -203,11 +243,21 @@ document.addEventListener("DOMContentLoaded", () => {
             globalLedger.push(currentBookingDataManifest);
             localStorage.setItem('globalShipmentsLedger', JSON.stringify(globalLedger));
 
+            // Close down checkout review popup window block frame
             closeReviewModalPopup();
             
-            alert(`🎉 Success! Cargo Booking processed cleanly. Returning back to Overview dashboard.`);
+            //  POP OPEN THE CUSTOM MODAL EMBED OVERLAY CARD (Replaces standard window alert block)
+            if (successTrackingId) successTrackingId.textContent = uniqueTrackingId;
+            if (successModalOverlay) successModalOverlay.classList.add("display-modal-active");
+        });
+    }
+
+    //  Handle redirection execution logic for the custom dashboard button hook
+    if (btnSuccessDashboard) {
+        btnSuccessDashboard.addEventListener("click", () => {
+            if (successModalOverlay) successModalOverlay.classList.remove("display-modal-active");
             
-            // Wipe session tracking memory block cache staging buffer out
+            // Wipe session tracking memory block cache staging buffer out before returning
             localStorage.removeItem('consolidatedBookingManifest');
             window.location.href = "dashboard.html";
         });

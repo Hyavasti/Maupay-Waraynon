@@ -12,7 +12,6 @@
 
     <div class="dashboard-container">
         
-        <!-- SIDEBAR NAVIGATION PANEL -->
         <aside class="sidebar">
             <div class="sidebar-brand">
                 <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
@@ -41,7 +40,6 @@
             <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
         </aside>
 
-        <!-- MAIN CONTENT AREA -->
         <main class="main-content">
             
             <header class="content-header">
@@ -51,7 +49,6 @@
                 </div>
             </header>
 
-            <!-- PROGRESS TIMELINE BAR -->
             <div class="wizard-progress-bar">
                 <div class="progress-step complete">
                     <span class="step-dot"><i class="fas fa-check" style="font-size: 10px; color: white;"></i></span>
@@ -69,13 +66,10 @@
                 </div>
             </div>
 
-            <!-- MAIN CHECKOUT SPLIT WORKSPACE -->
             <div class="checkout-split-layout">
                 
-                <!-- LEFT SIDE: OPTIONS & METHODS SELECTION -->
                 <div class="payment-selection-panel">
                     
-                    <!-- SECTION A: PAYMENT OPTION -->
                     <h3 class="panel-section-title">Payment Option</h3>
                     <div class="payment-options-stack" style="margin-bottom: 25px;">
                         <label class="payment-option-card checked">
@@ -95,24 +89,20 @@
                         </label>
                     </div>
 
-                    <!-- SECTION B: PAYMENT METHOD -->
                     <h3 class="panel-section-title">Payment Method</h3>
                     <div class="payment-options-stack">
-                        <!-- Cash / COD -->
                         <label class="payment-option-card checked clickable-method-card">
                             <input type="radio" name="paymentMethod" value="Cash / COD" checked>
                             <div class="option-meta-text">
                                 <strong>Cash / COD</strong>
                                 <span>Pay in cash at dropoff or pickup destination point</span>
                             </div>
-                            <!-- Inline Notice Box -->
                             <div class="cod-notice-box" id="codNoticeWrapper">
                                 <i class="fas fa-info-circle notice-icon"></i>
                                 <p><strong>COD Notice:</strong> Please prepare the complete calculated payment balance to hand over directly to our agents/drivers once shipment operations reach the target address.</p>
                             </div>
                         </label>
 
-                        <!-- GCash -->
                         <label class="payment-option-card clickable-method-card">
                             <input type="radio" name="paymentMethod" value="GCash">
                             <div class="option-meta-text">
@@ -121,7 +111,6 @@
                             </div>
                         </label>
 
-                        <!-- Bank Transfer -->
                         <label class="payment-option-card clickable-method-card">
                             <input type="radio" name="paymentMethod" value="Bank Transfer">
                             <div class="option-meta-text">
@@ -131,13 +120,11 @@
                         </label>
                     </div>
 
-                    <!-- BOTTOM TOOLBAR NAVIGATION -->
                     <div style="margin-top: 30px;">
                         <button type="button" id="btnBackToPackage" class="cargo-btn-secondary">&lt; Back</button>
                     </div>
                 </div>
 
-                <!-- RIGHT SIDE: ORDER SUMMARY BOX FROM image_4910fe.png -->
                 <aside class="order-summary-sticky-card">
                     <h3 class="panel-section-title" style="color: #1e3a8a;">Order Summary</h3>
                     
@@ -174,63 +161,72 @@
         </main>
     </div>
 
-    <!-- ==========================================================================
-       MODAL REVIEW CONTAINER ATTACHMENT FROM STANDARD PARCEL
-       ========================================================================== -->
     <div class="review-modal-overlay" id="bookingReviewModal">
-        <div class="review-modal-card">
+        <div class="review-modal-card review-modal-wide">
             <div class="modal-header-bar">
-                <h3>Review Shipment Details</h3>
+                <h3><i class="fas fa-file-alt" style="margin-right: 8px;"></i> Review Shipment Orders</h3>
                 <button type="button" class="close-x-btn" id="btnCloseModalX">&times;</button>
             </div>
             
             <div class="modal-body-content">
-                <p class="modal-notice-intro">Please confirm your cargo profile details before sending data to our systems.</p>
+                <p class="modal-notice-intro">Please take a moment to look over your logistics distribution configurations before submitting.</p>
                 
-                <table class="review-details-table">
-                    <tr>
-                        <td><strong>Service Type:</strong></td>
-                        <td id="popDeliveryMode">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Sender Company:</strong></td>
-                        <td id="popSenderName">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Contact Person:</strong></td>
-                        <td id="popReceiverName">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Cargo Content:</strong></td>
-                        <td id="popItemDesc">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Total Weight:</strong></td>
-                        <td id="popWeight">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Box Dimensions:</strong></td>
-                        <td id="popVolume">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Assigned Payer:</strong></td>
-                        <td id="popPayer">-</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Payment Channel:</strong></td>
-                        <td id="popMethod">-</td>
-                    </tr>
-                    <tr class="highlighted-total-row">
-                        <td><strong>Total Charge:</strong></td>
-                        <td id="popGrandTotal">-</td>
-                    </tr>
-                </table>
+                <div class="modal-cards-grid">
+                    <div class="modal-info-subcard">
+                        <h4>ROUTING DETAILS</h4>
+                        <div class="info-data-row"><strong>Delivery Mode:</strong> <span id="popDeliveryMode">-</span></div>
+                        <div class="info-data-row"><strong>Sender:</strong> <span id="popSenderName">-</span></div>
+                        <div class="info-data-row"><strong>Receiver:</strong> <span id="popReceiverName">-</span></div>
+                    </div>
+
+                    <div class="modal-info-subcard">
+                        <h4>PACKAGE DIMENSIONS</h4>
+                        <div class="info-data-row"><strong>Description:</strong> <span id="popItemDesc">-</span></div>
+                        <div class="info-data-row"><strong>Scale/Weight:</strong> <span id="popWeight">-</span></div>
+                        <div class="info-data-row"><strong>Volume Metrics:</strong> <span id="popVolume">-</span></div>
+                        <div class="info-data-row"><strong>Instructions:</strong> <span id="popInstructions">-</span></div>
+                    </div>
+                </div>
+
+                <div class="modal-settlement-card">
+                    <h4>SETTLEMENT TERMS</h4>
+                    <div class="settlement-flex-container">
+                        <div class="settlement-item">
+                            <strong>Who Pays:</strong> <span id="popPayer" class="payer-badge-solid">Sender</span>
+                        </div>
+                        <div class="settlement-item">
+                            <strong>Method:</strong> <span id="popMethod">-</span>
+                        </div>
+                        <div class="settlement-total-display">
+                            <strong>Amount Due:</strong> <span id="popGrandTotal">PHP 0.00</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="modal-footer-toolbar">
-                <button type="button" class="modal-cancel-btn" id="btnCancelModal">Cancel</button>
-                <button type="button" class="modal-submit-btn" id="btnFinalSubmitModal">Finalize & Submit</button>
+            <div class="modal-footer-toolbar card-footer-layout">
+                <button type="button" class="modal-cancel-btn-outline" id="btnCancelModal">Cancel</button>
+                <button type="button" class="cargo-btn-primary modal-action-submit" id="btnFinalSubmitModal">Submit Booking</button>
             </div>
+        </div>
+    </div>
+
+    <div id="successModalOverlay" class="custom-modal-overlay">
+        <div class="success-modal-card">
+            <div class="success-icon-circle">
+                <svg viewBox="0 0 24 24" class="success-check-svg">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Booking Successful!</h2>
+            <p class="success-message">Your commercial cargo freight logistics request has been processed cleanly.</p>
+            
+            <div class="tracking-display-box">
+                <span class="tracking-label">TRACKING ID</span>
+                <span id="successTrackingId" class="tracking-id-value">CRG-XXXXXXXX-PH</span>
+            </div>
+
+            <button id="btnSuccessDashboard" class="btn-success-redirect">Go to Dashboard</button>
         </div>
     </div>
 

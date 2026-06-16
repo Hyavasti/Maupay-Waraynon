@@ -237,6 +237,8 @@
                         <div class="review-data-line"><strong>Description:</strong> <span id="popItemDesc">General Goods</span></div>
                         <div class="review-data-line"><strong>Scale/Weight:</strong> <span id="popWeight">0 kg</span></div>
                         <div class="review-data-line"><strong>Volume Metrics:</strong> <span id="popVolume">0x0x0 cm</span></div>
+                        <!-- 📝 ADDED: Special Handling Instructions Row -->
+                        <div class="review-data-line"><strong>Instructions:</strong> <span id="popSpecialNotes" style="font-style: italic; color: #555;">None</span></div>
                     </div>
                 </div>
 
@@ -254,6 +256,26 @@
                 <button type="button" id="btnCancelModal" class="modal-action-btn btn-dismiss">Cancel</button>
                 <button type="button" id="btnFinalSubmitModal" class="modal-action-btn btn-submit-order">Submit Booking</button>
             </div>
+        </div>
+    </div>
+
+    <!-- 🎉 Custom Success Confirmation Modal -->
+    <div id="successModalOverlay" class="custom-modal-overlay">
+        <div class="success-modal-card">
+            <div class="success-icon-circle">
+                <svg viewBox="0 0 24 24" class="success-check-svg">
+                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+                </svg>
+            </div>
+            <h2 class="success-title">Booking Successful!</h2>
+            <p class="success-message">Your standard parcel delivery request has been processed cleanly.</p>
+            
+            <div class="tracking-display-box">
+                <span class="tracking-label">TRACKING ID</span>
+                <span id="successTrackingId" class="tracking-id-value">BAC-XXXXXXXX-PH</span>
+            </div>
+
+            <button id="btnSuccessDashboard" class="btn-success-redirect">Go to Dashboard</button>
         </div>
     </div>
 

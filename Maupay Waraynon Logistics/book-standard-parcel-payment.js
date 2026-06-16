@@ -9,6 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnCancelModal = document.getElementById("btnCancelModal");
     const btnFinalSubmitModal = document.getElementById("btnFinalSubmitModal");
 
+    // Custom Success Modal Elements Reference Hooks
+    const successModalOverlay = document.getElementById("successModalOverlay");
+    const successTrackingId = document.getElementById("successTrackingId");
+    const btnSuccessDashboard = document.getElementById("btnSuccessDashboard");
+
     // Modal Target Data Value fields pointers
     const popDeliveryMode = document.getElementById("popDeliveryMode");
     const popSenderName = document.getElementById("popSenderName");
@@ -16,6 +21,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const popItemDesc = document.getElementById("popItemDesc");
     const popWeight = document.getElementById("popWeight");
     const popVolume = document.getElementById("popVolume");
+    
+    // 📝 Target Field Pointer for Special Handling Notes
+    const popSpecialNotes = document.getElementById("popSpecialNotes");
+    
     const popPayer = document.getElementById("popPayer");
     const popMethod = document.getElementById("popMethod");
     const popGrandTotal = document.getElementById("popGrandTotal");
@@ -124,7 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // MODAL ADAPTER PARSING: Maps clean contact values saved in Details Form step
+            //Maps clean contact values saved in Details Form step
             const senderDetails = currentBookingDataManifest.senderContactDetails || {};
             const receiverDetails = currentBookingDataManifest.receiverContactDetails || {};
 
@@ -132,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (popSenderName) popSenderName.textContent = senderDetails.fullName || "Juan Dela Cruz";
             if (popReceiverName) popReceiverName.textContent = receiverDetails.fullName || "Maria Clara";
             
-            // FIXED PACKAGE DATA PARSING
+            //PACKAGE DATA PARSING
             const pkgConfig = currentBookingDataManifest.packageConfiguration || {};
             if (popItemDesc) popItemDesc.textContent = pkgConfig.description || "General Goods";
             if (popWeight) popWeight.textContent = `${pkgConfig.weightKg || 0} kg`;
@@ -146,6 +155,13 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
+            // Map and inject special instructions safely to the review modal
+            if (popSpecialNotes) {
+                popSpecialNotes.textContent = (pkgConfig.specialHandlingNotes && pkgConfig.specialHandlingNotes.trim() !== "") 
+                    ? pkgConfig.specialHandlingNotes 
+                    : "None";
+            }
+
             // POPULATING THE PAYMENT TERMS BLOCK
             if (popPayer) popPayer.textContent = checkedPayer.value;
             if (popMethod) popMethod.textContent = (finalMethodChoice === "Cash") ? "Cash / COD" : finalMethodChoice;
@@ -157,7 +173,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
   
-    //INTEGRATING DIRECTLY WITH MASTER DASHBOARD LISTS
+
+    // SUBMIT FINAL TRANSACTION DATA ENGINE
     if (btnFinalSubmitModal) {
         btnFinalSubmitModal.addEventListener("click", () => {
             const checkedPayer = document.querySelector('input[name="payerType"]:checked');
@@ -170,24 +187,39 @@ document.addEventListener("DOMContentLoaded", () => {
             if (finalMethodChoice === "GCash" && gcashRefInput) referenceVerificationCodeValue = gcashRefInput.value.trim();
             if (finalMethodChoice === "BankTransfer" && bankRefInput) referenceVerificationCodeValue = bankRefInput.value.trim();
 
-            //Generate 8-digit systemic tracking reference ID code
+            // Generate unique systemic tracking reference ID code
             const uniqueTrackingId = "BAC-" + Math.floor(10000000 + Math.random() * 90000000) + "-PH";
 
-            // Format payload data
+            // Extract real-world recipient parameters from the data manifest
+            const receiverDetails = currentBookingDataManifest.receiverContactDetails || {};
+            const receiverName = receiverDetails.fullName || "Authorized Receiver";
+            
+            // Standardize raw location text gracefully
+            let rawLocation = "Manila, NCR";
+            if (currentBookingDataManifest.dashboardDisplayDestination) {
+                rawLocation = currentBookingDataManifest.dashboardDisplayDestination;
+            } else if (receiverDetails.fullAddress) {
+                rawLocation = receiverDetails.fullAddress;
+            }
+
+            // Force real-world structured alignment: "Recipient Name - Location Address"
+            const standardizedDestinationText = `${receiverName} - ${rawLocation}`;
+
+            // Format payload data targeting the central schema engine
             const finalDashboardRecord = {
                 trackingId: uniqueTrackingId,
-                serviceType: currentBookingDataManifest.serviceWorkflowType || "Standard Parcel",
-                destination: currentBookingDataManifest.dashboardDisplayDestination || "Manila, NCR",
+                serviceType: "Standard Parcel", 
+                destination: standardizedDestinationText, 
                 dateBooked: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-                status: "In Transit" // Dynamic operational default baseline state loop
+                status: "In Transit"
             };
 
-            //Append the record cleanly to the master local storage database array ledger
+            // Append the record cleanly to the master local storage database array ledger
             const masterShipmentsDatabase = JSON.parse(localStorage.getItem("maupayShipments")) || [];
             masterShipmentsDatabase.push(finalDashboardRecord);
             localStorage.setItem("maupayShipments", JSON.stringify(masterShipmentsDatabase));
 
-            //Save metadata settings down into historical reference object for deep log files
+            // Save metadata settings down into historical reference object for deep log files
             currentBookingDataManifest.assignedPayer = finalPayerChoice;
             currentBookingDataManifest.paymentMethodSelected = finalMethodChoice;
             currentBookingDataManifest.transactionReferenceCode = referenceVerificationCodeValue;
@@ -196,12 +228,22 @@ document.addEventListener("DOMContentLoaded", () => {
             
             localStorage.setItem('consolidatedBookingManifest', JSON.stringify(currentBookingDataManifest));
             
-            //Tear down transient runtime memory references so workspace resets perfectly
+            // Tear down transient runtime memory references so workspace resets perfectly
             sessionStorage.removeItem("activeBookingServiceType");
 
+            // Close down checkout review modal frame
             closeReviewModalPopup();
             
-            alert(`🎉 Success! Booking processed cleanly.\nYour Tracking ID is: ${uniqueTrackingId}`);
+            // POP OPEN THE SUCCESS MODAL
+            if (successTrackingId) successTrackingId.textContent = uniqueTrackingId;
+            if (successModalOverlay) successModalOverlay.classList.add("display-modal-active");
+        });
+    }
+
+    // Handle redirection action inside the custom success popup confirmation card layout
+    if (btnSuccessDashboard) {
+        btnSuccessDashboard.addEventListener("click", () => {
+            if (successModalOverlay) successModalOverlay.classList.remove("display-modal-active");
             window.location.href = "dashboard.html";
         });
     }

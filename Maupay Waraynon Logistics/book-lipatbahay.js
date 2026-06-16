@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Pickup Target Elements (FROM)
     const pickupContact = document.getElementById("pickupContact");
     const pickupMobile = document.getElementById("pickupMobile");
-    const pickupProvince = document.getElementById("pickupProvince");
+    const pickupProvince = document.getElementById("pickupProvince"); // Acts as Region dropdown now
     const pickupCity = document.getElementById("pickupCity");
     const pickupBarangay = document.getElementById("pickupBarangay");
     const pickupStreet = document.getElementById("pickupStreetAddress");
@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Dropoff Target Elements (TO)
     const dropoffContact = document.getElementById("dropoffContact");
     const dropoffMobile = document.getElementById("dropoffMobile");
-    const dropoffProvince = document.getElementById("dropoffProvince");
+    const dropoffProvince = document.getElementById("dropoffProvince"); // Acts as Region dropdown now
     const dropoffCity = document.getElementById("dropoffCity");
     const dropoffBarangay = document.getElementById("dropoffBarangay");
     const dropoffStreet = document.getElementById("dropoffStreetAddress");
@@ -31,71 +31,98 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (savedAccountRaw) {
         userAccountData = JSON.parse(savedAccountRaw);
-        if (userAccountData.firstName) {
+        if (userAccountData.firstName && profileAvatar) {
             profileAvatar.innerText = userAccountData.firstName.charAt(0).toUpperCase();
         }
     }
 
     // =========================================================
-    // 1. NATIONWIDE COMPLETE PH LOCATIONS ENGINE (PSGC API)
+    // NEW: LIVE INPUT RESTRICTIONS & REGEX FILTERS
     // =========================================================
     
-    // Fetch complete official PSGC Geographic structure completely live
-    fetch('https://psgc.gitlab.io/api/provinces.json')
-        .then(res => res.json())
-        .then(provinces => {
-            provinces.sort((a, b) => a.name.localeCompare(b.name));
-            
-            pickupProvince.innerHTML = '<option value="" disabled selected>Select province</option>';
-            dropoffProvince.innerHTML = '<option value="" disabled selected>Select province</option>';
-            
-            provinces.forEach(prov => {
-                const optFrom = document.createElement("option");
-                optFrom.value = prov.code; 
-                optFrom.innerText = prov.name;
-                pickupProvince.appendChild(optFrom);
+    /**
+     * Blocks numbers and special characters instantly.
+     * Allows only letters, spaces, and hyphens for names.
+     */
+    function restrictToLettersOnly(element) {
+        if (!element) return;
+        element.addEventListener("input", (e) => {
+            e.target.value = e.target.value.replace(/[^a-zA-Z\s\-]/g, "");
+        });
+    }
 
-                const optTo = document.createElement("option");
-                optTo.value = prov.code;
-                optTo.innerText = prov.name;
-                dropoffProvince.appendChild(optTo);
-            });
-            console.log("🇵🇭 Nationwide Philippine Province Registry Fully Armed & Connected!");
+    /**
+     * Blocks letters and special characters instantly.
+     * Caps the length strictly at 11 digits.
+     */
+    function restrictToMobileNumbersOnly(element) {
+        if (!element) return;
+        element.addEventListener("input", (e) => {
+            let clearedValue = e.target.value.replace(/\D/g, ""); 
+            if (clearedValue.length > 11) {
+                clearedValue = clearedValue.slice(0, 11);
+            }
+            e.target.value = clearedValue;
+        });
+    }
+
+    // Apply filters natively to your input variables
+    restrictToLettersOnly(pickupContact);
+    restrictToLettersOnly(dropoffContact);
+    restrictToMobileNumbersOnly(pickupMobile);
+    restrictToMobileNumbersOnly(dropoffMobile);
+
+
+    // =========================================================
+    // UPGRADED: REGION-FIRST CARGO-STYLE PSGC ENGINE
+    // =========================================================
+    
+    // Fetch complete official PSGC Geographic structure starting at the Regional level
+    fetch('https://psgc.gitlab.io/api/regions.json')
+        .then(res => res.json())
+        .then(regions => {
+            regions.sort((a, b) => a.name.localeCompare(b.name));
             
-            // Check if there is cached data to restore AFTER the provinces are loaded
+            // Your original dropdown elements now act as the regional starting points
+            pickupProvince.innerHTML = '<option value="" disabled selected>Select region</option>';
+            dropoffProvince.innerHTML = '<option value="" disabled selected>Select region</option>';
+            
+            regions.forEach(reg => {
+                pickupProvince.appendChild(new Option(reg.name, reg.code));
+                dropoffProvince.appendChild(new Option(reg.name, reg.code));
+            });
+            console.log("🇵🇭 Cargo-Style Regional PSGC Registry Connected!");
+            
+            // Check if there is cached data to restore AFTER the regions are loaded
             restoreCachedFormData();
         })
         .catch(err => console.error("Location API failed to connect:", err));
 
-    // Universal handler to wire up Cascading City & Barangay searches dynamically
-    function wirePsgcCascadingDropdowns(provinceSelect, citySelect, barangaySelect) {
+    // Upgraded Cascading Engine logic structured to step from: Region -> Province -> City -> Barangay
+    function wireRegionalCargoDropdowns(regionSelect, citySelect, barangaySelect) {
         
-        provinceSelect.addEventListener("change", (e, targetCityCode = null, targetBrgyName = null) => {
-            const provinceCode = provinceSelect.value;
-            if (!provinceCode) return;
+        regionSelect.addEventListener("change", (e, targetCityCode = null, targetBrgyName = null) => {
+            const regionCode = regionSelect.value;
+            if (!regionCode) return;
             
             citySelect.innerHTML = '<option value="" disabled selected>Loading cities...</option>';
             barangaySelect.innerHTML = '<option value="" disabled selected>Select barangay</option>';
             citySelect.disabled = false;
             barangaySelect.disabled = true;
 
-            fetch(`https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities.json`)
+            // Fetching cities directly from the region (skipping separate sub-province dropdown selection to match your HTML)
+            fetch(`https://psgc.gitlab.io/api/regions/${regionCode}/cities-municipalities.json`)
                 .then(res => res.json())
                 .then(cities => {
                     cities.sort((a, b) => a.name.localeCompare(b.name));
                     citySelect.innerHTML = '<option value="" disabled selected>Select city/municipality</option>';
                     
                     cities.forEach(city => {
-                        const opt = document.createElement("option");
-                        opt.value = city.code; 
-                        opt.innerText = city.name;
-                        citySelect.appendChild(opt);
+                        citySelect.appendChild(new Option(city.name, city.code));
                     });
 
-                    // If we have a cached city to restore, set it now
                     if (targetCityCode) {
                         citySelect.value = targetCityCode;
-                        // Fire subsequent barangay load event manually
                         triggerCascadingCityChange(citySelect, barangaySelect, targetBrgyName);
                     }
                 });
@@ -113,22 +140,16 @@ document.addEventListener("DOMContentLoaded", () => {
         barangaySelect.innerHTML = '<option value="" disabled selected>Loading barangays...</option>';
         barangaySelect.disabled = false;
 
-        const targetUrl = `https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays.json`;
-
-        fetch(targetUrl)
+        fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays.json`)
             .then(res => res.json())
             .then(barangays => {
                 barangays.sort((a, b) => a.name.localeCompare(b.name));
                 barangaySelect.innerHTML = '<option value="" disabled selected>Select barangay</option>';
                 
                 barangays.forEach(brgy => {
-                    const opt = document.createElement("option");
-                    opt.value = brgy.name; 
-                    opt.innerText = brgy.name;
-                    barangaySelect.appendChild(opt);
+                    barangaySelect.appendChild(new Option(brgy.name, brgy.name));
                 });
 
-                // If we have a cached barangay name to restore, set it now
                 if (targetBrgyName) {
                     barangaySelect.value = targetBrgyName;
                 }
@@ -138,8 +159,10 @@ document.addEventListener("DOMContentLoaded", () => {
             });
     }
 
-    wirePsgcCascadingDropdowns(pickupProvince, pickupCity, pickupBarangay);
-    wirePsgcCascadingDropdowns(dropoffProvince, dropoffCity, dropoffBarangay);
+    // Initialize cascading chains using your existing HTML layout elements
+    wireRegionalCargoDropdowns(pickupProvince, pickupCity, pickupBarangay);
+    wireRegionalCargoDropdowns(dropoffProvince, dropoffCity, dropoffBarangay);
+
 
     // =========================================================
     // 2. SHORTCUT AUTO-FILL DATA UTILITIES
@@ -181,6 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
         element.disabled = true;
     }
 
+
     // =========================================================
     // 3. STATE PERSISTENCE ENGINE (RESTORE ON BACK NAVIGATION)
     // =========================================================
@@ -191,7 +215,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
             const cachedData = JSON.parse(activeDetailsCache);
 
-            // Restore Current Address (From) fields and cascaded values
+            // Restore Pickup Address (From) fields and cascaded values
             if (cachedData.origin) {
                 pickupContact.value = cachedData.origin.name || "";
                 pickupMobile.value = cachedData.origin.phone || "";
@@ -199,50 +223,36 @@ document.addEventListener("DOMContentLoaded", () => {
                 chkSavePickup.checked = cachedData.origin.shouldSaveToAddressBook || false;
 
                 if (cachedData.origin.provinceCode) {
-                    pickupProvince.value = cachedData.origin.provinceCode;
-                    // Force the province element to trigger city populates via arguments
-                    const event = new Event('change');
-                    pickupProvince.dispatchEvent(event);
+                    pickupProvince.value = cachedData.origin.provinceCode; // Sets region code safely
                     
-                    // Wire up the asynchronous restoration loop
-                    setTimeout(() => {
-                        pickupProvince.dispatchEvent(new Event('change'));
-                    }, 50);
-                    
-                    // Execute manual invocation to pass code state parameters down the chain
-                    let citySelectHandler = pickupProvince.listeners?.change || function() {
-                        // Custom handler bypass to catch dropdown timings natively
-                        const pCode = pickupProvince.value;
-                        fetch(`https://psgc.gitlab.io/api/provinces/${pCode}/cities-municipalities.json`)
-                            .then(r => r.json()).then(cities => {
-                                pickupCity.innerHTML = '<option value="" disabled selected>Select city/municipality</option>';
-                                cities.sort((a, b) => a.name.localeCompare(b.name));
-                                cities.forEach(c => {
-                                    const o = new Option(c.name, c.code);
-                                    pickupCity.add(o);
-                                });
-                                if (cachedData.origin.cityCode) {
-                                    pickupCity.value = cachedData.origin.cityCode;
-                                    pickupCity.disabled = false;
-                                    
-                                    fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cachedData.origin.cityCode}/barangays.json`)
-                                        .then(r => r.json()).then(brgys => {
-                                            pickupBarangay.innerHTML = '<option value="" disabled selected>Select barangay</option>';
-                                            brgys.sort((a, b) => a.name.localeCompare(b.name));
-                                            brgys.forEach(b => { pickupBarangay.add(new Option(b.name, b.name)); });
-                                            if (cachedData.origin.barangay) {
-                                                pickupBarangay.value = cachedData.origin.barangay;
-                                                pickupBarangay.disabled = false;
-                                            }
-                                        });
-                                }
+                    const pCode = pickupProvince.value;
+                    fetch(`https://psgc.gitlab.io/api/regions/${pCode}/cities-municipalities.json`)
+                        .then(r => r.json()).then(cities => {
+                            pickupCity.innerHTML = '<option value="" disabled selected>Select city/municipality</option>';
+                            cities.sort((a, b) => a.name.localeCompare(b.name));
+                            cities.forEach(c => {
+                                pickupCity.add(new Option(c.name, c.code));
                             });
-                    };
-                    citySelectHandler();
+                            if (cachedData.origin.cityCode) {
+                                pickupCity.value = cachedData.origin.cityCode;
+                                pickupCity.disabled = false;
+                                
+                                fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cachedData.origin.cityCode}/barangays.json`)
+                                    .then(r => r.json()).then(brgys => {
+                                        pickupBarangay.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+                                        brgys.sort((a, b) => a.name.localeCompare(b.name));
+                                        brgys.forEach(b => { pickupBarangay.add(new Option(b.name, b.name)); });
+                                        if (cachedData.origin.barangay) {
+                                            pickupBarangay.value = cachedData.origin.barangay;
+                                            pickupBarangay.disabled = false;
+                                        }
+                                    });
+                            }
+                        });
                 }
             }
 
-            // Restore New Address (To) fields and cascaded values
+            // Restore Dropoff Address (To) fields and cascaded values
             if (cachedData.destination) {
                 dropoffContact.value = cachedData.destination.name || "";
                 dropoffMobile.value = cachedData.destination.phone || "";
@@ -250,42 +260,39 @@ document.addEventListener("DOMContentLoaded", () => {
                 chkSaveDropoff.checked = cachedData.destination.shouldSaveToAddressBook || false;
 
                 if (cachedData.destination.provinceCode) {
-                    dropoffProvince.value = cachedData.destination.provinceCode;
+                    dropoffProvince.value = cachedData.destination.provinceCode; // Sets region code safely
                     
-                    let citySelectHandlerTo = function() {
-                        const pCode = dropoffProvince.value;
-                        fetch(`https://psgc.gitlab.io/api/provinces/${pCode}/cities-municipalities.json`)
-                            .then(r => r.json()).then(cities => {
-                                dropoffCity.innerHTML = '<option value="" disabled selected>Select city/municipality</option>';
-                                cities.sort((a, b) => a.name.localeCompare(b.name));
-                                cities.forEach(c => {
-                                    const o = new Option(c.name, c.code);
-                                    dropoffCity.add(o);
-                                });
-                                if (cachedData.destination.cityCode) {
-                                    dropoffCity.value = cachedData.destination.cityCode;
-                                    dropoffCity.disabled = false;
-                                    
-                                    fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cachedData.destination.cityCode}/barangays.json`)
-                                        .then(r => r.json()).then(brgys => {
-                                            dropoffBarangay.innerHTML = '<option value="" disabled selected>Select barangay</option>';
-                                            brgys.sort((a, b) => a.name.localeCompare(b.name));
-                                            brgys.forEach(b => { dropoffBarangay.add(new Option(b.name, b.name)); });
-                                            if (cachedData.destination.barangay) {
-                                                dropoffBarangay.value = cachedData.destination.barangay;
-                                                dropoffBarangay.disabled = false;
-                                            }
-                                        });
-                                }
+                    const pCode = dropoffProvince.value;
+                    fetch(`https://psgc.gitlab.io/api/regions/${pCode}/cities-municipalities.json`)
+                        .then(r => r.json()).then(cities => {
+                            dropoffCity.innerHTML = '<option value="" disabled selected>Select city/municipality</option>';
+                            cities.sort((a, b) => a.name.localeCompare(b.name));
+                            cities.forEach(c => {
+                                dropoffCity.add(new Option(c.name, c.code));
                             });
-                    };
-                    citySelectHandlerTo();
+                            if (cachedData.destination.cityCode) {
+                                dropoffCity.value = cachedData.destination.cityCode;
+                                dropoffCity.disabled = false;
+                                
+                                fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cachedData.destination.cityCode}/barangays.json`)
+                                    .then(r => r.json()).then(brgys => {
+                                        dropoffBarangay.innerHTML = '<option value="" disabled selected>Select barangay</option>';
+                                        brgys.sort((a, b) => a.name.localeCompare(b.name));
+                                        brgys.forEach(b => { dropoffBarangay.add(new Option(b.name, b.name)); });
+                                        if (cachedData.destination.barangay) {
+                                            dropoffBarangay.value = cachedData.destination.barangay;
+                                            dropoffBarangay.disabled = false;
+                                        }
+                                    });
+                            }
+                        });
                 }
             }
         } catch (err) {
             console.error("Error reading persistence data models:", err);
         }
     }
+
 
     // =========================================================
     // 4. ACTION CONTROL NAVIGATION & SUBMIT SUBMISSION TIMELINE
@@ -297,9 +304,9 @@ document.addEventListener("DOMContentLoaded", () => {
     formWizard.addEventListener("submit", (e) => {
         e.preventDefault();
 
-        // Security Validation Guard Rails for mobile number string properties
+        // Security Validation Guard Rails for mobile number string formatting
         if (pickupMobile.value.length < 11 || dropoffMobile.value.length < 11) {
-            alert("❌ Mobile numbers must be accurate contact text strings (Minimum 11 numbers).");
+            alert("❌ Mobile numbers must be complete 11-digit numbers (e.g., 09XXXXXXXXX).");
             return;
         }
 
@@ -313,10 +320,10 @@ document.addEventListener("DOMContentLoaded", () => {
             origin: {
                 name: pickupContact.value,
                 phone: pickupMobile.value,
-                province: selectedOrigProv,
-                provinceCode: pickupProvince.value, // Retained to trace the API branch on back steps
+                province: selectedOrigProv,        // Now captures Region string name
+                provinceCode: pickupProvince.value,  // Now captures Region PSGC code string
                 city: selectedOrigCity,
-                cityCode: pickupCity.value,         // Retained to trace the API branch on back steps
+                cityCode: pickupCity.value,
                 barangay: pickupBarangay.value,
                 street: pickupStreet.value,
                 shouldSaveToAddressBook: chkSavePickup.checked
@@ -324,10 +331,10 @@ document.addEventListener("DOMContentLoaded", () => {
             destination: {
                 name: dropoffContact.value,
                 phone: dropoffMobile.value,
-                province: selectedDestProv,
-                provinceCode: dropoffProvince.value, // Retained to trace the API branch on back steps
+                province: selectedDestProv,        // Now captures Region string name
+                provinceCode: dropoffProvince.value,  // Now captures Region PSGC code string
                 city: selectedDestCity,
-                cityCode: dropoffCity.value,         // Retained to trace the API branch on back steps
+                cityCode: dropoffCity.value,
                 barangay: dropoffBarangay.value,
                 street: dropoffStreet.value,
                 shouldSaveToAddressBook: chkSaveDropoff.checked
@@ -335,9 +342,8 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         localStorage.setItem('activeBookingFormStep2', JSON.stringify(completeNationalPayload));
-        console.log("Success! Nationwide address log generated safely:", completeNationalPayload);
+        console.log("Success! Cargo-style regional address log generated safely:", completeNationalPayload);
         
-        // Corrected route direction mapping link -> Goes to Step 2 Move Info next!
         window.location.href = "book-lipatbahay-info.html";
     });
 });

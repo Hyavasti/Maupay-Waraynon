@@ -71,64 +71,125 @@
                 
                 <div class="payment-split-columns-container">
                     
+                    <!-- LEFT PANEL: PAYMENT SELECTION -->
                     <div class="payment-card-panel">
+                        
+                        <!-- SECTION 1: PAYMENT OPTION -->
                         <div class="card-section-title">
-                            <h3>Payment Method</h3>
+                            <h3>Payment Option</h3>
                         </div>
-
-                        <div class="vertical-payment-stack">
-                            
-                            <div class="payment-selection-row active-row" data-value="COD">
+                        <div class="vertical-payment-stack" style="margin-bottom: 24px;">
+                            <div class="payment-selection-row active-row" id="rowPayerSender">
                                 <label class="row-label-wrapper">
-                                    <input type="radio" name="paymentOption" value="COD" checked class="native-payment-radio">
+                                    <input type="radio" name="paymentPayer" value="Sender" checked class="native-payment-radio">
                                     <div class="row-text-block">
-                                        <span class="payment-method-title">Cash on Delivery</span>
-                                        <span class="payment-method-desc">Pay when your packages arrives</span>
+                                        <span class="payment-method-title">Sender</span>
+                                        <span class="payment-method-desc">Fees are settled by the origin point shipper</span>
                                     </div>
                                 </label>
                             </div>
+                            <div class="payment-selection-row" id="rowPayerReceiver">
+                                <label class="row-label-wrapper">
+                                    <input type="radio" name="paymentPayer" value="Receiver" class="native-payment-radio">
+                                    <div class="row-text-block">
+                                        <span class="payment-method-title">Receiver</span>
+                                        <span class="payment-method-desc">Fees are collected upon arrival destination point</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
 
-                            <div class="payment-selection-row" data-value="GCash">
+                        <!-- SECTION 2: PAYMENT METHOD -->
+                        <div class="card-section-title">
+                            <h3>Payment Method</h3>
+                        </div>
+                        <div class="vertical-payment-stack">
+                            
+                            <!-- CASH / COD SELECTION CARD -->
+                            <div class="payment-selection-row active-row" id="rowMethodCOD">
+                                <label class="row-label-wrapper">
+                                    <input type="radio" name="paymentOption" value="COD" checked class="native-payment-radio">
+                                    <div class="row-text-block">
+                                        <span class="payment-method-title">Cash / COD</span>
+                                        <span class="payment-method-desc">Pay in cash at dropoff or pickup destination point</span>
+                                    </div>
+                                </label>
+                                
+                                <div id="codNoticeContainer" class="nested-collapsible-zone active-zone">
+                                    <div class="inline-divider-line"></div>
+                                    <div class="merchant-info-card alert-warning-box">
+                                        <p><strong class="alert-title-gold"><i class="fas fa-info-circle"></i> COD Notice:</strong> Please prepare the complete calculated payment balance to hand over directly to our agents/drivers once shipment operations reach the target address.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- GCASH SELECTION CARD -->
+                            <div class="payment-selection-row" id="rowMethodGCash">
                                 <label class="row-label-wrapper">
                                     <input type="radio" name="paymentOption" value="GCash" class="native-payment-radio">
                                     <div class="row-text-block">
                                         <span class="payment-method-title">GCash</span>
-                                        <span class="payment-method-desc">Pay via GCash e-wallet</span>
+                                        <span class="payment-method-desc">Settle instantly using GCash mobile wallet transfer</span>
                                     </div>
                                 </label>
+
+                                <div id="gcashDetailsContainer" class="nested-collapsible-zone">
+                                    <div class="inline-divider-line"></div>
+                                    <div class="nested-instruction-content">
+                                        <h4 class="instruction-block-heading"><i class="fas fa-wallet"></i> GCash Transfer Instructions</h4>
+                                        <p class="instruction-subtext-para">Settle your calculated grand total balance to our verified corporate merchant number:</p>
+                                        
+                                        <div class="account-details-highlight-well">
+                                            <p><strong>Account Name:</strong> Maupay Waraynon Padala Center</p>
+                                            <p><strong>Account Number:</strong> 0917 123 4567</p>
+                                        </div>
+
+                                        <div class="input-field-group-container">
+                                            <label class="field-label-caption">Reference Number</label>
+                                            <input type="text" id="gcashReferenceNumber" class="custom-field-box" placeholder="Enter 13-digit reference code" maxlength="13">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="payment-selection-row" data-value="Bank">
+                            <!-- BANK TRANSFER SELECTION CARD -->
+                            <div class="payment-selection-row" id="rowMethodBank">
                                 <label class="row-label-wrapper">
                                     <input type="radio" name="paymentOption" value="Bank" class="native-payment-radio">
                                     <div class="row-text-block">
                                         <span class="payment-method-title">Bank Transfer</span>
-                                        <span class="payment-method-desc">Transfer to our bank account</span>
+                                        <span class="payment-method-desc">Transfer directly to our secure banking endpoints</span>
                                     </div>
                                 </label>
+
+                                <div id="bankDetailsContainer" class="nested-collapsible-zone">
+                                    <div class="inline-divider-line"></div>
+                                    <div class="nested-instruction-content">
+                                        <h4 class="instruction-block-heading"><i class="fas fa-university"></i> Bank Transfer Details</h4>
+                                        <p class="instruction-subtext-para">Deposit invoice total securely through standard bank transfer pathways:</p>
+                                        
+                                        <div class="account-details-highlight-well">
+                                            <p><strong>Bank Vendor:</strong> BDO Unibank (Banco de Oro)</p>
+                                            <p><strong>Account Name:</strong> Maupay Waraynon Padala Center</p>
+                                            <p><strong>Account Number:</strong> 0012 3456 7890</p>
+                                        </div>
+
+                                        <div class="input-field-group-container">
+                                            <label class="field-label-caption">Transaction Reference / Reference Code</label>
+                                            <input type="text" id="bankTransactionRef" class="custom-field-box" placeholder="Enter bank authorization tracker value">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                         </div>
-
-                        <div class="dynamic-payment-fields-zone">
-                            <div id="gcashDetailsContainer" class="collapsible-input-alert">
-                                <div class="merchant-info-card">
-                                    <p><strong>Merchant Name:</strong> Maupay Waraynon Padala</p>
-                                    <p><strong>GCash Number:</strong> 0917 123 4567</p>
-                                    <input type="text" id="gcashReferenceNumber" class="custom-field-box" placeholder="Enter 13-digit Reference Number" maxlength="13">
-                                </div>
-                            </div>
-
-                            <div id="bankDetailsContainer" class="collapsible-input-alert">
-                                <div class="merchant-info-card">
-                                    <p><strong>Bank Vendor:</strong> BDO Unibank</p>
-                                    <p><strong>Account Number:</strong> 0012 3456 7890</p>
-                                    <input type="text" id="bankTransactionRef" class="custom-field-box" placeholder="Enter Bank Transaction Reference">
-                                </div>
-                            </div>
+                        
+                        <div style="margin-top: 24px; text-align: left;">
+                            <button type="button" id="btnBackToInfo" class="screenshot-btn-back">&lt; Back</button>
                         </div>
                     </div>
 
+                    <!-- RIGHT PANEL: ORDER SUMMARY BLOCK WITH INTEGRATED SUBMIT BUTTON -->
                     <div class="payment-card-panel summary-panel-stretch">
                         <div class="card-section-title">
                             <h3>Order Summary</h3>
@@ -136,36 +197,158 @@
 
                         <div class="summary-breakdown-table">
                             <div class="summary-item-line">
-                                <span class="summary-label-text">Base Rate</span>
-                                <span class="summary-value-text" id="summaryBaseRate">PHP 150.00</span>
-                            </div>
-                            <div class="summary-item-line">
-                                <span class="summary-label-text">Weight Surcharge</span>
-                                <span class="summary-value-text" id="summarySurcharge">PHP 0.00</span>
-                            </div>
-                            <div class="summary-item-line">
-                                <span class="summary-label-text">Insurance</span>
-                                <span class="summary-value-text" id="summaryInsurance">PHP 0.00</span>
+                                <span class="summary-label-text">Service Type</span>
+                                <span class="summary-value-text" style="font-weight: 600; color: #1e3a8a;">Lipat Bahay</span>
                             </div>
 
-                            <div class="summary-item-line total-price-row">
-                                <span class="total-label-text">Total</span>
-                                <span class="total-value-price" id="displayFinalPaymentDue">Php 150</span>
+                            <div class="summary-item-line">
+                                <span class="summary-label-text">Vehicle (<span id="summaryVehicleName">--</span>)</span>
+                                <span class="summary-value-text" id="summaryVehicleRate">PHP 0.00</span>
                             </div>
+
+                            <div class="summary-item-line">
+                                <span class="summary-label-text">Services / Add-ons</span>
+                                <span class="summary-value-text" id="summaryAddonsPrice">PHP 0.00</span>
+                            </div>
+
+                            <div class="summary-item-line" id="summaryRoundTripRow" style="display: none;">
+                                <span class="summary-label-text">Round Trip Surcharge (+70%)</span>
+                                <span class="summary-value-text" id="summaryRoundTripPrice">PHP 0.00</span>
+                            </div>
+
+                            <div class="summary-item-line">
+                                <span class="summary-label-text">Assigned Payer</span>
+                                <span class="summary-value-text" id="summaryAssignedPayer" style="background: #eff6ff; color: #1e40af; padding: 2px 8px; border-radius: 4px; font-weight: 600; font-size: 0.85rem;">Sender</span>
+                            </div>
+
+                            <div style="border-top: 1px dashed #e2e8f0; margin-top: 10px; padding-top: 10px; font-size: 0.85rem; color: #718096;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                                    <span>Move Date:</span>
+                                    <span id="summaryMoveDate" style="font-weight: 500; color: #2d3748;">--/--/----</span>
+                                </div>
+                                <div style="display: flex; justify-content: space-between;">
+                                    <span>Est. Items:</span>
+                                    <span id="summaryItemsCount" style="font-weight: 500; color: #2d3748;">--</span>
+                                </div>
+                            </div>
+
+                            <div class="summary-item-line total-price-row" style="margin-bottom: 20px;">
+                                <span class="total-label-text">Total</span>
+                                <span class="total-value-price" id="displayFinalPaymentDue">Php 0.00</span>
+                            </div>
+                            
+                            <button type="submit" class="summary-confirm-booking-btn">Confirm Booking</button>
                         </div>
                     </div>
 
                 </div>
-
-                <div class="form-navigation-actions-row">
-                    <button type="button" id="btnBackToInfo" class="screenshot-btn-back">&lt; Back</button>
-                    <button type="submit" class="screenshot-btn-confirm">Confirm Booking</button>
-                </div>
-
             </form>
+
+            <!-- FULL REVIEW MODAL DIALOG MAPPING EXACT VISUAL DESIGN OF image_e9bd0b.png -->
+            <div id="reviewOrderModalOverlay" class="review-modal-overlay">
+                <div class="review-modal-container">
+                    
+                    <div class="review-modal-header">
+                        <span class="modal-header-title-text"><i class="fas fa-file-alt"></i> Review Shipment Orders</span>
+                        <span id="modalCloseXBtn" class="modal-close-x-icon">&times;</span>
+                    </div>
+
+                    <div class="review-modal-body-content">
+                        <p class="modal-intro-instructions">Please take a moment to look over your logistics distribution configurations before submitting.</p>
+                        
+                        <div class="modal-flex-two-columns">
+                            
+                            <!-- ROUTING BLOCK -->
+                            <div class="modal-details-card">
+                                <h5>ROUTING DETAILS</h5>
+                                <div class="detail-data-item-row">
+                                    <span class="detail-item-label">Delivery Mode:</span>
+                                    <span class="detail-item-val" id="popRouteMode">DoorToDoor</span>
+                                </div>
+                                <div class="detail-data-item-row">
+                                    <span class="detail-item-label">Sender:</span>
+                                    <span class="detail-item-val" id="popRouteSender">--</span>
+                                </div>
+                                <div class="detail-data-item-row">
+                                    <span class="detail-item-label">Receiver:</span>
+                                    <span class="detail-item-val" id="popRouteReceiver">--</span>
+                                </div>
+                            </div>
+
+                            <!-- MOVE CONFIG BLOCK -->
+                            <div class="modal-details-card">
+                                <h5>MOVE DETAILS</h5>
+                                <div class="detail-data-item-row">
+                                    <span class="detail-item-label">Vehicle Type:</span>
+                                    <span class="detail-item-val" id="popMoveVehicle">--</span>
+                                </div>
+                                <div class="detail-data-item-row">
+                                    <span class="detail-item-label">Scheduled Date:</span>
+                                    <span class="detail-item-val" id="popMoveDate">--</span>
+                                </div>
+                                <div class="detail-data-item-row">
+                                    <span class="detail-item-label">Volume Metrics:</span>
+                                    <span class="detail-item-val" id="popMoveItems">-- items est.</span>
+                                </div>
+                                <!-- 🌟 UPDATED: SEPARATED ADD-ONS FIELD WITH CORRESPONDING DOM TARGET ID -->
+                                <div class="detail-data-item-row">
+                                    <span class="detail-item-label">Add-ons:</span>
+                                    <span class="detail-item-val" id="popMoveAddons">None</span>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- SETTLEMENT BOX -->
+                        <div class="modal-settlement-full-well">
+                            <h5>SETTLEMENT TERMS</h5>
+                            <div class="settlement-flex-inline-items">
+                                <div class="settlement-sub-item">
+                                    <span class="settlement-sub-label">Who Pays:</span>
+                                    <span id="popSettlementPayer" class="modal-payer-badge-element">Sender</span>
+                                </div>
+                                <div class="settlement-sub-item">
+                                    <span class="settlement-sub-label">Method:</span>
+                                    <span id="popSettlementMethod" class="settlement-sub-value">Cash / COD</span>
+                                </div>
+                                <div class="settlement-sub-item amount-due-right-align">
+                                    <span class="amount-due-label-text">Amount Due:</span>
+                                    <span id="popSettlementGrandTotal" class="amount-due-numeric-highlight">PHP 0.00</span>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="review-modal-footer-actions">
+                        <button type="button" id="modalCancelBtn" class="modal-action-btn-dismiss">Cancel</button>
+                        <button type="button" id="modalSubmitFinalBtn" class="modal-action-btn-commit">Submit Booking</button>
+                    </div>
+
+                </div>
+            </div>
 
         </main>
     </div>
+
+    <div id="successModalOverlay" class="custom-modal-overlay">
+    <div class="success-modal-card">
+        <div class="success-icon-circle">
+            <svg viewBox="0 0 24 24" class="success-check-svg">
+                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+        </div>
+        <h2 class="success-title">Booking Successful!</h2>
+        <p class="success-message">Your Lipatbahay moving request has been processed cleanly.</p>
+        
+        <div class="tracking-display-box">
+            <span class="tracking-label">TRACKING ID</span>
+            <span id="successTrackingId" class="tracking-id-value">LBH-XXXXXXXX-PH</span>
+        </div>
+
+        <button id="btnSuccessDashboard" class="btn-success-redirect">Go to Dashboard</button>
+    </div>
+</div>
 
     <script src="book-lipatbahay-payment.js"></script>
 </body>

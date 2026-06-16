@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const metricStandardParcel = document.getElementById("metricStandardParcel");
     const metricHeavyCargo = document.getElementById("metricHeavyCargo");
     
-    const activeShipmentsContainer = document.getElementById("activeShipmentsProgressContainer");
+    const activeShipmentsProgressContainer = document.getElementById("activeShipmentsProgressContainer");
     const bookingsTableBody = document.getElementById("bookingsTableBody");
     const welcomeSummaryLabel = document.getElementById("welcomeSummaryLabel");
     const quickTrackForm = document.getElementById("quickTrackForm");
@@ -15,9 +15,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // Function to calculate and update dashboard metrics counters
     function calculateMetrics() {
         const total = shipments.length;
-        const lipatBahayCount = shipments.filter(s => s.serviceType === "Lipat-Bahay").length;
-        const standardCount = shipments.filter(s => s.serviceType === "Standard Parcel").length;
-        const cargoCount = shipments.filter(s => s.serviceType === "Heavy Cargo").length;
+
+        // FLEXIBLE MATCHING: Converts to lowercase and checks keywords to bypass spelling/mismatches
+        const lipatBahayCount = shipments.filter(s => {
+            const type = (s.serviceType || "").toLowerCase();
+            return type.includes("lipat") || type.includes("bahay");
+        }).length;
+
+        const standardCount = shipments.filter(s => {
+            const type = (s.serviceType || "").toLowerCase();
+            return type.includes("standard") || type.includes("parcel");
+        }).length;
+
+        const cargoCount = shipments.filter(s => {
+            const type = (s.serviceType || "").toLowerCase();
+            return type.includes("heavy") || type.includes("cargo") || type.includes("commercial");
+        }).length;
 
         // Counter UI Assignment safely checking if elements exist first
         if (metricTotalBookings) metricTotalBookings.textContent = total;
@@ -34,15 +47,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Function to build and show the active transit progress bar components
     function renderActiveProgressCards() {
-        if (!activeShipmentsContainer) return;
+        if (!activeShipmentsProgressContainer) return;
         
-        activeShipmentsContainer.innerHTML = ""; 
+        activeShipmentsProgressContainer.innerHTML = ""; 
 
         // Filter out items that are already closed or delivered
         const activeShipments = shipments.filter(s => s.status !== "Delivered");
 
         if (activeShipments.length === 0) {
-            activeShipmentsContainer.innerHTML = `
+            activeShipmentsProgressContainer.innerHTML = `
                 <div style="padding: 20px; text-align: center; color: #64748b; background: #fff; border-radius: 8px;">
                     <i class="fas fa-folder-open" style="font-size: 24px; margin-bottom: 8px; color: #cbd5e1;"></i>
                     <p style="margin: 0; font-size: 0.9rem;">No active transit routes discovered. Create a new booking to populate real-time milestones.</p>
@@ -50,8 +63,11 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
+        //the active shipments latest additions render on top
+        const sortedActiveShipments = [...activeShipments].reverse();
+
         // Generate progress bars dynamically based on transit states
-        activeShipments.forEach(shipment => {
+        sortedActiveShipments.forEach(shipment => {
             let progressPercentage = 35; 
             let statusClass = "status-transit";
             
@@ -60,13 +76,23 @@ document.addEventListener("DOMContentLoaded", () => {
                 statusClass = "status-delivery";
             }
 
+            // Real-world uniform format structure generation fallback parser
+            let formattedDestination = shipment.destination || "Authorized Receiver - Tacloban City";
+            if (formattedDestination && !formattedDestination.includes(" - ")) {
+                if (formattedDestination.toLowerCase().includes("tacloban") || formattedDestination.toLowerCase().includes("manila")) {
+                    formattedDestination = `Authorized Receiver - ${formattedDestination}`;
+                } else {
+                    formattedDestination = `${formattedDestination} - Main Delivery Zone`;
+                }
+            }
+
             const cardHtml = `
                 <div class="shipment-progress-card">
                     <div class="shipment-meta-icon">
                         <div class="meta-box blue-bg"></div>
                         <div class="meta-labels">
                             <h4>${shipment.trackingId}</h4>
-                            <span>To: ${shipment.destination}</span>
+                            <span>To: ${formattedDestination}</span>
                         </div>
                     </div>
                     <div class="progress-track-wrapper">
@@ -78,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <span class="badge ${statusClass}">${shipment.status}</span>
                 </div>
             `;
-            activeShipmentsContainer.insertAdjacentHTML("beforeend", cardHtml);
+            activeShipmentsProgressContainer.insertAdjacentHTML("beforeend", cardHtml);
         });
     }
 
@@ -106,11 +132,20 @@ document.addEventListener("DOMContentLoaded", () => {
             if (shipment.status === "Out for Delivery") statusBadgeClass = "status-delivery";
             if (shipment.status === "Delivered") statusBadgeClass = "status-delivered";
 
+            let formattedDestination = shipment.destination || "Authorized Receiver - Tacloban City";
+            if (formattedDestination && !formattedDestination.includes(" - ")) {
+                if (formattedDestination.toLowerCase().includes("tacloban") || formattedDestination.toLowerCase().includes("manila")) {
+                    formattedDestination = `Authorized Receiver - ${formattedDestination}`;
+                } else {
+                    formattedDestination = `${formattedDestination} - Main Delivery Zone`;
+                }
+            }
+
             const rowHtml = `
                 <tr>
                     <td><strong>${shipment.trackingId}</strong></td>
                     <td>${shipment.serviceType}</td>
-                    <td>${shipment.destination}</td>
+                    <td>${formattedDestination}</td>
                     <td>${shipment.dateBooked || "Today"}</td>
                     <td><span class="badge ${statusBadgeClass}">${shipment.status}</span></td>
                 </tr>
