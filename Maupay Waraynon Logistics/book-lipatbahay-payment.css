@@ -608,6 +608,42 @@
     background-color: #0369a1;
 }
 
+.modal-specifications-group {
+    background-color: #f9fafb;
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+    border: 1px solid #e5e7eb;
+}
+
+.spec-review-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 6px 0;
+    font-size: 0.9rem;
+}
+
+.spec-label {
+    font-weight: 600;
+    color: #4b5563;
+    flex-shrink: 0;
+    margin-right: 15px;
+}
+
+.spec-value-highlight {
+    color: #b91c1c; /* Crimson hint for visibility of valuables */
+    font-weight: 500;
+    text-align: right;
+}
+
+.spec-value-text {
+    color: #1f2937;
+    text-align: right;
+    font-style: italic;
+    word-break: break-word;
+}
+
 /* ==========================================================================
    ANIMATIONS KEYFRAMES
    ========================================================================== */

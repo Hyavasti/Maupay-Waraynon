@@ -1,3 +1,7 @@
+// ==========================================================================
+// 📦 MAUPAY WARAYNON PADALA CENTER - LIPATBAHAY ROUTING INFRASTRUCTURE
+// ==========================================================================
+
 // 1. Modern Modular Firebase Imports matching your setup
 import { getFirestore, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
@@ -55,6 +59,10 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedAddonsTextList = [];
     let bookingManifestSource = {};
 
+    // 💡 SECURE TRACKING VARIABLES FOR SPECIAL HANDLING AND VALUABLES WITH FALLBACKS
+    let specialInstructionsValue = "None stated";
+    let valuableItemsValue = "None stated";
+
     const profileAvatar = document.getElementById("profileAvatar");
 
     // Profile State Check via Modern SDK
@@ -99,12 +107,19 @@ document.addEventListener("DOMContentLoaded", () => {
             vehicleModelUsed = bookingManifestSource.logisticsArrangements.vehicleClassSelected || "Van Truck";
         }
 
+        // Deep mapping checking across varying manifest versions
         if (bookingManifestSource.moveDetails) {
             movementDate = bookingManifestSource.moveDetails.preferredDate || "--/--/----";
             capacityCount = bookingManifestSource.moveDetails.estimatedItemsCount || "0";
-        } else if (bookingManifestSource.moveSpecifications) {
-            movementDate = bookingManifestSource.moveSpecifications.scheduledDate || "--/--/----";
-            capacityCount = bookingManifestSource.moveSpecifications.loadQuantityEstimate || "0";
+            specialInstructionsValue = bookingManifestSource.moveDetails.specialHandlingInstructions || specialInstructionsValue;
+            valuableItemsValue = bookingManifestSource.moveDetails.specialValuableItems || valuableItemsValue;
+        } 
+        
+        if (bookingManifestSource.moveSpecifications) {
+            if (bookingManifestSource.moveSpecifications.scheduledDate) movementDate = bookingManifestSource.moveSpecifications.scheduledDate;
+            if (bookingManifestSource.moveSpecifications.loadQuantityEstimate) capacityCount = bookingManifestSource.moveSpecifications.loadQuantityEstimate;
+            if (bookingManifestSource.moveSpecifications.specialInstructionsText) specialInstructionsValue = bookingManifestSource.moveSpecifications.specialInstructionsText;
+            if (bookingManifestSource.moveSpecifications.valuableHighTierItems) valuableItemsValue = bookingManifestSource.moveSpecifications.valuableHighTierItems;
         }
 
         if (bookingManifestSource.selectedAddons) {
@@ -234,6 +249,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (document.getElementById("popMoveDate")) document.getElementById("popMoveDate").textContent = movementDate;
             if (document.getElementById("popMoveItems")) document.getElementById("popMoveItems").textContent = `${capacityCount} items est.`;
 
+            // ✅ Defensive elements check ensures missing fields won't crash execution
+            const specInstructionsEl = document.getElementById("popSpecialInstructions");
+            if (specInstructionsEl) specInstructionsEl.textContent = specialInstructionsValue;
+
+            const valItemsEl = document.getElementById("popValuableItems");
+            if (valItemsEl) valItemsEl.textContent = valuableItemsValue;
+
             const popMoveAddons = document.getElementById("popMoveAddons");
             if (popMoveAddons) {
                 if (selectedAddonsTextList && selectedAddonsTextList.length > 0) {
@@ -316,7 +338,9 @@ document.addEventListener("DOMContentLoaded", () => {
                     category: "Moving Freight Cargo",
                     dims: "N/A — Truck Load",
                     weight: `${capacityCount} items est.`,
-                    value: grandTotalValue.toLocaleString('en-PH', { minimumFractionDigits: 2 })
+                    value: grandTotalValue.toLocaleString('en-PH', { minimumFractionDigits: 2 }),
+                    specialInstructions: specialInstructionsValue,
+                    valuableItems: valuableItemsValue
                 },
                 payment: {
                     method: finalMethod === "COD" ? "Cash on Delivery (COD)" : `${finalMethod} Wallet`,
@@ -348,6 +372,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     vehicleType: vehicleModelUsed,
                     scheduledMoveDate: movementDate || "Pending Scheduling",
                     estimatedItemCount: capacityCount,
+                    valuableItemsDeclared: valuableItemsValue,
+                    specialHandlingInstructions: specialInstructionsValue,
                     selectedAddonServices: selectedAddonsTextList,
                     orderCreatedDateTime: new Date().toLocaleString()
                 },
