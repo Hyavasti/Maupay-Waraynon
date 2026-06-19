@@ -1,12 +1,32 @@
+// 1. Modern Modular Firebase Imports matching your setup
+import { getFirestore, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+
+// 2. Firebase Safe Configuration Hook
+const firebaseConfig = {
+    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+    authDomain: "mpc-bacoor.firebaseapp.com",
+    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mpc-bacoor",
+    storageBucket: "mpc-bacoor.firebasestorage.app",
+    messagingSenderId: "105917197007",
+    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+    measurementId: "G-GSF6CFML1Y"
+};
+
+// Prevent duplicate initialization crashes across page transitions
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
+const db = getFirestore(app);
+const auth = getAuth(app);
+
 document.addEventListener("DOMContentLoaded", () => {
     const paymentForm = document.getElementById("lipatBahayPaymentForm");
     const btnBackToInfo = document.getElementById("btnBackToInfo");
     
-    // Select elements mapping groups
     const payerOptions = document.querySelectorAll('input[name="paymentPayer"]');
     const methodOptions = document.querySelectorAll('input[name="paymentOption"]');
     
-    // Target nested blocks
     const codNotice = document.getElementById("codNoticeContainer");
     const gcashContainer = document.getElementById("gcashDetailsContainer");
     const bankContainer = document.getElementById("bankDetailsContainer");
@@ -15,18 +35,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const bankInput = document.getElementById("bankTransactionRef");
     const summaryAssignedPayer = document.getElementById("summaryAssignedPayer");
 
-    // Modal DOM Elements Reference Group
     const modalOverlay = document.getElementById("reviewOrderModalOverlay");
     const modalCloseX = document.getElementById("modalCloseXBtn");
     const modalCancel = document.getElementById("modalCancelBtn");
     const modalSubmitFinal = document.getElementById("modalSubmitFinalBtn");
 
-    // NEW Custom Success Modal Elements
     const successModalOverlay = document.getElementById("successModalOverlay");
     const successTrackingId = document.getElementById("successTrackingId");
     const btnSuccessDashboard = document.getElementById("btnSuccessDashboard");
 
-    // Operational Tracking Stores initialized empty to load local manifest files cleanly
     let basePriceValue = 0;
     let addonsPriceValue = 0;
     let roundTripValue = 0;
@@ -38,23 +55,43 @@ document.addEventListener("DOMContentLoaded", () => {
     let selectedAddonsTextList = [];
     let bookingManifestSource = {};
 
-    // Profile Avatar setup
     const profileAvatar = document.getElementById("profileAvatar");
-    const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
-    if (savedAccountRaw && profileAvatar) {
-        const userAccount = JSON.parse(savedAccountRaw);
-        if (userAccount.firstName) {
-            profileAvatar.innerText = userAccount.firstName.charAt(0).toUpperCase();
+
+    // Profile State Check via Modern SDK
+    onAuthStateChanged(auth, async (user) => {
+        if (user && profileAvatar) {
+            try {
+                const userDocRef = doc(db, "Customer", user.uid);
+                const snapshot = await getDoc(userDocRef);
+                if (snapshot.exists()) {
+                    const userData = snapshot.data();
+                    const firstName = userData.firstName || userData.name || "";
+                    if (firstName) {
+                        profileAvatar.innerText = firstName.trim().charAt(0).toUpperCase();
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn("Database avatar read error:", err);
+            }
+        }
+        fallbackLocalStorageAvatar();
+    });
+
+    function fallbackLocalStorageAvatar() {
+        const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
+        if (savedAccountRaw && profileAvatar) {
+            const userAccount = JSON.parse(savedAccountRaw);
+            if (userAccount.firstName) {
+                profileAvatar.innerText = userAccount.firstName.charAt(0).toUpperCase();
+            }
         }
     }
 
- 
-    //DYNAMIC ORDER SUMMARY & ADDONS DATA
     bookingManifestSource = JSON.parse(localStorage.getItem('consolidatedBookingManifest')) || 
                             JSON.parse(localStorage.getItem('activeBookingFormStep2')) || {};
 
     if (bookingManifestSource) {
-        // Extract vehicle selections populated
         if (bookingManifestSource.vehicleSelection) {
             vehicleModelUsed = bookingManifestSource.vehicleSelection.displayName || "Van Truck";
             basePriceValue = Number(bookingManifestSource.vehicleSelection.basePrice || 0);
@@ -62,7 +99,6 @@ document.addEventListener("DOMContentLoaded", () => {
             vehicleModelUsed = bookingManifestSource.logisticsArrangements.vehicleClassSelected || "Van Truck";
         }
 
-        // Extract move specifications details
         if (bookingManifestSource.moveDetails) {
             movementDate = bookingManifestSource.moveDetails.preferredDate || "--/--/----";
             capacityCount = bookingManifestSource.moveDetails.estimatedItemsCount || "0";
@@ -71,14 +107,12 @@ document.addEventListener("DOMContentLoaded", () => {
             capacityCount = bookingManifestSource.moveSpecifications.loadQuantityEstimate || "0";
         }
 
-        // Extract selected additions list array seamlessly 
         if (bookingManifestSource.selectedAddons) {
             selectedAddonsTextList = bookingManifestSource.selectedAddons;
         } else if (bookingManifestSource.logisticsArrangements && bookingManifestSource.logisticsArrangements.selectedAddonServices) {
             selectedAddonsTextList = bookingManifestSource.logisticsArrangements.selectedAddonServices;
         }
 
-        // Extract dynamic live grand totals computed
         if (bookingManifestSource.estimatedTotalQuote) {
             grandTotalValue = Number(bookingManifestSource.estimatedTotalQuote);
         } else if (bookingManifestSource.logisticsArrangements && bookingManifestSource.logisticsArrangements.computedQuoteSummaryValue) {
@@ -86,7 +120,6 @@ document.addEventListener("DOMContentLoaded", () => {
             grandTotalValue = parseFloat(rawPriceText.replace(/[^0-9.]/g, '')) || 0;
         }
 
-        // Deduct base price from grand total to dynamically show total addon cost if fields aren't split
         if (basePriceValue > 0 && grandTotalValue >= basePriceValue) {
             addonsPriceValue = grandTotalValue - basePriceValue;
         } else {
@@ -94,62 +127,46 @@ document.addEventListener("DOMContentLoaded", () => {
             addonsPriceValue = 0;
         }
 
-        //Update matching invoice layout summaries
-        if (document.getElementById("summaryVehicleName")) {
-            document.getElementById("summaryVehicleName").textContent = vehicleModelUsed;
-        }
-        if (document.getElementById("summaryVehicleRate")) {
-            document.getElementById("summaryVehicleRate").textContent = `PHP ${basePriceValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        }
-        if (document.getElementById("summaryAddonsPrice")) {
-            document.getElementById("summaryAddonsPrice").textContent = `PHP ${addonsPriceValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
-        }
-        if (document.getElementById("summaryMoveDate")) {
-            document.getElementById("summaryMoveDate").textContent = movementDate;
-        }
-        if (document.getElementById("summaryItemsCount")) {
-            document.getElementById("summaryItemsCount").textContent = capacityCount;
-        }
+        if (document.getElementById("summaryVehicleName")) document.getElementById("summaryVehicleName").textContent = vehicleModelUsed;
+        if (document.getElementById("summaryVehicleRate")) document.getElementById("summaryVehicleRate").textContent = `PHP ${basePriceValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        if (document.getElementById("summaryAddonsPrice")) document.getElementById("summaryAddonsPrice").textContent = `PHP ${addonsPriceValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        if (document.getElementById("summaryMoveDate")) document.getElementById("summaryMoveDate").textContent = movementDate;
+        if (document.getElementById("summaryItemsCount")) document.getElementById("summaryItemsCount").textContent = capacityCount;
         
         const roundTripRow = document.getElementById("summaryRoundTripRow");
-        if (roundTripRow) {
-            roundTripRow.style.display = "none";
-        }
+        if (roundTripRow) roundTripRow.style.display = "none";
 
         if (document.getElementById("displayFinalPaymentDue")) {
             document.getElementById("displayFinalPaymentDue").textContent = `Php ${grandTotalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
         }
     }
 
-    // PAYER ROW SELECTION 
     payerOptions.forEach(radio => {
         const row = radio.closest(".payment-selection-row");
         if (!row) return;
-        row.addEventListener("click", () => {
+        row.addEventListener("click", (e) => {
+            if (e.target !== radio) radio.checked = true;
             payerOptions.forEach(r => {
                 const pRow = r.closest(".payment-selection-row");
                 if (pRow) pRow.classList.remove("active-row");
             });
             row.classList.add("active-row");
-            radio.checked = true;
             if (summaryAssignedPayer) summaryAssignedPayer.textContent = radio.value;
         });
     });
 
-    //METHOD SELECTION
     methodOptions.forEach(radio => {
         const row = radio.closest(".payment-selection-row");
         if (!row) return;
         row.addEventListener("click", (e) => {
             if (e.target.tagName === "INPUT" && e.target.type === "text") return;
+            if (e.target !== radio) radio.checked = true;
 
             methodOptions.forEach(r => {
                 const mRow = r.closest(".payment-selection-row");
                 if (mRow) mRow.classList.remove("active-row");
             });
             row.classList.add("active-row");
-            radio.checked = true;
-            
             toggleInlinePaymentMethodZones(radio.value);
         });
     });
@@ -179,15 +196,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Navigation Step-Back Action
     if (btnBackToInfo) {
         btnBackToInfo.addEventListener("click", () => {
             window.location.href = "book-lipatbahay-info.html";
         });
     }
 
- 
-    // INTERCEPT SUBMISSION TO OPEN MODAL & MAP ISOLATED ADDONS
     if (paymentForm) {
         paymentForm.addEventListener("submit", (e) => {
             e.preventDefault();
@@ -211,26 +225,15 @@ document.addEventListener("DOMContentLoaded", () => {
             let senderFullName = "Juan Dela Cruz";
             let receiverFullName = "Maria Clara";
 
-            if (bookingManifestSource.origin && bookingManifestSource.origin.name) {
-                senderFullName = bookingManifestSource.origin.name;
-            }
-            if (bookingManifestSource.destination && bookingManifestSource.destination.name) {
-                receiverFullName = bookingManifestSource.destination.name;
-            }
+            if (bookingManifestSource.origin && bookingManifestSource.origin.name) senderFullName = bookingManifestSource.origin.name;
+            if (bookingManifestSource.destination && bookingManifestSource.destination.name) receiverFullName = bookingManifestSource.destination.name;
 
-            // Populate Modal Fields cleanly
             if (document.getElementById("popRouteSender")) document.getElementById("popRouteSender").textContent = senderFullName;
             if (document.getElementById("popRouteReceiver")) document.getElementById("popRouteReceiver").textContent = receiverFullName;
-            
             if (document.getElementById("popMoveVehicle")) document.getElementById("popMoveVehicle").textContent = vehicleModelUsed;
             if (document.getElementById("popMoveDate")) document.getElementById("popMoveDate").textContent = movementDate;
-            
-            //Stays cleanly on its own line
-            if (document.getElementById("popMoveItems")) {
-                document.getElementById("popMoveItems").textContent = `${capacityCount} items est.`;
-            }
+            if (document.getElementById("popMoveItems")) document.getElementById("popMoveItems").textContent = `${capacityCount} items est.`;
 
-            //Maps target summary cleanly or defaults to "None"
             const popMoveAddons = document.getElementById("popMoveAddons");
             if (popMoveAddons) {
                 if (selectedAddonsTextList && selectedAddonsTextList.length > 0) {
@@ -251,7 +254,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Modal view closures
     function closeReviewModalZone() {
         if (modalOverlay) modalOverlay.classList.remove("display-modal-active");
     }
@@ -259,91 +261,154 @@ document.addEventListener("DOMContentLoaded", () => {
     if (modalCloseX) modalCloseX.addEventListener("click", closeReviewModalZone);
     if (modalCancel) modalCancel.addEventListener("click", closeReviewModalZone);
 
-
-    // SUBMIT FINAL TRANSACTION DATA ENGINE
     if (modalSubmitFinal) {
-        modalSubmitFinal.addEventListener("click", () => {
+        modalSubmitFinal.addEventListener("click", async () => {
             const checkedPayerEl = document.querySelector('input[name="paymentPayer"]:checked');
             const checkedMethodEl = document.querySelector('input[name="paymentOption"]:checked');
             
             const finalPayer = checkedPayerEl ? checkedPayerEl.value : "Sender";
             const finalMethod = checkedMethodEl ? checkedMethodEl.value : "COD";
 
-            // GENERATE TRACKING ID CODE SPECIFICALLY FOR LIPATBAHAY
             const uniqueTrackingId = "LBH-" + Math.floor(10000000 + Math.random() * 90000000) + "-PH";
+            const uniqueBookingKey = `booking_${Date.now()}`;
 
-            // Extract the recipient's name/company and pair it cleanly with the delivery location address
-            let receiverName = "Authorized Receiver";
-            let rawAddress = "Tacloban City, Leyte";
+            let originAddress = "Malate, Manila";
+            let destinationAddress = "Tacloban City, Leyte";
+            let senderName = "Juan Dela Cruz";
+            let receiverName = "Maria Clara";
+            let senderPhoneNum = "09171112222";
+            let receiverPhoneNum = "09246810121";
 
+            if (bookingManifestSource.origin) {
+                senderName = bookingManifestSource.origin.name || senderName;
+                originAddress = bookingManifestSource.origin.address || originAddress;
+                senderPhoneNum = bookingManifestSource.origin.phone || senderPhoneNum;
+            }
             if (bookingManifestSource.destination) {
-                if (bookingManifestSource.destination.name) {
-                    receiverName = bookingManifestSource.destination.name;
-                }
-                if (bookingManifestSource.destination.address) {
-                    rawAddress = bookingManifestSource.destination.address;
-                }
+                receiverName = bookingManifestSource.destination.name || receiverName;
+                destinationAddress = bookingManifestSource.destination.address || destinationAddress;
+                receiverPhoneNum = bookingManifestSource.destination.phone || receiverPhoneNum;
             }
 
-            // Real-world uniform format structure generation: "Recipient Name - Address Location"
-            const standardizedDestinationText = `${receiverName} - ${rawAddress}`;
+            const standardizedDestinationText = destinationAddress;
+            const displayDateText = new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
 
-            // FORMAT RECORD TARGETING THE CENTRAL maupayShipments MASTER ARRAY SCHEMA
             const finalDashboardRecord = {
                 trackingId: uniqueTrackingId,
-                serviceType: "Lipat-Bahay", 
+                serviceType: "Lipat Bahay (Moving)", 
                 destination: standardizedDestinationText,
-                dateBooked: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-                status: "Pending Dispatch" 
+                dateBooked: displayDateText,
+                estDelivery: movementDate || "Pending Dispatch",
+                totalAmount: grandTotalValue.toString(),
+                status: "Pending Dispatch",
+                sender: {
+                    name: senderName,
+                    phone: senderPhoneNum.replace(/\s+/g, ''),
+                    address: originAddress
+                },
+                receiver: {
+                    name: receiverName,
+                    phone: receiverPhoneNum.replace(/\s+/g, ''),
+                    address: destinationAddress
+                },
+                package: {
+                    desc: `Lipat-Bahay Cargo via ${vehicleModelUsed}`,
+                    category: "Moving Freight Cargo",
+                    dims: "N/A — Truck Load",
+                    weight: `${capacityCount} items est.`,
+                    value: grandTotalValue.toLocaleString('en-PH', { minimumFractionDigits: 2 })
+                },
+                payment: {
+                    method: finalMethod === "COD" ? "Cash on Delivery (COD)" : `${finalMethod} Wallet`,
+                    amount: grandTotalValue.toLocaleString('en-PH', { minimumFractionDigits: 2 })
+                }
             };
 
-            // PUSH THE NEW SHIPMENT CLEANLY INTO CENTRAL SHIPS LEDGER LOG ARRAYS
             const masterShipmentsDatabase = JSON.parse(localStorage.getItem("maupayShipments")) || [];
             masterShipmentsDatabase.push(finalDashboardRecord);
             localStorage.setItem("maupayShipments", JSON.stringify(masterShipmentsDatabase));
 
-            // Keep local deep history log updated
-            bookingManifestSource.serviceType = "Lipat-Bahay";
-            bookingManifestSource.orderDateTime = new Date().toLocaleString();
-            bookingManifestSource.generatedTrackingId = uniqueTrackingId;
-            
-            bookingManifestSource.orderDetails = {
-                vehicleSelected: vehicleModelUsed,
-                scheduledMoveDate: movementDate,
-                estimatedItemsCount: capacityCount,
-                selectedAddonServicesList: selectedAddonsTextList,
-                financialBreakdown: {
-                    baseVehicleRate: basePriceValue,
-                    addonsTotalFee: addonsPriceValue,
-                    roundTripSurcharge: roundTripValue,
-                    totalAmountPaid: grandTotalValue
+            // ==================================================================
+            // 🏷️ PREPARING THE ORDERED STRUCTURE FOR FIREBASE DESIRED SCHEME
+            // ==================================================================
+            const structuredFirebasePayload = {
+                "01_trackingId": uniqueTrackingId,
+                "02_senderDetails": {
+                    fullName: senderName,
+                    contactNumber: senderPhoneNum.replace(/\s+/g, ''),
+                    pickupAddress: originAddress
+                },
+                "03_receiverDetails": {
+                    fullName: receiverName,
+                    contactNumber: receiverPhoneNum.replace(/\s+/g, ''),
+                    dropoffAddress: destinationAddress
+                },
+                "04_orderDetails": {
+                    serviceType: "Lipat-Bahay (Moving Services)",
+                    vehicleType: vehicleModelUsed,
+                    scheduledMoveDate: movementDate || "Pending Scheduling",
+                    estimatedItemCount: capacityCount,
+                    selectedAddonServices: selectedAddonsTextList,
+                    orderCreatedDateTime: new Date().toLocaleString()
+                },
+                "05_paymentDetails": {
+                    assignedPayer: finalPayer,
+                    paymentMethod: finalMethod === "COD" ? "Cash on Delivery (COD)" : finalMethod,
+                    referenceNumber: finalMethod === "GCash" ? gcashInput.value : (finalMethod === "Bank" ? bankInput.value : "N/A (COD)"),
+                    totalAmountDue: `PHP ${grandTotalValue.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`,
+                    rawNumericAmount: grandTotalValue
                 }
             };
 
+            // Maintain standard local storage layout copies for backward compatibility with your dashboard view setup
+            bookingManifestSource.serviceType = "Lipat-Bahay";
+            bookingManifestSource.orderDateTime = new Date().toLocaleString();
+            bookingManifestSource.generatedTrackingId = uniqueTrackingId;
             bookingManifestSource.paymentDetails = {
                 assignedPayer: finalPayer,
                 methodChosen: finalMethod,
-                referenceNumberLogged: finalMethod === "GCash" ? gcashInput.value : (finalMethod === "Bank" ? bankInput.value : "COD-PENDING"),
-                status: finalMethod === "COD" ? "Pending Cash Collection" : "Awaiting Manual Verification"
+                referenceNumberLogged: finalMethod === "GCash" ? gcashInput.value : (finalMethod === "Bank" ? bankInput.value : "COD-PENDING")
             };
-
-            // Save historical record to consolidated manifest
             localStorage.setItem('consolidatedBookingManifest', JSON.stringify(bookingManifestSource));
             
-            // Explicitly DELETE the wizard data key so that step 1 is empty on next run
+            // ==================================================================
+            // 🌐 MODERN FIREBASE MODULAR SAFE DEEP PATH WRITE WITH MERGE
+            // ==================================================================
+            try {
+                const currentUserId = auth.currentUser ? auth.currentUser.uid : "GUEST_USER";
+                const customerDocRef = doc(db, "Customer", currentUserId);
+
+                try {
+                    // Modern modular update call with ordered formatting keys
+                    await updateDoc(customerDocRef, {
+                        [`services.lipatbahay.${uniqueBookingKey}`]: structuredFirebasePayload
+                    });
+                    console.log("🎉 Ordered numerical structure updated in Firestore successfully.");
+                } catch (updateError) {
+                    // Fallback configuration path mapping
+                    console.log("🔄 Initializing structural map merge configuration...");
+                    await setDoc(customerDocRef, {
+                        services: {
+                            lipatbahay: {
+                                [uniqueBookingKey]: structuredFirebasePayload
+                            }
+                        }
+                    }, { merge: true });
+                    console.log("🎉 Ordered numerical structure merged into Firestore successfully.");
+                }
+            } catch (cloudError) {
+                console.error("❌ Modern Cloud write exception:", cloudError);
+            }
+
             localStorage.removeItem('activeBookingFormStep2');
             sessionStorage.removeItem("activeBookingServiceType");
-
-            // Close the initial review checkout modal screen zone cleanly
             closeReviewModalZone();
 
-            //POP OPEN THE SUCCESS MODAL
             if (successTrackingId) successTrackingId.textContent = uniqueTrackingId;
             if (successModalOverlay) successModalOverlay.classList.add("display-modal-active");
         });
     }
 
-    // Handle button confirmation inside the custom success popup card container
     if (btnSuccessDashboard) {
         btnSuccessDashboard.addEventListener("click", () => {
             if (successModalOverlay) successModalOverlay.classList.remove("display-modal-active");

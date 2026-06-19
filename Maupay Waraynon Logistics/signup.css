@@ -159,26 +159,30 @@ nav a {
     background-color: #fafafa;
 }
 
+/* Force standard desktop browsers to clear hidden native field toggle elements */
+.input-group input::-ms-reveal,
+.input-group input::-ms-clear {
+    display: none !important;
+}
+.input-group input::-webkit-contacts-auto-fill-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
 .input-group input:focus {
     border-color: #0d47a1;
     background-color: #ffffff;
 }
 
-/* International Dropdown */
+/* Fixed full width container rules */
 .phone-input-container {
     display: flex;
-    gap: 8px;
+    width: 100%;
 }
 
-.phone-dropdown {
-    padding: 9px;
-    border: 1px solid #cccccc;
-    border-radius: 6px;
-    font-size: 0.85rem;
-    background-color: #fafafa;
-    color: #333333;
-    outline: none;
-    max-width: 120px;
+.phone-input-container input {
+    width: 100% !important;
 }
 
 /* Terms and Conditions */
@@ -243,7 +247,7 @@ nav a {
     min-height: 11px;
 }
 
-/* Password Wrapper */
+/* Password Wrapper Matrix */
 .password-wrapper {
     position: relative;
     width: 100%;
@@ -253,6 +257,7 @@ nav a {
     padding-right: 40px !important; 
 }
 
+/* FIXED EYE ICON ALIGNMENT ENGINE */
 .toggle-password-icon {
     position: absolute;
     right: 12px;
@@ -261,14 +266,15 @@ nav a {
     cursor: pointer;
     color: #777777;
     font-size: 0.95rem;
-    transition: color 0.2s, opacity 0.2s;
-    opacity: 0; 
-    pointer-events: none;
+    z-index: 10;
+    display: none; /* Controlled completely by JavaScript class injections */
+    width: auto;
+    height: auto;
 }
 
+/* This class handles display presence instantly when injected */
 .toggle-password-icon.visible {
-    opacity: 1;
-    pointer-events: auto; 
+    display: inline-block !important;
 }
 
 .toggle-password-icon:hover {

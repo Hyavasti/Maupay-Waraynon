@@ -1,0 +1,337 @@
+/* ==========================================================================
+   🎫 BOOKING DETAILS COMPONENT STYLING (image_d14063.png STRUCTURES)
+   ========================================================================== */
+
+/* Breadcrumb Context Links Navigation Elements */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.88rem;
+    font-weight: 600;
+    margin-bottom: 24px;
+    transition: color 0.2s ease;
+}
+
+.back-link:hover {
+    color: #ef5350;
+}
+
+/* Two-Column Multi-Grid Layout Frame */
+.details-layout-grid {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+}
+
+.details-main-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.details-sidebar-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* Base Structural Card Tile Units */
+.details-tile, .sidebar-widget {
+    background-color: #ffffff;
+    border-radius: 14px;
+    border: 1px solid #e2e8f0;
+    padding: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.01), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+}
+
+.tile-section-title, .widget-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #1e3a8a;
+    margin-bottom: 18px;
+    letter-spacing: 0.2px;
+}
+
+/* Core Summary Box Layout Elements */
+.summary-upper {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid #f1f5f9;
+    padding-bottom: 16px;
+    margin-bottom: 16px;
+}
+
+.control-label-group .tile-meta-lbl {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.control-label-group h3 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #0c2340;
+    letter-spacing: 0.5px;
+}
+
+.summary-lower-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+/* Generic Core Data Fields Alignment Blocks */
+.metric-block, .spec-node {
+    display: flex;
+    flex-direction: column;
+}
+
+.m-lbl {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.m-val {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.m-val.emphasis {
+    color: #0c2340;
+    font-weight: 800;
+}
+
+/* Shipping Details Address Row Splitters */
+.split-address-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+}
+
+.address-party-col {
+    display: flex;
+    flex-direction: column;
+}
+
+.party-role-lbl {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+}
+
+.address-party-col strong {
+    font-size: 0.95rem;
+    color: #334155;
+    font-weight: 700;
+    margin-bottom: 2px;
+}
+
+.party-phone {
+    font-size: 0.85rem;
+    color: #64748b;
+    margin-bottom: 6px;
+}
+
+.party-address {
+    font-size: 0.85rem;
+    color: #64748b;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Package Specification Variables Grid System */
+.package-specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.package-specs-grid .full-width {
+    grid-column: span 2;
+    border-top: 1px solid #f1f5f9;
+    padding-top: 14px;
+    margin-top: 4px;
+}
+
+/* Payment Layout Specific Adjustments */
+.payment-specs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.verified-lbl {
+    color: #10b981 !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Live Operational Steps Vertical Tracking Timeline Nodes */
+.vertical-timeline-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    padding-left: 28px;
+    margin-bottom: 20px;
+}
+
+.timeline-step-node {
+    position: relative;
+    padding-bottom: 20px;
+}
+
+.timeline-step-node:last-child {
+    padding-bottom: 0;
+}
+
+/* Connector bars styling lines */
+.timeline-step-node::before {
+    content: '';
+    position: absolute;
+    left: -19px;
+    top: 18px;
+    width: 2px;
+    height: 100%;
+    background-color: #e2e8f0;
+}
+
+.timeline-step-node:last-child::before {
+    display: none;
+}
+
+/* Active colored route connector extensions */
+.timeline-step-node.completed::before {
+    background-color: #0284c7;
+}
+
+/* Dynamic circle bullets */
+.timeline-bullet {
+    position: absolute;
+    left: -25px;
+    top: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: #cbd5e1;
+    border: 3px solid #ffffff;
+    box-shadow: 0 0 0 1px #cbd5e1;
+    z-index: 2;
+}
+
+.timeline-step-node.completed .timeline-bullet {
+    background-color: #0284c7;
+    box-shadow: 0 0 0 1px #0284c7;
+}
+
+.timeline-step-meta h5 {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 2px;
+}
+
+.timeline-step-meta span {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    display: block;
+}
+
+/* Base Widget Operational Buttons Actions */
+.btn-widget-action-primary {
+    width: 100%;
+    padding: 10px;
+    background-color: #ef5350;
+    color: #ffffff;
+    border: none;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-widget-action-primary:hover {
+    background-color: #e53935;
+}
+
+/* Stack Controls Action Set Modifiers */
+.action-buttons-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.btn-stack-outline {
+    width: 100%;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #cbd5e1;
+    color: #475569;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-stack-outline:hover {
+    background-color: #f8fafc;
+    border-color: #94a3b8;
+}
+
+.btn-stack-danger {
+    width: 100%;
+    padding: 10px;
+    background-color: #ffffff;
+    border: 1px solid #fee2e2;
+    color: #ef5350;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-stack-danger:hover {
+    background-color: #fef2f2;
+    border-color: #fca5a5;
+}
+
+/* Responsive Structural Overrides */
+@media (max-width: 992px) {
+    .details-layout-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .summary-lower-metrics, .payment-specs-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 16px;
+    }
+    .split-address-row {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+}

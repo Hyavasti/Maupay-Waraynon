@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Details - Maupay Logistics</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Base App Layout Layer Stylesheet -->
+    <link rel="stylesheet" href="dashboard.css">
+    <!-- Component Presentation Layer Stylesheet -->
+    <link rel="stylesheet" href="booking-details.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- LEFT SIDEBAR NAVIGATION PANEL -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <span class="menu-section-label">MENU</span>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="track-parcel.html" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="my-bookings.html" class="menu-item active"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+
+                <span class="menu-section-label" style="margin-top: 20px;">SUPPORT</span>
+                <a href="#" class="menu-item"><i class="fas fa-gear"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-circle-question"></i> Help & Support</a>
+                <a href="#" class="menu-item logout-link"><i class="fas fa-right-from-bracket"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN DETAILS CONTENT VIEWPORT -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2>Booking Details</h2>
+                <div class="avatar-circle">AD</div>
+            </header>
+
+            <!-- BREADCRUMB NAVIGATION LINK -->
+            <a href="my-bookings.html" class="back-link">
+                <i class="fas fa-chevron-left"></i> Back to My Bookings
+            </a>
+
+            <!-- TWO-COLUMN WORKSPACE GRID -->
+            <div class="details-layout-grid">
+                
+                <!-- LEFT CONTENT COLUMN: TILE MANIFESTS -->
+                <div class="details-main-column">
+                    
+                    <!-- CORE CONTROL NUMBER TRACKING SUMMARY TILE -->
+                    <div class="details-tile summary-tile">
+                        <div class="summary-upper">
+                            <div class="control-label-group">
+                                <span class="tile-meta-lbl">Control Number</span>
+                                <h3 id="detTrackingId">---</h3>
+                            </div>
+                            <span class="badge" id="detStatusBadge">• Pending</span>
+                        </div>
+                        <div class="summary-lower-metrics">
+                            <div class="metric-block">
+                                <span class="m-lbl">Service Type</span>
+                                <span class="m-val" id="detServiceType">---</span>
+                            </div>
+                            <div class="metric-block">
+                                <span class="m-lbl">Booking Date</span>
+                                <span class="m-val" id="detBookingDate">---</span>
+                            </div>
+                            <div class="metric-block">
+                                <span class="m-lbl">Est. Delivery</span>
+                                <span class="m-val" id="detEstDelivery">---</span>
+                            </div>
+                            <div class="metric-block">
+                                <span class="m-lbl">Total Amount</span>
+                                <span class="m-val emphasis" id="detTotalAmount">---</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SHIPPING DETAILS ADDRESS TILE -->
+                    <div class="details-tile address-tile">
+                        <h4 class="tile-section-title">Shipping Details</h4>
+                        <div class="split-address-row">
+                            <div class="address-party-col">
+                                <span class="party-role-lbl">SENDER</span>
+                                <strong id="detSenderName">---</strong>
+                                <span class="party-phone" id="detSenderPhone">---</span>
+                                <p class="party-address" id="detSenderAddress">---</p>
+                            </div>
+                            <div class="address-party-col">
+                                <span class="party-role-lbl">RECEIVER</span>
+                                <strong id="detReceiverName">---</strong>
+                                <span class="party-phone" id="detReceiverPhone">---</span>
+                                <p class="party-address" id="detReceiverAddress">---</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PACKAGE SPECIFICATION METRICS TILE -->
+                    <div class="details-tile package-tile">
+                        <h4 class="tile-section-title">Package Details</h4>
+                        <div class="package-specs-grid">
+                            <div class="spec-node">
+                                <span class="m-lbl">Description</span>
+                                <span class="m-val" id="detPkgDescription">---</span>
+                            </div>
+                            <div class="spec-node">
+                                <span class="m-lbl">Category</span>
+                                <span class="m-val" id="detPkgCategory">---</span>
+                            </div>
+                            <div class="spec-node">
+                                <span class="m-lbl">Dimensions</span>
+                                <span class="m-val" id="detPkgDimensions">---</span>
+                            </div>
+                            <div class="spec-node">
+                                <span class="m-lbl">Weight</span>
+                                <span class="m-val" id="detPkgWeight">---</span>
+                            </div>
+                            <div class="spec-node full-width">
+                                <span class="m-lbl">Declared Value</span>
+                                <span class="m-val format-currency" id="detPkgDeclared">---</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- BILLING & FINANCIAL DISCLOSURE TILE -->
+                    <div class="details-tile payment-tile">
+                        <h4 class="tile-section-title">Payment</h4>
+                        <div class="payment-specs-grid">
+                            <div class="spec-node">
+                                <span class="m-lbl">Method</span>
+                                <span class="m-val" id="detPayMethod">---</span>
+                            </div>
+                            <div class="spec-node">
+                                <span class="m-lbl">Amount</span>
+                                <span class="m-val emphasis" id="detPayAmount">---</span>
+                            </div>
+                            <div class="spec-node">
+                                <span class="m-lbl">Status</span>
+                                <span class="m-val verified-lbl" id="detPayStatus"><i class="fas fa-circle-check"></i> Verified</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- RIGHT CONTENT COLUMN: SIDEBAR WIDGETS -->
+                <div class="details-sidebar-column">
+                    
+                    <!-- REAL-TIME OPERATION MILESTONES TIMELINE WIDGET -->
+                    <div class="sidebar-widget timeline-widget">
+                        <h4 class="widget-title">Timeline</h4>
+                        <div class="vertical-timeline-container" id="timelineStack">
+                            <!-- Injected dynamically by JavaScript rendering engine -->
+                        </div>
+                        <button class="btn-widget-action-primary">View Full Timeline</button>
+                    </div>
+
+                    <!-- REVENUE & PROTECTION LIFE-CYCLE MANAGEMENT CONTROLS -->
+                    <div class="sidebar-widget actions-widget">
+                        <h4 class="widget-title">Actions</h4>
+                        <div class="action-buttons-stack">
+                            <button class="btn-edit-booking">Edit Booking <i class="far fa-pen-to-square"></i></button>
+                            <button class="btn-stack-danger" id="cancelBookingBtn"><i class="far fa-circle-xmark"></i> Cancel Booking</button>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Application Engine Script files -->
+    <script src="booking-details.js"></script>
+</body>
+</html>

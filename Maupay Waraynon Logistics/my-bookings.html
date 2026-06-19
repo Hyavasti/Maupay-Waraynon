@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Bookings - Maupay Logistics</title>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Framework Stylesheet Link -->
+    <link rel="stylesheet" href="dashboard.css">
+    <!-- Dedicated Page Component Stylesheet Link -->
+    <link rel="stylesheet" href="my-bookings.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        <!-- LEFT VIEWPORT SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <span class="menu-section-label">MENU</span>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item">
+                    <i class="fas fa-th-large"></i> Overview
+                </a>
+                <a href="book-shipment.html" class="menu-item">
+                    <i class="fas fa-shopping-cart"></i> Book a Shipment
+                </a>
+                <a href="track-parcel.html" class="menu-item">
+                    <i class="fas fa-map-marker-alt"></i> Track Parcel
+                </a>
+                <a href="my-bookings.html" class="menu-item active">
+                    <i class="fas fa-book"></i> My Bookings
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-check-circle"></i> Claims
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-comment-alt"></i> Feedback
+                </a>
+
+                <span class="menu-section-label" style="margin-top: 20px;">SUPPORT</span>
+                <a href="#" class="menu-item"><i class="fas fa-gear"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-circle-question"></i> Help & Support</a>
+                <a href="#" class="menu-item logout-link"><i class="fas fa-right-from-bracket"></i> Logout</a>
+            </nav>
+        </aside>
+
+        <!-- MAIN DASHBOARD CONTENT AREA -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2>My Bookings</h2>
+                <div class="avatar-circle">AD</div>
+            </header>
+
+            <!-- NAVIGATION FILTER TABS FROM image_d15344.png -->
+            <div class="filter-tabs-container">
+                <button class="tab-btn active" data-filter="all">All</button>
+                <button class="tab-btn" data-filter="active">Active</button>
+                <button class="tab-btn" data-filter="completed">Completed</button>
+                <button class="tab-btn" data-filter="cancelled">Cancelled</button>
+            </div>
+
+            <!-- SEARCH UTILITY AND DROPDOWN TOOLBAR -->
+            <div class="search-filter-bar">
+                <div class="search-wrapper">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="bookingSearchInput" placeholder="Search by control # or destination...">
+                </div>
+                <div class="sort-wrapper">
+                    <i class="fas fa-filter"></i>
+                    <select id="bookingSortSelect" class="sort-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- DYNAMIC CARD WRAPPER ATTACHMENT NODE -->
+            <div id="bookingsListContainer">
+                <!-- JavaScript handles operational layout loop injections -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Script execution engine links -->
+    <script src="my-bookings.js"></script>
+</body>
+</html>

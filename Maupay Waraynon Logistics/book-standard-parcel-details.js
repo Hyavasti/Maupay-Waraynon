@@ -8,11 +8,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const senderProvince = document.getElementById("senderProvince");
     const senderCity = document.getElementById("senderCity");
     const senderBarangay = document.getElementById("senderBarangay");
+    const senderStreet = document.getElementById("senderStreet");
 
     const receiverRegion = document.getElementById("receiverRegion");
     const receiverProvince = document.getElementById("receiverProvince");
     const receiverCity = document.getElementById("receiverCity");
     const receiverBarangay = document.getElementById("receiverBarangay");
+    const receiverStreet = document.getElementById("receiverStreet");
     const receiverOutlet = document.getElementById("receiverOutlet");
 
     // Dynamic Display Segment Containers
@@ -34,14 +36,29 @@ document.addEventListener("DOMContentLoaded", () => {
     let cachedProvincesList = [];
     let cachedCitiesMunicipalitiesList = [];
 
+    // Initialize initial fields as required by default
+    if (senderRegion) senderRegion.required = true;
+    if (senderProvince) senderProvince.required = true;
+    if (senderCity) senderCity.required = true;
+    if (senderBarangay) senderBarangay.required = true;
+    if (senderStreet) senderStreet.required = true;
+
+    if (receiverRegion) receiverRegion.required = true;
+    if (receiverProvince) receiverProvince.required = true;
+    if (receiverCity) receiverCity.required = true;
+    if (receiverBarangay) receiverBarangay.required = true;
+    if (receiverStreet) receiverStreet.required = true;
+
     // Profile Avatar Display Setup
     const profileAvatar = document.getElementById("profileAvatar");
     const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
     if (savedAccountRaw && profileAvatar) {
-        const userAccount = JSON.parse(savedAccountRaw);
-        if (userAccount.firstName) {
-            profileAvatar.innerText = userAccount.firstName.charAt(0).toUpperCase();
-        }
+        try {
+            const userAccount = JSON.parse(savedAccountRaw);
+            if (userAccount && userAccount.firstName) {
+                profileAvatar.innerText = userAccount.firstName.charAt(0).toUpperCase();
+            }
+        } catch (e) { console.error("Error setting avatar initial:", e); }
     }
 
     // CONTACT PERSON STRICT NAME VALIDATION
@@ -56,8 +73,28 @@ document.addEventListener("DOMContentLoaded", () => {
     sanitizeContactNameInput(senderName);
     sanitizeContactNameInput(receiverName);
 
-    // PHONE NUMBER STRICT VALIDATION & SANITIZATION
-    function sanitizePhoneNumberInput(inputElement) {
+    // DYNAMIC ERROR NOTE ENGINE FOR PHONE NUMBERS
+    function createErrorNoteElement(inputElement) {
+        const errorNote = document.createElement("div");
+        errorNote.className = "phone-error-note";
+        errorNote.style.color = "#dc3545";
+        errorNote.style.fontSize = "12px";
+        errorNote.style.marginTop = "4px";
+        errorNote.style.display = "none";
+        errorNote.innerText = "❌ Mobile number must start with 09 and be exactly 11 digits long.";
+        inputElement.parentNode.appendChild(errorNote);
+        return errorNote;
+    }
+
+    const senderMobileError = senderMobile ? createErrorNoteElement(senderMobile) : null;
+    const receiverMobileError = receiverMobile ? createErrorNoteElement(receiverMobile) : null;
+
+    function validatePhilippineMobile(value) {
+        return value.startsWith("09") && value.length === 11;
+    }
+
+    // INSTANT LIVE PHONE NUMBER VALIDATION & SANITIZATION
+    function setupLivePhoneNumberValidation(inputElement, errorElement) {
         if (!inputElement) return;
         inputElement.addEventListener("input", (e) => {
             let sanitizedValue = e.target.value.replace(/\D/g, "");
@@ -65,18 +102,28 @@ document.addEventListener("DOMContentLoaded", () => {
                 sanitizedValue = sanitizedValue.slice(0, 11);
             }
             e.target.value = sanitizedValue;
+
+            if (sanitizedValue.length === 0) {
+                if (errorElement) errorElement.style.display = "none";
+                inputElement.style.borderColor = "";
+            } else if (!validatePhilippineMobile(sanitizedValue)) {
+                if (errorElement) errorElement.style.display = "block";
+                inputElement.style.borderColor = "#dc3545";
+            } else {
+                if (errorElement) errorElement.style.display = "none";
+                inputElement.style.borderColor = "";
+            }
         });
     }
 
-    sanitizePhoneNumberInput(senderMobile);
-    sanitizePhoneNumberInput(receiverMobile);
+    setupLivePhoneNumberValidation(senderMobile, senderMobileError);
+    setupLivePhoneNumberValidation(receiverMobile, receiverMobileError);
 
-    //PSGC ENGINE
+    // PSGC ENGINE
     const PSGC_BASE_URL = "https://psgc.gitlab.io/api";
 
     async function prefetchNationalGeographicRegistry() {
         try {
-            // Concurrent asset fetch
             const [regionsRes, provincesRes, citiesRes] = await Promise.all([
                 fetch(`${PSGC_BASE_URL}/regions.json`),
                 fetch(`${PSGC_BASE_URL}/provinces.json`),
@@ -87,9 +134,7 @@ document.addEventListener("DOMContentLoaded", () => {
             cachedProvincesList = await provincesRes.json();
             cachedCitiesMunicipalitiesList = await citiesRes.json();
 
-            // Sort Regions alphabetically
             cachedRegionsList.sort((a, b) => a.name.localeCompare(b.name));
-
             populateRegionDropdowns();
         } catch (error) {
             console.error("Critical error building regional cache:", error);
@@ -120,7 +165,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (!selectedRegionCode) return;
 
-        //Metro Manila (NCR) has no provinces. Direct to Cities.
         if (selectedRegionCode === "130000000") {
             const optNCR = document.createElement("option");
             optNCR.value = "130000000";
@@ -128,13 +172,11 @@ document.addEventListener("DOMContentLoaded", () => {
             optNCR.setAttribute("data-name", "METRO MANILA (NCR)");
             provinceSelect.appendChild(optNCR);
             
-            // Auto-select NCR option to bypass alternative provincial clicks
             provinceSelect.value = "130000000";
             handleProvinceSelectionChange(provinceSelect, citySelect, barangaySelect);
             return;
         }
 
-        // Filter standard provinces matching the chosen region code branch
         const filteredProvinces = cachedProvincesList.filter(p => p.regionCode === selectedRegionCode);
         filteredProvinces.sort((a, b) => a.name.localeCompare(b.name));
 
@@ -156,7 +198,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let isolatedCities = [];
         if (selectedProvCode === "130000000") {
-            // Fetch NCR cities 
             isolatedCities = cachedCitiesMunicipalitiesList.filter(c => c.regionCode === "130000000");
         } else {
             isolatedCities = cachedCitiesMunicipalitiesList.filter(c => c.provinceCode === selectedProvCode);
@@ -181,7 +222,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!selectedCityCode) return;
 
         try {
-            // Dynamically load deep local barangay listings safely
             const response = await fetch(`${PSGC_BASE_URL}/cities-municipalities/${selectedCityCode}/barangays.json`);
             const barangays = await response.json();
             barangays.sort((a, b) => a.name.localeCompare(b.name));
@@ -198,7 +238,6 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // Bind Core Chain Event Hooks
     if (senderRegion) senderRegion.addEventListener("change", () => handleRegionSelectionChange(senderRegion, senderProvince, senderCity, senderBarangay));
     if (senderProvince) senderProvince.addEventListener("change", () => handleProvinceSelectionChange(senderProvince, senderCity, senderBarangay));
     if (senderCity) senderCity.addEventListener("change", () => handleCitySelectionChange(senderCity, senderBarangay));
@@ -207,10 +246,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (receiverProvince) receiverProvince.addEventListener("change", () => handleProvinceSelectionChange(receiverProvince, receiverCity, receiverBarangay));
     if (receiverCity) receiverCity.addEventListener("change", () => handleCitySelectionChange(receiverCity, receiverBarangay));
 
-    // Initialize Prefetch Setup Engines
     prefetchNationalGeographicRegistry();
 
-    //DOOR-TO-DOOR vs PICKUP TO OUTLET
     deliveryCards.forEach(card => {
         card.addEventListener("click", (e) => {
             const radio = card.querySelector('.native-delivery-radio');
@@ -226,8 +263,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function toggleReceiverFormLayout(option) {
-        const receiverStreet = document.getElementById("receiverStreet");
-
         if (option === "PickupOutlet") {
             if (receiverDoorToDoorFields) receiverDoorToDoorFields.classList.add("hidden-field-block");
             if (receiverPickupOutletFields) receiverPickupOutletFields.classList.remove("hidden-field-block");
@@ -251,83 +286,150 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // NAVIGATION SUBMISSIONS & WORKSPACE PERSISTENCE
     if (btnBackToShipmentMenu) {
         btnBackToShipmentMenu.addEventListener("click", () => {
             window.location.href = "book-shipment.html";
         });
     }
 
+    // ==========================================================================
+    // FORM SUBMIT HANDLER: FIELD VALIDATIONS
+    // ==========================================================================
     if (detailsForm) {
         detailsForm.addEventListener("submit", (e) => {
             e.preventDefault();
+            let formsAreValid = true;
 
-            if (senderMobile.value.length < 11 || receiverMobile.value.length < 11) {
-                alert("❌ Mobile numbers must be exactly 11 digits long (e.g., 09171234567).");
+            if (senderMobile && !validatePhilippineMobile(senderMobile.value)) {
+                if (senderMobileError) senderMobileError.style.display = "block";
+                senderMobile.style.borderColor = "#dc3545";
+                senderMobile.focus();
+                formsAreValid = false;
+            }
+
+            if (receiverMobile && !validatePhilippineMobile(receiverMobile.value)) {
+                if (receiverMobileError) receiverMobileError.style.display = "block";
+                receiverMobile.style.borderColor = "#dc3545";
+                if (formsAreValid) receiverMobile.focus();
+                formsAreValid = false;
+            }
+
+            const activeRadio = document.querySelector('input[name="deliveryOption"]:checked');
+            const selectedOption = activeRadio ? activeRadio.value : "DoorToDoor";
+
+            if (!senderRegion.value || !senderProvince.value || !senderCity.value || !senderBarangay.value) {
+                formsAreValid = false;
+            }
+
+            if (selectedOption === "DoorToDoor") {
+                if (!receiverRegion.value || !receiverProvince.value || !receiverCity.value || !receiverBarangay.value) {
+                    formsAreValid = false;
+                }
+            } else if (selectedOption === "PickupOutlet") {
+                if (!receiverOutlet.value) {
+                    formsAreValid = false;
+                }
+            }
+
+            if (!formsAreValid) {
                 return;
             }
 
-            const selectedOption = document.querySelector('input[name="deliveryOption"]:checked').value;
+            const getSelectedText = (el) => el && el.selectedIndex >= 0 ? el.options[el.selectedIndex].getAttribute('data-name') || "" : "";
 
-            const senderRegionName = senderRegion.options[senderRegion.selectedIndex].getAttribute('data-name');
-            const senderProvName = senderProvince.options[senderProvince.selectedIndex].getAttribute('data-name');
-            const senderCityName = senderCity.options[senderCity.selectedIndex].getAttribute('data-name');
-            const senderBrgyName = senderBarangay.options[senderBarangay.selectedIndex].getAttribute('data-name');
+            const senderRegionName = getSelectedText(senderRegion);
+            const senderProvName = getSelectedText(senderProvince);
+            const senderCityName = getSelectedText(senderCity);
+            const senderBrgyName = getSelectedText(senderBarangay);
+            const senderStreetVal = senderStreet ? senderStreet.value.trim() : "Main Parcel Terminal";
 
-            let receiverDestinationSummary = {};
+            const senderAddressParts = [senderStreetVal, senderBrgyName, senderCityName, senderProvName].filter(p => p && p.trim() !== "");
+            const combinedSenderAddress = senderAddressParts.length > 0 ? senderAddressParts.join(", ") : "Main Parcel Terminal";
+
+            let receiverDestinationSummary = "";
             let simplifiedDestinationString = "";
 
+            let assignedOutletHubVal = "";
+            let isOutletDropoffVal = false;
+
             if (selectedOption === "PickupOutlet") {
-                simplifiedDestinationString = receiverOutlet.value;
-                receiverDestinationSummary = {
-                    isOutletDropoff: true,
-                    assignedOutletHub: receiverOutlet.value
-                };
+                simplifiedDestinationString = receiverOutlet ? receiverOutlet.value : "";
+                receiverDestinationSummary = simplifiedDestinationString;
+                assignedOutletHubVal = simplifiedDestinationString;
+                isOutletDropoffVal = true;
             } else {
-                const receiverRegionName = receiverRegion.options[receiverRegion.selectedIndex].getAttribute('data-name');
-                const receiverProvName = receiverProvince.options[receiverProvince.selectedIndex].getAttribute('data-name');
-                const receiverCityName = receiverCity.options[receiverCity.selectedIndex].getAttribute('data-name');
-                const receiverBrgyName = receiverBarangay.options[receiverBarangay.selectedIndex].getAttribute('data-name');
+                const receiverRegionName = getSelectedText(receiverRegion);
+                const receiverProvName = getSelectedText(receiverProvince);
+                const receiverCityName = getSelectedText(receiverCity);
+                const receiverBrgyName = getSelectedText(receiverBarangay);
+                const receiverStreetVal = receiverStreet ? receiverStreet.value.trim() : "";
+
                 simplifiedDestinationString = `${receiverCityName}, ${receiverProvName}`;
                 
-                receiverDestinationSummary = {
-                    isOutletDropoff: false,
-                    region: receiverRegionName,
-                    province: receiverProvName,
-                    city: receiverCityName,
-                    barangay: receiverBrgyName,
-                    street: document.getElementById("receiverStreet").value.trim()
-                };
+                const receiverAddressParts = [receiverStreetVal, receiverBrgyName, receiverCityName, receiverProvName].filter(p => p && p.trim() !== "");
+                receiverDestinationSummary = receiverAddressParts.join(", ");
             }
 
             const shouldSaveSender = saveSenderAddress ? saveSenderAddress.checked : false;
             const shouldSaveReceiver = saveReceiverAddress ? saveReceiverAddress.checked : false;
-
             const resolvedServiceType = sessionStorage.getItem("activeBookingServiceType") || "Standard Parcel";
 
-            const trackingManifest = {
-                serviceWorkflowType: resolvedServiceType,
-                deliveryArrangementOption: selectedOption,
-                dashboardDisplayDestination: simplifiedDestinationString,
-                saveSenderToAddressBook: shouldSaveSender,
-                saveReceiverToAddressBook: shouldSaveReceiver,
-                senderContactDetails: {
-                    fullName: senderName.value.trim(),
-                    mobile: senderMobile.value,
-                    region: senderRegionName,
-                    province: senderProvName,
-                    city: senderCityName,
-                    barangay: senderBrgyName,
-                    street: document.getElementById("senderStreet").value.trim()
-                },
-                receiverContactDetails: {
-                    fullName: receiverName.value.trim(),
-                    mobile: receiverMobile.value,
-                    ...receiverDestinationSummary
+            // ⚡ COMPILING INTO THE 5 TARGET VISUAL BUCKETS NESTED INSIDE THE SERVICES MAP
+            const tempDetailsPayload = {
+                services: {
+                    standardParcel: {
+                        // 1. TRACKING DATA
+                        trackingId: "", // Will be filled dynamically by your generator during checkout
+                        serviceWorkflowType: resolvedServiceType,
+                        deliveryArrangementOption: selectedOption,
+
+                        // 2. SENDER DETAILS
+                        senderDetails: {
+                            fullName: senderName.value.trim(),
+                            phoneNumber: senderMobile.value,
+                            region: senderRegionName,
+                            province: senderProvName,
+                            city: senderCityName,
+                            barangay: senderBrgyName,
+                            streetAddress: senderStreetVal,
+                            fullAddress: combinedSenderAddress,
+                            saveSenderToAddressBook: shouldSaveSender
+                        },
+
+                        // 3. RECEIVER DETAILS
+                        receiverDetails: {
+                            fullName: receiverName.value.trim(),
+                            phoneNumber: receiverMobile.value,
+                            region: getSelectedText(receiverRegion),
+                            province: getSelectedText(receiverProvince),
+                            city: getSelectedText(receiverCity),
+                            barangay: getSelectedText(receiverBarangay),
+                            streetAddress: receiverStreet ? receiverStreet.value.trim() : "",
+                            fullAddress: receiverDestinationSummary,
+                            assignedOutletHub: assignedOutletHubVal,
+                            isOutletDropoff: isOutletDropoffVal,
+                            saveReceiverToAddressBook: shouldSaveReceiver
+                        },
+
+                        // 4. PARCEL DETAILS (Placeholders to be merged on the next step)
+                        parcelDetails: {
+                            category: "",
+                            weight: "",
+                            dimensions: "",
+                            dashboardDisplayDestination: simplifiedDestinationString
+                        },
+
+                        // 5. PAYMENT DETAILS (Placeholders to be merged on the final step)
+                        paymentDetails: {
+                            assignedPayer: "Sender", 
+                            modeOfPayment: "Cash",
+                            billingLedger: {}
+                        }
+                    }
                 }
             };
 
-            localStorage.setItem('consolidatedBookingManifest', JSON.stringify(trackingManifest));
+            localStorage.setItem('tempDetails', JSON.stringify(tempDetailsPayload));
             window.location.href = "book-standard-parcel-package.html";
         });
     }

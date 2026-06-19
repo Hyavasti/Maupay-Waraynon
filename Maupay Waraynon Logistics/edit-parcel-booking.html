@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maupay Waraynon Padala Center | Edit Standard Parcel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="edit-booking.css">
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- SIDEBAR NAVIGATION -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <img src="images/logo.png" alt="Maupay Waraynon Logo" class="sidebar-logo-img">
+                <div class="brand-text">
+                    <h3>MAUPAY WARAYNON</h3>
+                    <span>Bacoor</span>
+                </div>
+            </div>
+
+            <div class="menu-section-label">MENU</div>
+            <nav class="sidebar-menu">
+                <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
+                <a href="book-shipment.html" class="menu-item"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
+                <a href="track-parcel.html" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="my-bookings.html" class="menu-item active"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
+                <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
+            </nav>
+
+            <div class="menu-section-label" style="margin-top: 30px;">SUPPORT</div>
+            <nav class="sidebar-menu">
+                <a href="#" class="menu-item"><i class="fas fa-cog"></i> Settings</a>
+                <a href="#" class="menu-item"><i class="fas fa-question-circle"></i> Help & Support</a>
+            </nav>
+
+            <a href="#" id="logoutBtn" class="menu-item logout-link"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        </aside>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="main-content">
+    
+            <header class="content-header">
+                <h2>Edit Booking Details</h2>
+                <div class="user-profile-badge">
+                    <div class="avatar-circle" id="profileAvatar">U</div>
+                </div>
+            </header>
+
+            <a href="booking-details.html" class="back-navigation-link"><i class="fas fa-chevron-left"></i> Back to Booking Details</a>
+
+            <div class="dashboard-grid-layout">
+                
+                <div class="primary-column">
+                    
+                    <!-- Tracking Status Header Panel -->
+                    <div class="data-block-section control-number-card">
+                        <div class="control-header-row">
+                            <div>
+                                <span class="meta-label">Control / Tracking Number</span>
+                                <h2 id="displayControlNo" class="control-id-text">Loading...</h2>
+                            </div>
+                            <span class="badge status-pending" id="displayStatus">Pending</span>
+                        </div>
+                        <hr class="section-divider">
+                        <div class="meta-stats-grid">
+                            <div>
+                                <span class="meta-label">Service Type</span>
+                                <strong id="displayServiceType">Standard Parcel</strong>
+                            </div>
+                            <div>
+                                <span class="meta-label">Booking Date</span>
+                                <span id="displayBookingDate">N/A</span>
+                            </div>
+                            <div>
+                                <span class="meta-label">Est. Delivery</span>
+                                <span id="displayEstDelivery">Pending Dispatch</span>
+                            </div>
+                            <div>
+                                <span class="meta-label">Total Amount</span>
+                                <strong id="displayTotalAmount">PHP 0.00</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Main Dynamic Content Update Form -->
+                    <form id="editBookingForm" novalidate>
+                        
+                        <div class="form-grid-two-col cards-row-alignment">
+                            
+                            <!-- Sender Information -->
+                            <div class="data-block-section segment-info-card">
+                                <h3>Sender Information</h3>
+                                <div class="static-info-group">
+                                    <label>Contact Person</label>
+                                    <p id="senderNameText">Loading...</p>
+                                </div>
+                                <div class="static-info-group">
+                                    <label>Mobile Number</label>
+                                    <p id="senderContactText">Loading...</p>
+                                </div>
+                                <div class="static-info-group">
+                                    <label>Street Address</label>
+                                    <p id="senderAddressText">Loading...</p>
+                                </div>
+                            </div>
+
+                            <!-- Recipient Information Editable Fields -->
+                            <div class="data-block-section segment-info-card">
+                                <h3>Receiver Information</h3>
+                                <div class="form-field-group">
+                                    <label for="recipientName">Contact Person</label>
+                                    <input type="text" id="recipientName" placeholder="e.g. Maria Santos" required>
+                                    <small class="error-msg-label" id="nameError"></small>
+                                </div>
+                                <div class="form-field-group">
+                                    <label for="recipientContact">Mobile Number</label>
+                                    <input type="text" id="recipientContact" maxlength="11" placeholder="e.g. 09171234567" required>
+                                    <small class="error-msg-label" id="phoneError"></small>
+                                </div>
+                                <div class="form-field-group">
+                                    <label for="recipientAddress">Street Name, Building, House No.</label>
+                                    <input type="text" id="recipientAddress" placeholder="e.g. Unit 4B 123 Rizal St." required>
+                                </div>
+                                
+                                <!-- Integrated PSGC Dropdown Framework -->
+                                <div class="form-grid-two-col alignment-override-margin geo-dropdown-wrapper">
+                                    <div class="form-field-group">
+                                        <label for="recipientRegion">Region</label>
+                                        <select id="recipientRegion" required>
+                                            <option value="">-- Select Region --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field-group">
+                                        <label for="recipientProvince">Province</label>
+                                        <select id="recipientProvince" required disabled>
+                                            <option value="">-- Select Province --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-grid-two-col alignment-override-margin geo-dropdown-wrapper" style="margin-top: 16px;">
+                                    <div class="form-field-group">
+                                        <label for="recipientCity">City / Municipality</label>
+                                        <select id="recipientCity" required disabled>
+                                            <option value="">-- Select City/Municipality --</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-field-group">
+                                        <label for="recipientBarangay">Barangay</label>
+                                        <select id="recipientBarangay" required disabled>
+                                            <option value="">-- Select Barangay --</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Package Specifications Section (NOW GENERATED DYNAMICALLY WITH PRE-FILLED VALUES) -->
+                        <div class="data-block-section">
+                            <h3>Package Details</h3>
+                            <div id="dynamicFormFieldsContainer">
+                                <!-- JavaScript automatically populates correct inputs and values here -->
+                                <p style="color: #666; font-style: italic;">Loading parcel variables...</p>
+                            </div>
+                        </div>
+
+                        <!-- Form Navigation Buttons Footer -->
+                        <div class="form-actions-row-sticky">
+                            <button type="submit" class="btn-base btn-submit-save">Save & Proceed to Payment</button>
+                            <button type="button" class="btn-base btn-cancel-discard">Cancel Changes</button>
+                        </div>
+
+                    </form>
+                </div>
+
+                <!-- Secondary Column: Pricing Summary Card -->
+                <div class="secondary-column">
+                    <div class="sidebar-card-box price-summary-box">
+                        <h3>Updated Price Summary</h3>
+                        <div class="summary-price-row">
+                            <span>Base Booking Cost</span>
+                            <span id="summaryBasePrice">PHP 0.00</span>
+                        </div>
+                        <div class="summary-price-row">
+                            <span>Surcharge Adjustments</span>
+                            <span id="summaryAddonPrice">PHP 0.00</span>
+                        </div>
+                        <hr class="summary-divider">
+                        <div class="summary-price-row total-row">
+                            <span class="highlight-payment-label">Additional Due</span>
+                            <strong id="summaryAdditionalPayment" class="text-danger">+PHP 0.00</strong>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Ensure your script file matches this target signature -->
+    <script src="edit-booking.js"></script>
+</body>
+</html>

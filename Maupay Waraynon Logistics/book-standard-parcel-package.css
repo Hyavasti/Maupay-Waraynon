@@ -252,3 +252,11 @@
 .spacing-top {
     margin-top: 20px;
 }
+
+.field-error-note {
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
+            display: block;
+        }

@@ -1,13 +1,46 @@
+// Import the necessary Firebase SDK functions
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+// =======================================================
+// FIREBASE APP CONFIGURATION MODULE
+// =======================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+    authDomain: "mpc-bacoor.firebaseapp.com",
+    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mpc-bacoor",
+    storageBucket: "mpc-bacoor.firebasestorage.app",
+    messagingSenderId: "105917197007",
+    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+    measurementId: "G-GSF6CFML1Y"
+};
+
+// Initialize Firebase App Components
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", () => {
     const signupForm = document.getElementById("signup-form");
-    const countryDropdown = document.getElementById("countryCode");
+    const firstNameInput = document.getElementById("firstName");
+    const lastNameInput = document.getElementById("lastName");
+    const emailInput = document.getElementById("email"); 
+    const phoneInput = document.getElementById("phone");
+    const passwordInput = document.getElementById("password");
+    const confirmInput = document.getElementById("confirmPassword");
+    
+    // Password Eye Icon Selectors
+    const passwordEye = document.getElementById("togglePassword");
+    const confirmEye = document.getElementById("toggleConfirmPassword");
 
     // Modal Targets
     const successModal = document.getElementById("successModal");
     const modalTargetEmail = document.getElementById("modalTargetEmail");
     const closeModalBtn = document.getElementById("closeModalBtn");
 
-    // Field Error Containers
+    // Error UI Target Elements
     const firstnameError = document.getElementById("firstname-error");
     const lastnameError = document.getElementById("lastname-error");
     const emailError = document.getElementById("email-error");
@@ -15,76 +48,58 @@ document.addEventListener("DOMContentLoaded", () => {
     const passwordError = document.getElementById("password-error");
     const confirmError = document.getElementById("confirm-error");
 
-    // Password Eye Elements
-    const passwordInput = document.getElementById("password");
-    const confirmInput = document.getElementById("confirmPassword");
-    const passwordEye = document.getElementById("togglePassword");
-    const confirmEye = document.getElementById("toggleConfirmPassword");
-
-    
-    // DYNAMIC GLOBAL COUNTRY DICTIONARY FETCH
-    async function loadAllCountryCodes() {
-        try {
-            const response = await fetch("https://restcountries.com/v3.1/all?fields=name,idd,flag,cca2");
-            const countries = await response.json();
-
-            const formattedCountries = countries
-                .filter(c => c.idd && c.idd.root)
-                .map(c => {
-                    const suffix = c.idd.suffixes ? c.idd.suffixes[0] : "";
-                    return {
-                        name: c.name.common,
-                        code: c.idd.root + (c.idd.suffixes && c.idd.suffixes.length === 1 ? suffix : ""),
-                        flag: c.flag || "",
-                        cca2: c.cca2
-                    };
-                });
-
-            formattedCountries.sort((a, b) => a.name.localeCompare(b.name));
-            countryDropdown.innerHTML = "";
-
-            formattedCountries.forEach(country => {
-                const option = document.createElement("option");
-                option.value = country.code;
-                option.innerText = `${country.flag} ${country.code} (${country.cca2}) - ${country.name}`;
-                
-                if (country.cca2 === "PH") {
-                    option.selected = true;
-                }
-                countryDropdown.appendChild(option);
-            });
-
-        } catch (error) {
-            console.error("Country API error, loading local defaults:", error);
-            countryDropdown.innerHTML = `
-                <option value="+63" selected>🇵🇭 +63 (PH)</option>
-                <option value="+1">🇺🇸 +1 (US)</option>
-                <option value="+44">🇬🇧 +44 (UK)</option>
-            `;
-        }
+    // =======================================================
+    // REAL-TIME CHAR STRIPING
+    // =======================================================
+    if (firstNameInput) {
+        firstNameInput.addEventListener("input", () => {
+            firstNameInput.value = firstNameInput.value.replace(/[^A-Za-z\sñÑ]/g, "");
+        });
     }
 
-    loadAllCountryCodes();
+    if (lastNameInput) {
+        lastNameInput.addEventListener("input", () => {
+            lastNameInput.value = lastNameInput.value.replace(/[^A-Za-z\sñÑ]/g, "");
+        });
+    }
 
-    // PASSWORD EYE TOGGLE VISIBILITY TRACKING
-    function setupPasswordToggle(inputField, eyeIcon) {
-        inputField.addEventListener("input", () => {
-            if (inputField.value.length > 0) {
-                eyeIcon.classList.add("visible");
+    if (phoneInput) {
+        phoneInput.addEventListener("input", () => {
+            phoneInput.value = phoneInput.value.replace(/[^0-9]/g, "");
+        });
+    }
+
+    // =======================================================
+    // DUAL EYE VISIBILITY CONTROLLER
+    // =======================================================
+    function setupPasswordToggle(inputEl, eyeEl) {
+        if (!inputEl || !eyeEl) return;
+
+        // Toggle visibility class depending on character length
+        inputEl.addEventListener("input", () => {
+            if (inputEl.value.length > 0) {
+                eyeEl.classList.add("visible");
             } else {
-                eyeIcon.classList.remove("visible");
-                inputField.type = "password";
-                eyeIcon.classList.replace("fa-eye-slash", "fa-eye");
+                eyeEl.classList.remove("visible");
+                inputEl.type = "password";
+                eyeEl.classList.remove("fa-eye-slash");
+                eyeEl.classList.add("fa-eye");
             }
         });
 
-        eyeIcon.addEventListener("click", () => {
-            if (inputField.type === "password") {
-                inputField.type = "text";
-                eyeIcon.classList.replace("fa-eye", "fa-eye-slash");
+        // Click interaction logic to toggle visibility masks
+        eyeEl.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            if (inputEl.type === "password") {
+                inputEl.type = "text";
+                eyeEl.classList.remove("fa-eye");
+                eyeEl.classList.add("fa-eye-slash");
             } else {
-                inputField.type = "password";
-                eyeIcon.classList.replace("fa-eye-slash", "fa-eye");
+                inputEl.type = "password";
+                eyeEl.classList.remove("fa-eye-slash");
+                eyeEl.classList.add("fa-eye");
             }
         });
     }
@@ -92,167 +107,136 @@ document.addEventListener("DOMContentLoaded", () => {
     setupPasswordToggle(passwordInput, passwordEye);
     setupPasswordToggle(confirmInput, confirmEye);
 
-  
-    // FIELD ERROR CLEARING UTILITIES
+    // =======================================================
+    // VALIDATION ENGINE & BORDER RESET HANDLERS
+    // =======================================================
     function clearErrors() {
-        firstnameError.innerText = "";
-        lastnameError.innerText = "";
-        emailError.innerText = "";
-        phoneError.innerText = "";
-        passwordError.innerText = "";
-        confirmError.innerText = "";
-        
-        document.querySelectorAll(".input-group input").forEach(input => {
-            input.style.borderColor = "#cccccc";
-        });
+        if (firstnameError) firstnameError.innerText = "";
+        if (lastnameError) lastnameError.innerText = "";
+        if (emailError) emailError.innerText = "";
+        if (phoneError) phoneError.innerText = "";
+        if (passwordError) passwordError.innerText = "";
+        if (confirmError) confirmError.innerText = "";
+        document.querySelectorAll(".input-group input").forEach(i => i.style.borderColor = "#cccccc");
     }
 
-    function markInputError(inputId) {
-        document.getElementById(inputId).style.borderColor = "#ef5350";
+    function markInputError(id) {
+        const el = document.getElementById(id);
+        if (el) el.style.borderColor = "#ef5350";
     }
 
+    // =======================================================
+    // AUTHENTIC FIREBASE REGISTER & SUBMISSION LAYER
+    // =======================================================
+    if (signupForm) {
+        signupForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            clearErrors();
 
-    // MAIN VALIDATION & INTERCEPT SUBMIT EVENT
-    signupForm.addEventListener("submit", (e) => {
-        e.preventDefault();
-        clearErrors();
+            const firstName = firstNameInput ? firstNameInput.value.trim() : "";
+            const lastName = lastNameInput ? lastNameInput.value.trim() : "";
+            const email = emailInput ? emailInput.value.trim() : "";
+            const phone = phoneInput ? phoneInput.value.trim() : "";
+            const password = passwordInput ? passwordInput.value : "";
+            const confirmPassword = confirmInput ? confirmInput.value : "";
 
-        const firstName = document.getElementById("firstName").value.trim();
-        const lastName = document.getElementById("lastName").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-        const countryCode = countryDropdown.value;
-        const password = passwordInput.value;
-        const confirmPassword = confirmInput.value;
-
-        // 1. Name checks
-        const nameRegex = /^[A-Za-z\sñÑ.]+$/;
-        if (!nameRegex.test(firstName)) {
-            firstnameError.innerText = "First name can only contain letters and spaces.";
-            markInputError("firstName");
-            return;
-        }
-        if (!nameRegex.test(lastName)) {
-            lastnameError.innerText = "Last name can only contain letters and spaces.";
-            markInputError("lastName");
-            return;
-        }
-
-        // 2. Email suffix checks
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-        if (!emailRegex.test(email)) {
-            emailError.innerText = "Please enter a complete email address with extension (e.g., .com).";
-            markInputError("email");
-            return;
-        }
-
-        // 3. Numbers only Phone Check
-        const phoneRegex = /^[0-9]+$/;
-        if (!phoneRegex.test(phone)) {
-            phoneError.innerText = "Phone number can only contain numbers. Letters and symbols are not allowed.";
-            markInputError("phone");
-            return;
-        }
-        if (phone.length < 5 || phone.length > 14) {
-            phoneError.innerText = "Please enter a valid local number length.";
-            markInputError("phone");
-            return;
-        }
-
-        // 4. Strict Passwords check parameters
-        if (password.length < 8 || password.length > 16) {
-            passwordError.innerText = "Password length must be between 8 and 16 characters.";
-            markInputError("password");
-            return;
-        }
-        if (!/[A-Z]/.test(password)) {
-            passwordError.innerText = "Password requires at least one uppercase letter (A-Z).";
-            markInputError("password");
-            return;
-        }
-        if (!/[a-z]/.test(password)) {
-            passwordError.innerText = "Password requires at least one lowercase letter (a-z).";
-            markInputError("password");
-            return;
-        }
-        if (!/[0-9]/.test(password)) {
-            passwordError.innerText = "Password requires at least one number digit (0-9).";
-            markInputError("password");
-            return;
-        }
-        if (!/[!@#$%^&*(),.?":{}|<>_+\-\[\]\\\/]/.test(password)) {
-            passwordError.innerText = "Password requires at least one special character.";
-            markInputError("password");
-            return;
-        }
-
-        if (password !== confirmPassword) {
-            confirmError.innerText = "Passwords do not match. Please verify both inputs.";
-            markInputError("confirmPassword");
-            return;
-        }
-
-      
-        // TESTING CHANNELS
-       
-        
-        // emails to test validation rejections
-        const mockDatabaseEmails = ["taken@gmail.com", "admin@maupay.com", "test@gmail.com"];
-
-        // Trigger dynamic loading button state delay
-        const registerButton = signupForm.querySelector(".btn-submit-login");
-        const originalBtnText = registerButton.innerText;
-        registerButton.innerText = "Creating Account...";
-        registerButton.disabled = true;
-
-        setTimeout(() => {
-            // Test Rule A: Check if username is already "registered" inside our dummy database array
-            if (mockDatabaseEmails.includes(email.toLowerCase())) {
-                emailError.innerText = "This email address is already registered to an existing account.";
-                markInputError("email");
-                
-                // Reset submit button text state
-                registerButton.innerText = originalBtnText;
-                registerButton.disabled = false;
+            if (firstName.length === 0) {
+                if (firstnameError) firstnameError.innerText = "First name is required.";
+                markInputError("firstName");
+                return;
+            }
+            if (lastName.length === 0) {
+                if (lastnameError) lastnameError.innerText = "Last name is required.";
+                markInputError("lastName");
                 return;
             }
 
-            // Test Rule B: If validation succeeds, build a dummy payload mapping structure
-           const dummyUserPayload = {
-                uid: "MWPC_" + Math.floor(100000 + Math.random() * 900000),
-                firstName: firstName,
-                lastName: lastName,
-                emailAddress: email.toLowerCase(),
-                fullContactPhone: countryCode + phone,
-                password: password,
-                accountCreatedTimestamp: new Date().toISOString()
-            };
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                if (emailError) emailError.innerText = "Please enter a valid email address.";
+                markInputError("email"); 
+                return;
+            }
 
-            // Save to browser memory so signin.html can read it!
-            localStorage.setItem('dummyTestingAccount', JSON.stringify(dummyUserPayload));
+            if (!phone.startsWith("09") || phone.length !== 11) {
+                if (phoneError) phoneError.innerText = "Must be an 11-digit PH mobile number starting with 09.";
+                markInputError("phone");
+                return;
+            }
 
-            console.log("%c--- DUMMY ACCOUNT SAVED TO BROWSER ---", "color: #2e7d32; font-weight: bold; font-size: 1.1rem;");
-            console.log("Saved to LocalStorage for Sign-In testing:", dummyUserPayload);
-            console.log("Ready to push directly to Firebase Auth & Firestore DB instances:", dummyUserPayload);
-            console.log("---------------------------------------");
+            if (password.length < 8 || password.length > 16 || !/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password) || !/[!@#$%^&*(),.?":{}|<>_+\-\[\]\\\/]/.test(password)) {
+                if (passwordError) passwordError.innerText = "Password requirements: 8-16 characters, uppercase, lowercase, number, and special character.";
+                markInputError("password");
+                return;
+            }
 
-            // Reveal success modal overlay panel components
-            modalTargetEmail.innerText = email;
-            successModal.classList.remove("hidden");
+            if (password !== confirmPassword) {
+                if (confirmError) confirmError.innerText = "Passwords do not match.";
+                markInputError("confirmPassword");
+                return;
+            }
+
+            const registerButton = signupForm.querySelector(".btn-submit-login") || signupForm.querySelector("button[type='submit']");
+            const originalBtnText = registerButton ? registerButton.innerText : "Create an Account";
             
-            // Clean interface configurations
-            signupForm.reset();
-            passwordEye.classList.remove("visible");
-            confirmEye.classList.remove("visible");
-            registerButton.innerText = originalBtnText;
-            registerButton.disabled = false;
+            if (registerButton) {
+                registerButton.innerText = "Creating Account...";
+                registerButton.disabled = true;
+            }
 
-        }, 800);
-    });
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const customerDocRef = doc(db, "Customer", user.uid);
 
-    // Close Modal and bounce back out to sign-in panel route
-    closeModalBtn.addEventListener("click", () => {
-        successModal.classList.add("hidden");
-        window.location.href = "signin.html"; 
-    });
+                await setDoc(customerDocRef, {
+                    firstName: firstName,
+                    lastName: lastName,
+                    emailAddress: email.toLowerCase(),
+                    phoneNumber: phone,
+                    createdAt: serverTimestamp(),
+                    services: {
+                        standardParcel: {},
+                        lipatbahay: {},
+                        cargo: {}
+                    }
+                });
+
+                if (modalTargetEmail) modalTargetEmail.innerText = email;
+                if (successModal) successModal.classList.remove("hidden");
+                
+                signupForm.reset();
+                if (passwordEye) passwordEye.classList.remove("visible");
+                if (confirmEye) confirmEye.classList.remove("visible");
+
+            } catch (error) {
+                console.error("Firebase Registration Error: ", error.code, error.message);
+                
+                if (error.code === "auth/email-already-in-use") {
+                    if (emailError) emailError.innerText = "This email address is already registered.";
+                    markInputError("email");
+                } else if (error.code === "auth/invalid-email") {
+                    if (emailError) emailError.innerText = "The specified email formatting is invalid.";
+                    markInputError("email");
+                } else if (error.code === "auth/weak-password") {
+                    if (passwordError) passwordError.innerText = "The provided password matrix is too weak.";
+                    markInputError("password");
+                } else {
+                    alert("System Exception Error: " + error.message);
+                }
+            } finally {
+                if (registerButton) {
+                    registerButton.innerText = originalBtnText;
+                    registerButton.disabled = false;
+                }
+            }
+        });
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener("click", () => {
+            if (successModal) successModal.classList.add("hidden");
+            window.location.href = "signin.html"; 
+        });
+    }
 });

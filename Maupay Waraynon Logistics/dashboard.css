@@ -86,12 +86,15 @@ body {
     text-align: center;
 }
 
-.menu-item:hover, .menu-item.active {
-    background-color: #1565c0; 
-    color: #ffffff;
+/* HOVER & ACTIVE FIXES */
+.menu-item:hover {
+    background-color: #1565c0 !important; 
+    color: #ffffff !important;
 }
 
 .menu-item.active {
+    background-color: #1565c0; 
+    color: #ffffff;
     border-left: 4px solid #ef5350; 
     padding-left: 20px;
 }
@@ -101,8 +104,8 @@ body {
     color: #ff8a80;
 }
 .logout-link:hover {
-    background-color: #c62828;
-    color: #ffffff;
+    background-color: #c62828 !important;
+    color: #ffffff !important;
 }
 
 /* MAIN DASHBOARD WORKSPACE GRID PANELS */
@@ -123,6 +126,11 @@ body {
     color: #0c2340;
     font-size: 1.6rem;
     font-weight: 700;
+}
+
+.user-profile-badge {
+    position: relative;
+    display: inline-block;
 }
 
 .avatar-circle {
@@ -151,6 +159,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 24px;
+    min-width: 0;
 }
 
 .secondary-column {
@@ -226,42 +235,50 @@ body {
 .metric-mini-card {
     background: #ffffff;
     flex: 1;
-    border-radius: 10px;
-    padding: 12px;
+    border-radius: 12px;
+    padding: 16px;
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 14px;
     color: #333333;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    border: 1px solid #edf2f7;
 }
 
 .metric-block-icon {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    font-size: 1.2rem;
     flex-shrink: 0;
 }
-.blue-bg { background-color: #1e88e5; }
-.lightblue-bg { background-color: #4fc3f7; }
+
+/* Premium Industry Color Background Themes */
+.total-bg  { background-color: #e0f2fe; color: #0284c7; }
+.moving-bg { background-color: #e0e7ff; color: #4f46e5; }
+.parcel-bg { background-color: #dcfce7; color: #16a34a; }
+.cargo-bg  { background-color: #fef3c7; color: #d97706; }
 
 .metric-data-info .lbl {
-    font-size: 0.72rem;
-    color: #777777;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
     display: block;
     margin-bottom: 2px;
 }
 
 .metric-data-info h3 {
-    font-size: 1.2rem;
+    font-size: 1.35rem;
     color: #0c2340;
     font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    line-height: 1;
 }
 
 .trend-pct {
-    font-size: 0.7rem;
+    font-size: 0.75rem;
     color: #2e7d32;
     background-color: #e8f5e9;
     padding: 1px 4px;
@@ -289,92 +306,122 @@ body {
     font-weight: 700;
 }
 
-.view-all-link {
-    font-size: 0.8rem;
-    color: #1e88e5;
-    text-decoration: none;
-    font-weight: 600;
-}
 
-/* Progress indicator row panels configuration mapping */
-.shipment-progress-card {
+/* THE SHIPMENT PROGRESS CARD REDESIGN */
+
+.active-shipment-card {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border: 1px solid #e3f2fd;
-    padding: 14px 20px;
-    border-radius: 10px;
-    margin-bottom: 12px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 16px 24px;
+    margin-bottom: 16px;
     gap: 20px;
 }
-.shipment-progress-card:last-child { margin-bottom: 0; }
 
-.shipment-meta-icon {
+.active-shipment-card:last-child {
+    margin-bottom: 0;
+}
+
+.card-left-group {
     display: flex;
     align-items: center;
-    gap: 14px;
-    min-width: 180px;
-}
-
-.meta-box {
-    width: 35px;
-    height: 35px;
-    border-radius: 8px;
-}
-
-.meta-labels h4 {
-    font-size: 0.88rem;
-    color: #0c2340;
-    font-weight: 700;
-}
-
-.meta-labels span {
-    font-size: 0.75rem;
-    color: #777777;
-}
-
-.progress-track-wrapper {
+    gap: 16px;
     flex: 1;
+    min-width: 0;
+}
+
+.card-icon-wrapper {
     display: flex;
     align-items: center;
-    gap: 12px;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    flex-shrink: 0;
+}
+
+/* Dynamic context icon coloring variants */
+.icon-blue   { background-color: #eff6ff; color: #3b82f6; }
+.icon-purple { background-color: #f3e8ff; color: #a855f7; }
+.icon-green  { background-color: #dcfce7; color: #22c55e; }
+.icon-orange { background-color: #ffedd5; color: #f97316; }
+
+.card-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.card-details .tracking-id {
+    font-weight: 700;
+    color: #1e293b;
+    font-size: 1rem;
+    letter-spacing: -0.01em;
+}
+
+.card-details .destination-text {
+    color: #64748b;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
+
+.card-progress-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    justify-content: flex-end;
+    max-width: 400px;
 }
 
 .progress-bar-container {
-    flex: 1;
-    height: 8px;
-    background-color: #e3f2fd;
-    border-radius: 10px;
+    width: 100%;
+    height: 6px;
+    background-color: #f1f5f9;
+    border-radius: 999px;
     overflow: hidden;
 }
 
-.progress-fill-line {
+.progress-bar-fill {
     height: 100%;
-    background-color: #0d47a1;
-    border-radius: 10px;
+    background-color: #2563eb;
+    border-radius: 999px;
 }
 
-.progress-pct-lbl {
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: #555555;
+.progress-percentage {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #64748b;
+    flex-shrink: 0;
     min-width: 32px;
+    text-align: right;
 }
 
-/* Badge framework styles classification */
-.badge {
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 0.75rem;
-    font-weight: 700;
+/* Status Pill Accents Framework Styles */
+.status-btn-pill {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
     text-align: center;
-    min-width: 110px;
+    min-width: 140px;
+    line-height: 1.2;
+    box-sizing: border-box;
 }
-.status-transit { background-color: #e3f2fd; color: #0d47a1; }
-.status-delivery { background-color: #fff8e1; color: #f57f17; }
-.status-delivered { background-color: #e8f5e9; color: #1b5e20; }
 
-/* Grid data lists responsive layout configuration tracking tables */
+.status-pending { background-color: #fef3c7; color: #d97706; }
+.status-transit { background-color: #e0f2fe; color: #0369a1; }
+
+
+/* DATA HISTORY TABLES MAPPING */
+
 .table-scroll-container {
     width: 100%;
     overflow-x: auto;
@@ -388,18 +435,23 @@ body {
 
 .bookings-data-table th {
     font-size: 0.75rem;
-    color: #777777;
+    color: #64748b;
     text-transform: uppercase;
     font-weight: 700;
-    padding: 12px 16px;
-    border-bottom: 2px solid #f0f4f8;
+    padding: 14px 16px;
+    border-bottom: 2px solid #edf2f7;
+    letter-spacing: 0.5px;
 }
 
 .bookings-data-table td {
-    padding: 14px 16px;
-    font-size: 0.85rem;
-    color: #444444;
-    border-bottom: 1px solid #f0f4f8;
+    padding: 16px;
+    font-size: 0.88rem;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.bookings-data-table tr:last-child td {
+    border-bottom: none;
 }
 
 /* RIGHT ACTION AND NOTIFICATION BOARD PANELS */
@@ -421,12 +473,17 @@ body {
 .quick-track-form input {
     width: 100%;
     padding: 10px 14px;
-    border: 1px solid #cccccc;
+    border: 1px solid #e2e8f0;
     border-radius: 6px;
     font-size: 0.82rem;
     outline: none;
     margin-bottom: 12px;
     background-color: #fafafa;
+    transition: border-color 0.2s;
+}
+
+.quick-track-form input:focus {
+    border-color: #1e88e5;
 }
 
 .btn-track-action {
@@ -441,6 +498,11 @@ body {
     cursor: pointer;
     letter-spacing: 0.5px;
     box-shadow: 0 4px 12px rgba(239, 83, 80, 0.15);
+    transition: background-color 0.2s;
+}
+
+.btn-track-action:hover {
+    background-color: #e53935;
 }
 
 .announcements-card {
@@ -471,7 +533,7 @@ body {
 }
 
 .announcement-timestamp {
-    font-size: 0.7rem;
+    font-size: 0.7()rem;
     color: #999999;
     font-weight: 600;
     display: block;
@@ -481,6 +543,20 @@ body {
 @media (max-width: 1200px) {
     .dashboard-grid-layout { flex-direction: column; }
     .primary-column, .secondary-column { width: 100%; }
+}
+
+@media (max-width: 992px) {
+    .active-shipment-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+        padding: 20px;
+    }
+    .card-left-group, .card-progress-wrapper {
+        width: 100%;
+        max-width: 100%;
+        justify-content: flex-start;
+    }
 }
 
 @media (max-width: 768px) {

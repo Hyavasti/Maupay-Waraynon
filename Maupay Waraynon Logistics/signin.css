@@ -191,6 +191,59 @@ nav a:hover {
     background-color: #ffffff;
 }
 
+/* Real-time Field Level Validation Support */
+.error-msg {
+    color: #ef5350;
+    font-size: 0.75rem;
+    font-weight: 600;
+    margin-top: 4px;
+    min-height: 14px;
+}
+
+/* =======================================================
+   PASSWORD FIELD LAYER MATRIX & TOGGLE EYE CONFIG
+   ======================================================= */
+.password-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.password-wrapper input {
+    padding-right: 45px !important;
+}
+
+/* Force standard browsers to scrub away conflicting native browser eye layers */
+.password-wrapper input::-ms-reveal,
+.password-wrapper input::-ms-clear,
+.password-wrapper input::-webkit-contacts-auto-fill-button {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.toggle-password-icon {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    cursor: pointer;
+    color: #777777;
+    font-size: 1rem;
+    transition: opacity 0.2s, color 0.2s;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.toggle-password-icon.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.toggle-password-icon:hover {
+    color: #0d47a1;
+}
+
 /* Checkbox & Options */
 .form-options {
     display: flex;
@@ -246,6 +299,14 @@ nav a:hover {
     box-shadow: 0 6px 16px rgba(211, 47, 47, 0.3);
 }
 
+.btn-submit-login:disabled {
+    background-color: #e0e0e0 !important;
+    color: #a6a6a6 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    box-shadow: none !important;
+}
+
 /* Horizontal Divider line */
 .divider {
     display: flex;
@@ -266,6 +327,7 @@ nav a:hover {
 .divider:not(:empty)::before { margin-right: .75em; }
 .divider:not(:empty)::after { margin-left: .75em; }
 
+/* Google Button Config Rules */
 .btn-google-login {
     width: 100%;
     background-color: #ffffff;
@@ -287,6 +349,14 @@ nav a:hover {
     background-color: #f7f9fc;
     border-color: #cccccc;
     transform: translateY(-1px);
+}
+
+.btn-google-login:disabled {
+    background-color: #fafafa !important;
+    color: #aaaaaa !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+    border-color: #e0e0e0 !important;
 }
 
 .google-icon {
@@ -360,6 +430,150 @@ nav a:hover {
 
 .auth-notification.hidden {
     display: none !important;
+}
+
+/* =======================================================
+   SUCCESS POP-UP MODAL FRAME LAYOUT OVERLAYS
+   ======================================================= */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(13, 71, 161, 0.4);
+    backdrop-filter: blur(5px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    opacity: 1;
+    transition: opacity 0.3s ease;
+}
+
+.modal-overlay.hidden {
+    display: none !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.modal-card {
+    background: #ffffff;
+    padding: 35px 40px;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    animation: slideUpModal 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes slideUpModal {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.modal-icon {
+    width: 65px;
+    height: 65px;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    font-size: 2.2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    margin: 0 auto 18px auto;
+}
+
+.modal-card h2 {
+    color: #0d47a1;
+    font-size: 1.6rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.modal-card p {
+    color: #555555;
+    font-size: 0.9rem;
+    line-height: 1.45;
+    margin-bottom: 8px;
+}
+
+.modal-instruction {
+    font-size: 0.8rem !important;
+    color: #888888 !important;
+    margin-bottom: 20px;
+}
+
+/* Spinner Loader Element CSS */
+.spinner-loader {
+    width: 32px;
+    height: 32px;
+    border: 3px solid #e3f2fd;
+    border-top: 3px solid #0d47a1;
+    border-radius: 50%;
+    margin: 0 auto;
+    animation: spinTrack 0.85s linear infinite;
+}
+
+/* =======================================================
+   CUSTOM ERROR MODAL STYLING
+   ======================================================= */
+.modal-card.error-card {
+    border-top: 5px solid #ef5350; /* Bold red accent bar at the top */
+    text-align: center;
+    padding: 30px;
+}
+
+.modal-icon.error-icon {
+    color: #ef5350;
+    font-size: 3.5rem;
+    margin-bottom: 15px;
+    animation: pulseError 0.3s ease-in-out;
+}
+
+#error-modal-title {
+    color: #2c3e50;
+    font-size: 1.6rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+#error-modal-msg {
+    color: #7f8c8d;
+    font-size: 1rem;
+    margin-bottom: 25px;
+    line-height: 1.4;
+    font-weight: 500;
+}
+
+.btn-error-close {
+    width: 100%;
+    padding: 12px;
+    background-color: #ef5350;
+    color: #ffffff;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-error-close:hover {
+    background-color: #d32f2f;
+}
+
+/* Quick entry animation for the red icon */
+@keyframes pulseError {
+    0% { transform: scale(0.6); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes spinTrack {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 /* RESPONSIVE MEDIA */

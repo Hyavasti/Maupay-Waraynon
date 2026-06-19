@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maupay Waraynon Padala Center | Payment</title>
-    <link rel="stylesheet" href="dashboard.css">
-    <link rel="stylesheet" href="book-standard-parcel-payment.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link class="styles" rel="stylesheet" href="dashboard.css">
+    <link class="styles" rel="stylesheet" href="book-standard-parcel-payment.css">
+    <link class="styles" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="parcel-payment-body-bg">
 
@@ -25,8 +25,8 @@
             <nav class="sidebar-menu">
                 <a href="dashboard.html" class="menu-item"><i class="fas fa-th-large"></i> Overview</a>
                 <a href="book-shipment.html" class="menu-item active"><i class="fas fa-shopping-cart"></i> Book a Shipment</a>
-                <a href="#" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
-                <a href="#" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
+                <a href="track-parcel.html" class="menu-item"><i class="fas fa-map-marker-alt"></i> Track Parcel</a>
+                <a href="my-bookings.html" class="menu-item"><i class="fas fa-book"></i> My Bookings</a>
                 <a href="#" class="menu-item"><i class="fas fa-check-circle"></i> Claims</a>
                 <a href="#" class="menu-item"><i class="fas fa-comment-alt"></i> Feedback</a>
             </nav>
@@ -237,7 +237,6 @@
                         <div class="review-data-line"><strong>Description:</strong> <span id="popItemDesc">General Goods</span></div>
                         <div class="review-data-line"><strong>Scale/Weight:</strong> <span id="popWeight">0 kg</span></div>
                         <div class="review-data-line"><strong>Volume Metrics:</strong> <span id="popVolume">0x0x0 cm</span></div>
-                        <!-- 📝 ADDED: Special Handling Instructions Row -->
                         <div class="review-data-line"><strong>Instructions:</strong> <span id="popSpecialNotes" style="font-style: italic; color: #555;">None</span></div>
                     </div>
                 </div>
@@ -279,6 +278,14 @@
         </div>
     </div>
 
-    <script src="book-standard-parcel-payment.js"></script>
+    <!-- ========================================== -->
+    <!-- CLEAN CHANNELS: INITIALIZATION LOADING MAP -->
+    <!-- ========================================== -->
+
+    <!-- 1. The default Firebase configuration module setup script -->
+    <script type="module" src="js/firebase-config.js"></script>
+
+    <!-- 2. Page Context Processing Logic Module -->
+    <script type="module" src="book-standard-parcel-payment.js"></script>
 </body>
 </html>

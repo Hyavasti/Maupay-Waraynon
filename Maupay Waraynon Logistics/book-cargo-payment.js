@@ -47,8 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-
-    //RECOVER CONSOLIDATED DATA MANIFEST
+    // RECOVER CONSOLIDATED DATA MANIFEST
     const rawManifestStringData = localStorage.getItem('consolidatedBookingManifest');
     if (!rawManifestStringData) {
         alert("❌ Missing active booking session values. Heading back to Step 1.");
@@ -68,8 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (summaryGrandTotal) summaryGrandTotal.textContent = pricing.estimatedTotal;
     }
 
-
-    //WHO WILL PAY
+    // WHO WILL PAY
     const payerRadios = document.querySelectorAll('input[name="paymentOption"]');
     payerRadios.forEach(radio => {
         const optionCard = radio.closest('.payment-option-card');
@@ -88,7 +86,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
-
 
     // PAYMENT METHOD
     const methodRadios = document.querySelectorAll('input[name="paymentMethod"]');
@@ -111,9 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-
-    //REVIEW POPUP INTERACTION INTERFACE HANDLERS
-
+    // REVIEW POPUP INTERACTION INTERFACE HANDLERS
     function openReviewModalPopup() {
         if (bookingReviewModal) bookingReviewModal.classList.add("is-visible");
     }
@@ -126,9 +121,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (btn) btn.addEventListener("click", closeReviewModalPopup);
     });
 
-
-    //CONFIRM AND POPULATE SUMMARY REVIEW MODAL
-
+    // CONFIRM AND POPULATE SUMMARY REVIEW MODAL
     if (btnConfirmBooking) {
         btnConfirmBooking.addEventListener("click", () => {
             const selectedMethodRadio = document.querySelector('input[name="paymentMethod"]:checked');
@@ -145,7 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            //DATA ADAPTER PARSING
+            // DATA ADAPTER PARSING
             const s1 = currentBookingDataManifest.cargoStep1Details || {};
             const companyNode = s1.company || {};
             
@@ -153,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (popSenderName) popSenderName.textContent = companyNode.name || "Company Origin Shipper";
             if (popReceiverName) popReceiverName.textContent = companyNode.contactPerson || "Authorized Receiver";
             
-            //PACKAGE DATA ADAPTER PARSING
+            // PACKAGE DATA ADAPTER PARSING
             const s2 = currentBookingDataManifest.cargoStep2Specifications || {};
             
             if (popItemDesc) popItemDesc.textContent = `${s2.pieces || 1} pc(s) - ${s2.description || "General Cargo Goods"}`;
@@ -188,9 +181,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
-    //FINAL SUBMISSION TO RE-COMMIT AND SAVE TO HISTORIC LEDGER
-
+    // FINAL SUBMISSION TO RE-COMMIT AND SAVE TO HISTORIC LEDGER
     if (btnFinalSubmitModal) {
         btnFinalSubmitModal.addEventListener("click", () => {
             const selectedPayerRadio = document.querySelector('input[name="paymentOption"]:checked');
@@ -203,26 +194,59 @@ document.addEventListener("DOMContentLoaded", () => {
             if (finalMethodChoice === "GCash" && gcashRefInput) referenceVerificationCodeValue = gcashRefInput.value.trim();
             if (finalMethodChoice === "Bank Transfer" && bankRefInput) referenceVerificationCodeValue = bankRefInput.value.trim();
 
-            //Generate Unique Cargo Tracking ID String
+            // Generate Unique Cargo Tracking ID String
             const uniqueTrackingId = "CRG-" + Math.floor(10000000 + Math.random() * 90000000) + "-PH";
 
-            //Format Summary Record Payload for the Master Shipment System Index
+            // Extract references out from our Multi-step Manifest Buffer safely
             const s1 = currentBookingDataManifest.cargoStep1Details || {};
             const companyNode = s1.company || {};
+            const s2 = currentBookingDataManifest.cargoStep2Specifications || {};
+            const dimensionsObj = s2.dimensions || {};
 
-            // Real-world standardization: "Recipient Name (City Location)"
-            const standardRecipient = companyNode.contactPerson || "Authorized Receiver";
-            const standardDestination = s1.destinationAddress || "Tacloban City, Leyte";
+            // Fallback total price formatting
+            let cleanNumericPrice = "1500";
+            if (summaryGrandTotal && summaryGrandTotal.textContent) {
+                cleanNumericPrice = summaryGrandTotal.textContent.replace(/[^0-9.]/g, "");
+            }
 
+            // FIXED: Set destination to pure address text matching ledger criteria across steps
+            const pureDestinationAddress = s1.destinationAddress || "Tacloban City, Leyte";
+
+            // 🌟 DEEP OBJECT DATATYPE INJECTION: Matches your cards structure perfectly!
             const finalDashboardRecord = {
                 trackingId: uniqueTrackingId,
-                serviceType: currentBookingDataManifest.serviceType || "Commercial Cargo",
-                destination: `${standardRecipient} - ${standardDestination}`,
+                serviceType: currentBookingDataManifest.serviceType || "Heavy Cargo",
+                destination: pureDestinationAddress,
                 dateBooked: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-                status: "In Transit"
-};
+                estDelivery: "Pending Dispatch",
+                totalAmount: cleanNumericPrice,
+                status: "Pending Dispatch",
+                
+                // Nesting data sub-nodes safely so detail render components don't crash
+                sender: {
+                    name: companyNode.name || "Company Origin Shipper",
+                    phone: companyNode.phone || "N/A",
+                    address: s1.originAddress || "Main Corporate Terminal"
+                },
+                receiver: {
+                    name: companyNode.contactPerson || "Authorized Receiver",
+                    phone: companyNode.phone || s1.receiverPhone || "N/A", // Fixed phone data mapping fallback
+                    address: pureDestinationAddress
+                },
+                package: {
+                    desc: `${s2.pieces || 1} pc(s) - ${s2.description || "General Cargo Goods"}`,
+                    category: "Commercial Cargo",
+                    dims: `${dimensionsObj.length || 0} × ${dimensionsObj.width || 0} × ${dimensionsObj.height || 0} cm`,
+                    weight: `${s2.weight || 0} kg`,
+                    value: "Assessed Value"
+                },
+                payment: {
+                    method: finalMethodChoice,
+                    amount: cleanNumericPrice
+                }
+            };
 
-            //  Append directly to Dashboard Master Array Ledger Storage
+            // Append directly to Dashboard Master Array Ledger Storage
             const masterShipmentsDatabase = JSON.parse(localStorage.getItem("maupayShipments")) || [];
             masterShipmentsDatabase.push(finalDashboardRecord);
             localStorage.setItem("maupayShipments", JSON.stringify(masterShipmentsDatabase));
@@ -233,7 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
             currentBookingDataManifest.transactionReferenceCode = referenceVerificationCodeValue;
             currentBookingDataManifest.bookingTimestamp = new Date().toISOString();
             currentBookingDataManifest.generatedTrackingId = uniqueTrackingId;
-            currentBookingDataManifest.status = (finalMethodChoice === "Cash / COD") ? "Pending Pickup" : "Verifying Settle Signature";
+            currentBookingDataManifest.status = "Pending Dispatch";
 
             // Save the complete manifest out to data memory space registry
             localStorage.setItem('consolidatedBookingManifest', JSON.stringify(currentBookingDataManifest));
@@ -246,13 +270,13 @@ document.addEventListener("DOMContentLoaded", () => {
             // Close down checkout review popup window block frame
             closeReviewModalPopup();
             
-            //  POP OPEN THE CUSTOM MODAL EMBED OVERLAY CARD (Replaces standard window alert block)
+            // POP OPEN THE CUSTOM MODAL EMBED OVERLAY CARD (Replaces standard window alert block)
             if (successTrackingId) successTrackingId.textContent = uniqueTrackingId;
             if (successModalOverlay) successModalOverlay.classList.add("display-modal-active");
         });
     }
 
-    //  Handle redirection execution logic for the custom dashboard button hook
+    // Handle redirection execution logic for the custom dashboard button hook
     if (btnSuccessDashboard) {
         btnSuccessDashboard.addEventListener("click", () => {
             if (successModalOverlay) successModalOverlay.classList.remove("display-modal-active");
