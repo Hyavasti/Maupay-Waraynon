@@ -12,12 +12,56 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    // LIVE DATABASE INTEGRATION (Updated to strictly override storage fallbacks instantly)
+    if (profileAvatar) {
+        (async () => {
+            try {
+                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js");
+                const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+                const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
+
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+                    authDomain: "mpc-bacoor.firebaseapp.com",
+                    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+                    projectId: "mpc-bacoor",
+                    storageBucket: "mpc-bacoor.firebasestorage.app",
+                    messagingSenderId: "105917197007",
+                    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+                    measurementId: "G-GSF6CFML1Y"
+                };
+
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                const auth = getAuth(app);
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        try {
+                            const userDoc = await getDoc(doc(db, "Customer", user.uid));
+                            if (userDoc.exists()) {
+                                const userData = userDoc.data();
+                                const profileName = userData.firstName || userData.name;
+                                if (profileName && profileName.trim().length > 0) {
+                                    profileAvatar.innerText = profileName.trim().charAt(0).toUpperCase();
+                                }
+                            }
+                        } catch (err) {
+                            console.warn("Database sync error, keeping fallback profile text:", err);
+                        }
+                    }
+                });
+            } catch (moduleErr) {
+                console.error("Firebase runtime engine failed to initialize:", moduleErr);
+            }
+        })();
+    }
+
     if (btnBackToSelection) {
         btnBackToSelection.addEventListener("click", () => {
             window.location.href = "book-shipment.html";
         });
     }
-
 
     //INLINE LOGICAL FIELD VALIDATION ERROR GENERATION
     function showInlineError(inputElement, message) {
@@ -46,10 +90,11 @@ document.addEventListener("DOMContentLoaded", () => {
         field.addEventListener("input", (e) => {
             const sanitizedValue = e.target.value.replace(/[^a-zA-Z.\s]/g, "");
             if (e.target.value !== sanitizedValue) e.target.value = sanitizedValue;
+            if (sanitizedValue.trim().length > 0) removeInlineError(field);
         });
     });
 
-    // Numeric mobile safety gate routing mapping (Mobile Numbers)
+    // Numeric mobile safety gate routing mapping (Mobile Numbers starting with 09)
     const mobileFields = [
         document.getElementById("companyMobile"),
         document.getElementById("pickupMobile"),
@@ -61,15 +106,39 @@ document.addEventListener("DOMContentLoaded", () => {
             let sanitizedValue = e.target.value.replace(/[^0-9]/g, "");
             if (sanitizedValue.length > 11) sanitizedValue = sanitizedValue.slice(0, 11);
             e.target.value = sanitizedValue;
-            if (sanitizedValue.length === 11 || sanitizedValue.length === 0) removeInlineError(field);
+
+            // Real-time checks while typing
+            if (sanitizedValue.length >= 2 && !sanitizedValue.startsWith("09")) {
+                showInlineError(field, "⚠️ Mobile numbers must start with 09.");
+            } else if (sanitizedValue.length === 11 && sanitizedValue.startsWith("09")) {
+                removeInlineError(field);
+            }
         });
 
         field.addEventListener("blur", (e) => {
-            if (e.target.value.length > 0 && e.target.value.length < 11) {
-                showInlineError(field, "⚠️ Mobile numbers must be exactly 11 digits (e.g., 09171234567).");
+            const val = e.target.value;
+            if (val.length === 0) {
+                showInlineError(field, "⚠️ This field is required.");
+            } else if (!val.startsWith("09") || val.length !== 11) {
+                showInlineError(field, "⚠️ Mobile number must start with 09 and be exactly 11 digits.");
             } else {
                 removeInlineError(field);
             }
+        });
+    });
+
+    // Clear empty errors in real-time when user inputs data into standard text fields
+    const standardFields = [
+        document.getElementById("companyName"),
+        document.getElementById("companyTin"),
+        document.getElementById("companyAddress"),
+        document.getElementById("pickupStreet"),
+        document.getElementById("deliveryStreet")
+    ];
+    standardFields.forEach(field => {
+        if (!field) return;
+        field.addEventListener("input", () => {
+            if (field.value.trim().length > 0) removeInlineError(field);
         });
     });
 
@@ -83,7 +152,15 @@ document.addEventListener("DOMContentLoaded", () => {
         const citySelect = document.getElementById(`${prefix}City`);
         const bgySelect = document.getElementById(`${prefix}Barangay`);
 
-        // Load all available regions out of endpoint array
+        // Clear inline errors when a dropdown choice is changed
+        [regSelect, provSelect, citySelect, bgySelect].forEach(select => {
+            if (select) {
+                select.addEventListener("change", () => {
+                    if (select.value) removeInlineError(select);
+                });
+            }
+        });
+
         try {
             const response = await fetch(`${API_BASE_URL}/regions/`);
             const regions = await response.json();
@@ -97,11 +174,9 @@ document.addEventListener("DOMContentLoaded", () => {
             regSelect.innerHTML = '<option value="">Error loading geographic database</option>';
         }
 
-        // Region -> Province change handler
         regSelect.addEventListener("change", async () => {
             const regCode = regSelect.value;
             
-            // Clear all dependent fields immediately
             provSelect.innerHTML = '<option value="">Select province</option>';
             citySelect.innerHTML = '<option value="">Select city/municipality</option>';
             bgySelect.innerHTML = '<option value="">Select barangay</option>';
@@ -111,14 +186,12 @@ document.addEventListener("DOMContentLoaded", () => {
             
             if (!regCode) return;
 
-            //ABSOLUTE NCR PATCH
             if (regCode === "130000000") {
-                // 1. Manually assign alternative metadata to province block
                 provSelect.innerHTML = '<option value="NCR" data-name="Metro Manila">Metro Manila (NCR)</option>';
                 provSelect.disabled = false;
                 provSelect.value = "NCR";
+                removeInlineError(provSelect);
 
-                //Immediately call specific API endpoint for NCR cities
                 try {
                     const cityRes = await fetch(`${API_BASE_URL}/regions/${regCode}/cities/`);
                     const cities = await cityRes.json();
@@ -133,7 +206,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 return;
             }
 
-            // STANDARD PROVINCE HANDLING
             try {
                 const res = await fetch(`${API_BASE_URL}/regions/${regCode}/provinces/`);
                 const provinces = await res.json();
@@ -148,11 +220,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Province -> City change handler
         provSelect.addEventListener("change", async () => {
             const provCode = provSelect.value;
-            
-            // Skip loading if this is NCR since NCR was handled directly in the region listener
             if (provCode === "NCR") return;
 
             citySelect.innerHTML = '<option value="">Select city/municipality</option>';
@@ -174,7 +243,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // City -> Barangay change handler
         citySelect.addEventListener("change", async () => {
             const cityCode = citySelect.value;
             bgySelect.innerHTML = '<option value="">Select barangay</option>';
@@ -200,7 +268,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     //PERSISTENT STORAGE PROFILE ADDRESS BOOK SHORTCUT MANAGING
-
     function setupProfileShortcuts(prefix) {
         const dropdown = document.getElementById(`${prefix}SavedShortcut`);
         const savedAddresses = JSON.parse(localStorage.getItem(`savedCargoAddresses_${prefix}`) || "[]");
@@ -218,6 +285,11 @@ document.addEventListener("DOMContentLoaded", () => {
             document.getElementById(`${prefix}Mobile`).value = selected.mobile;
             document.getElementById(`${prefix}Street`).value = selected.street;
             
+            // Clean up any remaining validation error states when dynamic shortcuts load data
+            removeInlineError(document.getElementById(`${prefix}Contact`));
+            removeInlineError(document.getElementById(`${prefix}Mobile`));
+            removeInlineError(document.getElementById(`${prefix}Street`));
+
             alert(`Loaded address configuration map: "${selected.alias}"`);
         });
     }
@@ -233,15 +305,39 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let hasErrors = false;
 
-            // Enforce validation constraints across mobile numeric lengths
-            mobileFields.forEach(field => {
-                if (field && field.value.length < 11) {
-                    showInlineError(field, "⚠️ This field is required and must contain exactly 11 digits.");
+            // 1. Core Verification: Check all basic text, textarea, and input elements for empty states
+            const allInputTextElements = [
+                document.getElementById("companyName"),
+                document.getElementById("companyContact"),
+                document.getElementById("companyMobile"),
+                document.getElementById("companyTin"),
+                document.getElementById("companyAddress"),
+                document.getElementById("pickupContact"),
+                document.getElementById("pickupMobile"),
+                document.getElementById("pickupStreet"),
+                document.getElementById("deliveryContact"),
+                document.getElementById("deliveryMobile"),
+                document.getElementById("deliveryStreet")
+            ];
+
+            allInputTextElements.forEach(field => {
+                if (field && field.value.trim() === "") {
+                    showInlineError(field, "⚠️ This field cannot be left blank.");
                     hasErrors = true;
                 }
             });
 
-            // Catch missing dropdown selections across geographic fields
+            // 2. Mobile validation override constraints: Length verification & prefix matching
+            mobileFields.forEach(field => {
+                if (field && field.value.trim() !== "") {
+                    if (!field.value.startsWith("09") || field.value.length !== 11) {
+                        showInlineError(field, "⚠️ Mobile number must start with 09 and be exactly 11 digits.");
+                        hasErrors = true;
+                    }
+                }
+            });
+
+            // 3. Dropdown constraint tracking logic
             const requiredDropdowns = [
                 "pickupRegion", "pickupProvince", "pickupCity", "pickupBarangay", 
                 "deliveryRegion", "deliveryProvince", "deliveryCity", "deliveryBarangay"
@@ -249,16 +345,14 @@ document.addEventListener("DOMContentLoaded", () => {
             requiredDropdowns.forEach(id => {
                 const selectElement = document.getElementById(id);
                 if (selectElement && !selectElement.value) {
-                    showInlineError(selectElement, "⚠️ Dropdown mapping constraints require an assignment value.");
+                    showInlineError(selectElement, "⚠️ Please make a valid geographic selection.");
                     hasErrors = true;
-                } else if (selectElement) {
-                    removeInlineError(selectElement);
                 }
             });
 
             if (hasErrors) {
                 const firstError = document.querySelector(".error-note");
-                if (firstError) firstError.parentElement.querySelector("input, select").focus();
+                if (firstError) firstError.parentElement.querySelector("input, select, textarea").focus();
                 return; 
             }
 
@@ -287,7 +381,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 street: document.getElementById("deliveryStreet").value.trim()
             };
 
-            // Intercept and resolve Profile Shortcut check box updates
             if (document.getElementById("savePickupAddress").checked) {
                 const history = JSON.parse(localStorage.getItem("savedCargoAddresses_pickup") || "[]");
                 history.push({ 
@@ -310,7 +403,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 localStorage.setItem("savedCargoAddresses_delivery", JSON.stringify(history));
             }
 
-            // Consolidate values inside master tracking manifest object local storage registry
             let consolidatedManifest = JSON.parse(localStorage.getItem('consolidatedBookingManifest') || "{}");
             consolidatedManifest.serviceType = "Commercial Cargo";
             consolidatedManifest.cargoStep1Details = {
@@ -326,8 +418,6 @@ document.addEventListener("DOMContentLoaded", () => {
             };
 
             localStorage.setItem('consolidatedBookingManifest', JSON.stringify(consolidatedManifest));
-            
-            // Proceed to the package specifications screen!
             window.location.href = "book-cargo-package.html";
         });
     }

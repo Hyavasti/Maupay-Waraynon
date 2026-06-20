@@ -63,6 +63,115 @@ function initializeDashboardDate() {
 }
 
 /**
+ * Custom Date & Time Formatter to support unified FIFO tracking view
+ */
+function formatTimestampToDateTime(timestamp) {
+    if (!timestamp || timestamp === 0) return "Recent";
+    const dateObj = new Date(timestamp);
+    if (isNaN(dateObj.getTime())) return "Recent";
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = months[dateObj.getMonth()];
+    const year = dateObj.getFullYear();
+    
+    let hours = dateObj.getHours();
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    const ampm = hours >= 12 ? 'PM' : 'AM';
+    
+    hours = hours % 12;
+    hours = hours ? hours : 12; // conversion of hour '0' to '12'
+    const formattedHour = String(hours).padStart(2, '0');
+
+    return `${day} ${month} ${year}, ${formattedHour}:${minutes} ${ampm}`;
+}
+
+/**
+ * 🔍 ULTIMATE DEEP SCANNER FOR DESTINATION / RECEIVER LOCATION
+ */
+function deepExtractFields(obj, categoryName) {
+    let result = {
+        destination: "",
+        dateBooked: "Recent",
+        serviceType: categoryName === "cargo" ? "Commercial Cargo" : (categoryName === "lipatbahay" ? "Lipat-Bahay" : "Standard Parcel")
+    };
+
+    if (!obj || typeof obj !== 'object') return result;
+
+    const d03 = obj["03_receiverDetails"] || {};
+    const d04Rec = obj["04_receiverDetails"] || {}; 
+    const d04Ord = obj["04_orderDetails"] || {};
+    const d06 = obj["06_orderDetails"] || {};            
+    const d4  = obj["4_parcelDetails"] || {};
+    const d3  = obj["3_receiverDetails"] || {};
+    const rx  = obj.receiverDetails || {};
+    const pc  = obj.parcelDetails || {};
+
+    result.serviceType = d06.serviceType || d04Ord.serviceType || d4.serviceType || obj.serviceWorkflowType || obj.serviceType || result.serviceType;
+    
+    let foundDest = d04Rec.address || d04Rec.city || d04Rec.receiverCity || d04Rec.receiverLocation ||
+                    d03.dropoffAddress || d03.city || d03.receiverCity ||
+                    d3.dropoffAddress || d3.city || rx.dropoffAddress || rx.city || 
+                    d4.dashboardDisplayDestination || pc.dashboardDisplayDestination || 
+                    obj.destination || obj.receiverCity || obj.receiverLocation;
+
+    if (!foundDest || foundDest === "N/A" || foundDest === "Unknown Destination") {
+        const str = JSON.stringify(obj);
+        const matches = [
+            str.match(/"dashboardDisplayDestination"\s*:\s*"([^"]+)"/i),
+            str.match(/"dropoffAddress"\s*:\s*"([^"]+)"/i),
+            str.match(/"receiverCity"\s*:\s*"([^"]+)"/i),
+            str.match(/"address"\s*:\s*"([^"]+)"/i),
+            str.match(/"city"\s*:\s*"([^"]+)"/i)
+        ];
+        for (let match of matches) {
+            if (match && match[1] && match[1] !== "Unknown City" && match[1] !== "Unknown Destination" && match[1] !== "N/A") {
+                foundDest = match[1];
+                break;
+            }
+        }
+    }
+
+    result.destination = foundDest && foundDest !== "N/A" ? foundDest : "Unknown Destination";
+    return result;
+}
+
+/**
+ * ⏰ TIME STAMP PARSER WITH MODERN PAYLOAD PRIORITIZATION
+ */
+function parseToTimestamp(item, key) {
+    try {
+        if (!item) return 0;
+
+        // 1. Direct prioritization of high-resolution millisecond tracks
+        if (item.createdAtMillis) return parseInt(item.createdAtMillis, 10);
+
+        const d04 = item["04_orderDetails"] || {};
+        const d06 = item["06_orderDetails"] || {};
+        
+        // 2. Scan exact ISO strings before parsing localized text dates to preserve hours/minutes
+        const timestampCandidate = d06.orderCreatedDateTime || d04.orderCreatedDateTime || item.bookingTimestamp || d06.dateBooked;
+
+        if (timestampCandidate) {
+            if (typeof timestampCandidate.toDate === 'function') return timestampCandidate.toDate().getTime();
+            if (timestampCandidate.seconds) return timestampCandidate.seconds * 1000;
+            const p = Date.parse(timestampCandidate);
+            if (!isNaN(p)) return p;
+        }
+
+        if (key && typeof key === 'string' && key.includes("booking_")) {
+            const num = parseInt(key.replace("booking_", ""), 10);
+            if (!isNaN(num) && num > 0) return num;
+        }
+
+    } catch (err) {
+        console.error("Sorting engine parsing error fallback active:", err);
+    }
+    return 0; 
+}
+
+/**
  * 🔌 FIRESTORE REAL-TIME REPOSITORY STREAM LISTENER
  */
 function listenToLiveShipments() {
@@ -70,82 +179,59 @@ function listenToLiveShipments() {
         if (user) {
             const userDocRef = doc(db, "Customer", user.uid);
 
-            // onSnapshot actively listens to Firestore updates instantly!
             onSnapshot(userDocRef, (docSnap) => {
-                shipments = [];
+                shipments = []; 
                 
                 if (docSnap.exists()) {
                     const userData = docSnap.data();
-
-                    // 1. Sync User Profile Avatar Letter Icon & Name Text Greeting Symmetrically
                     const firstName = userData.firstName || userData.fullName || "";
                     if (firstName) {
-                        if (profileAvatar) {
-                            profileAvatar.textContent = firstName.charAt(0).toUpperCase();
-                        }
+                        if (profileAvatar) profileAvatar.textContent = firstName.charAt(0).toUpperCase();
                         if (welcomeGreeting) {
                             const hour = new Date().getHours();
-                            let greetingTime = "Day";
-                            if (hour < 12) greetingTime = "Morning";
-                            else if (hour < 18) greetingTime = "Afternoon";
-                            else greetingTime = "Evening";
-
+                            let greetingTime = hour < 12 ? "Morning" : (hour < 18 ? "Afternoon" : "Evening");
                             welcomeGreeting.textContent = `Good ${greetingTime}, ${firstName}`;
                         }
                     }
 
-                    // 2. Extract Nested Booking Structures from Firestore Fields
                     const services = userData.services || {};
-
-                    // Array of your sub-service categories defined in Firestore
                     const categories = ["standardParcel", "lipatbahay", "cargo"];
 
                     categories.forEach(categoryName => {
                         const serviceGroup = services[categoryName];
                         if (serviceGroup) {
-                            
-                            // Check if the group is directly a single legacy booking object map
                             if (serviceGroup["1_trackingId"] || serviceGroup.trackingId || serviceGroup["01_trackingId"]) {
-                                const trackingId = serviceGroup["01_trackingId"] || serviceGroup["1_trackingId"] || serviceGroup.trackingId;
-                                const rxDetails = serviceGroup["03_receiverDetails"] || serviceGroup["3_receiverDetails"] || serviceGroup.receiverDetails || {};
-                                const pcDetails = serviceGroup["04_orderDetails"] || serviceGroup["4_parcelDetails"] || serviceGroup.parcelDetails || {};
-                                
+                                const trackingId = serviceGroup["01_trackingId"] || serviceGroup.trackingId || serviceGroup["1_trackingId"];
+                                const extracted = deepExtractFields(serviceGroup, categoryName);
+                                const calculatedTime = parseToTimestamp(serviceGroup, serviceGroup.idTimestamp);
+                                const d06 = serviceGroup["06_orderDetails"] || {};
+
                                 shipments.push({
                                     id: serviceGroup.idTimestamp || "1",
                                     trackingId: trackingId,
-                                    serviceType: pcDetails.serviceType || serviceGroup.serviceWorkflowType || "Standard Parcel",
-                                    destination: pcDetails.dashboardDisplayDestination || rxDetails.dropoffAddress || rxDetails.city || rxDetails.fullAddress || "Unknown",
-                                    dateBooked: pcDetails.scheduledMoveDate || serviceGroup.dateBooked || "Recent",
-                                    status: serviceGroup.status || "Pending Dispatch",
-                                    timestamp: serviceGroup.bookingTimestamp ? new Date(serviceGroup.bookingTimestamp).getTime() : 0
+                                    serviceType: extracted.serviceType,
+                                    destination: extracted.destination,
+                                    status: d06.status || serviceGroup.status || "Pending Dispatch",
+                                    timestamp: calculatedTime
                                 });
                             } else {
-                                // Loop over dynamic unique stack keys (e.g. booking_1718741250000)
                                 Object.keys(serviceGroup).forEach(key => {
                                     const item = serviceGroup[key];
-                                    if (item && (item.trackingId || item["1_trackingId"] || item["01_trackingId"])) {
-                                        const trackingId = item["01_trackingId"] || item.trackingId || item["1_trackingId"];
-                                        const rxDetails = item["03_receiverDetails"] || item.receiverDetails || item["3_receiverDetails"] || {};
-                                        const pcDetails = item["04_orderDetails"] || item.parcelDetails || item["4_parcelDetails"] || {};
+                                    if (item) {
+                                        const trackingId = item["01_trackingId"] || item.trackingId || item["1_trackingId"] || 
+                                                           (key.startsWith("CRG-") ? key : (key.startsWith("booking_") ? "CRG-" + key.split("_")[1].substring(4,12) + "-PH" : "Awaiting ID..."));
                                         
-                                        // Safely derive booking timestamp or clean tracking key values
-                                        let rawTimestamp = 0;
-                                        if (item.bookingTimestamp) {
-                                            rawTimestamp = new Date(item.bookingTimestamp).getTime();
-                                        } else if (pcDetails.orderCreatedDateTime) {
-                                            rawTimestamp = new Date(pcDetails.orderCreatedDateTime).getTime();
-                                        } else {
-                                            rawTimestamp = parseInt(key.replace("booking_", "")) || 0;
-                                        }
+                                        const extracted = deepExtractFields(item, categoryName);
+                                        const calculatedTime = parseToTimestamp(item, key);
+                                        const d06 = item["06_orderDetails"] || {};
 
                                         shipments.push({
                                             id: key,
                                             trackingId: trackingId,
-                                            serviceType: pcDetails.serviceType || item.serviceWorkflowType || item.serviceType || categoryName,
-                                            destination: pcDetails.dashboardDisplayDestination || rxDetails.dropoffAddress || rxDetails.city || "Unknown",
-                                            dateBooked: pcDetails.scheduledMoveDate || item.dateBooked || "Recent",
-                                            status: item.status || "Pending Dispatch",
-                                            timestamp: rawTimestamp
+                                            serviceType: extracted.serviceType,
+                                            destination: extracted.destination,
+                                            status: d06.status || item.status || "Pending Dispatch",
+                                            timestamp: calculatedTime
                                         });
                                     }
                                 });
@@ -154,29 +240,20 @@ function listenToLiveShipments() {
                     });
                 }
 
-                // 🌟 SAFE SORTING: Safeguard against NaN calculations with legacy fallback structures
-                shipments.sort((a, b) => {
-                    const timeA = isNaN(a.timestamp) ? 0 : a.timestamp;
-                    const timeB = isNaN(b.timestamp) ? 0 : b.timestamp;
-                    return timeB - timeA;
-                });
+                // Absolute chronological cross-category sorting execution
+                shipments.sort((a, b) => b.timestamp - a.timestamp);
 
-                // Refresh UI views instantly with your clean database data
                 calculateAndRenderMetrics();
                 renderActiveProgressCards();
                 renderLedgerTable();
             });
         } else {
-            console.log("No authenticated user active.");
             const fallbackUid = "oZ55xPFsSYWyVTD5R8G1kYmx43"; 
             setupStaticListenerFallback(fallbackUid);
         }
     });
 }
 
-/**
- * Fallback static document watcher context configuration helper
- */
 function setupStaticListenerFallback(uid) {
     const fallbackRef = doc(db, "Customer", uid);
     onSnapshot(fallbackRef, (docSnap) => {
@@ -184,68 +261,35 @@ function setupStaticListenerFallback(uid) {
             shipments = [];
             const userData = docSnap.data();
             
-            if (profileAvatar && userData.firstName) {
-                profileAvatar.textContent = userData.firstName.charAt(0).toUpperCase();
-            }
-            if (welcomeGreeting && userData.firstName) {
-                welcomeGreeting.textContent = `Good Evening, ${userData.firstName}`;
-            }
-
             const services = userData.services || {};
             const categories = ["standardParcel", "lipatbahay", "cargo"];
 
             categories.forEach(categoryName => {
                 const serviceGroup = services[categoryName];
                 if (serviceGroup) {
-                    if (serviceGroup["1_trackingId"] || serviceGroup.trackingId || serviceGroup["01_trackingId"]) {
-                        const pcDetails = serviceGroup["04_orderDetails"] || serviceGroup["4_parcelDetails"] || {};
-                        const rxDetails = serviceGroup["03_receiverDetails"] || serviceGroup["3_receiverDetails"] || {};
-                        shipments.push({
-                            id: serviceGroup.idTimestamp || "1",
-                            trackingId: serviceGroup["01_trackingId"] || serviceGroup["1_trackingId"] || serviceGroup.trackingId,
-                            serviceType: pcDetails.serviceType || serviceGroup.serviceWorkflowType || "Standard Parcel",
-                            destination: pcDetails.dashboardDisplayDestination || rxDetails.dropoffAddress || rxDetails.city || "Unknown",
-                            dateBooked: pcDetails.scheduledMoveDate || serviceGroup.dateBooked || "Recent",
-                            status: serviceGroup.status || "Pending Dispatch",
-                            timestamp: serviceGroup.bookingTimestamp ? new Date(serviceGroup.bookingTimestamp).getTime() : 0
-                        });
-                    } else {
-                        Object.keys(serviceGroup).forEach(key => {
-                            const item = serviceGroup[key];
-                            if (item && (item.trackingId || item["1_trackingId"] || item["01_trackingId"])) {
-                                const pcDetails = item["04_orderDetails"] || item["4_parcelDetails"] || {};
-                                const rxDetails = item["03_receiverDetails"] || item["3_receiverDetails"] || {};
-                                
-                                let rawTimestamp = 0;
-                                if (item.bookingTimestamp) {
-                                    rawTimestamp = new Date(item.bookingTimestamp).getTime();
-                                } else if (pcDetails.orderCreatedDateTime) {
-                                    rawTimestamp = new Date(pcDetails.orderCreatedDateTime).getTime();
-                                } else {
-                                    rawTimestamp = parseInt(key.replace("booking_", "")) || 0;
-                                }
+                    Object.keys(serviceGroup).forEach(key => {
+                        const item = serviceGroup[key];
+                        if (item) {
+                            const trackingId = item["01_trackingId"] || item.trackingId || item["1_trackingId"] || (key.startsWith("CRG-") ? key : "Awaiting ID...");
+                            const extracted = deepExtractFields(item, categoryName);
+                            const calculatedTime = parseToTimestamp(item, key);
+                            const d06 = item["06_orderDetails"] || {};
 
-                                shipments.push({
-                                    id: key,
-                                    trackingId: item["01_trackingId"] || item.trackingId || item["1_trackingId"],
-                                    serviceType: pcDetails.serviceType || item.serviceWorkflowType || item.serviceType || categoryName,
-                                    destination: pcDetails.dashboardDisplayDestination || rxDetails.dropoffAddress || rxDetails.city || "Unknown",
-                                    dateBooked: pcDetails.scheduledMoveDate || item.dateBooked || "Recent",
-                                    status: item.status || "Pending Dispatch",
-                                    timestamp: rawTimestamp
-                                });
-                            }
-                        });
-                    }
+                            shipments.push({
+                                id: key,
+                                trackingId: trackingId,
+                                serviceType: extracted.serviceType,
+                                destination: extracted.destination,
+                                status: d06.status || item.status || "Pending Dispatch",
+                                timestamp: calculatedTime
+                                
+                            });
+                        }
+                    });
                 }
             });
 
-            shipments.sort((a, b) => {
-                const timeA = isNaN(a.timestamp) ? 0 : a.timestamp;
-                const timeB = isNaN(b.timestamp) ? 0 : b.timestamp;
-                return timeB - timeA;
-            });
-
+            shipments.sort((a, b) => b.timestamp - a.timestamp);
             calculateAndRenderMetrics();
             renderActiveProgressCards();
             renderLedgerTable();
@@ -253,9 +297,6 @@ function setupStaticListenerFallback(uid) {
     });
 }
 
-/**
- * Evaluates the dataset and updates data metrics counters symmetrically
- */
 function calculateAndRenderMetrics() {
     const totalCount = shipments.length;
     const activeCount = shipments.filter(s => (s.status || "").toLowerCase() !== "delivered").length;
@@ -268,28 +309,18 @@ function calculateAndRenderMetrics() {
         const type = (parcel.serviceType || "").toLowerCase();
         const id = (parcel.trackingId || "");
         
-        if (type.includes("lipat") || id.startsWith("LBH-")) {
-            lipatBahayCount++;
-        } else if (type.includes("heavy") || type.includes("cargo") || id.startsWith("CRG-")) {
-            heavyCargoCount++;
-        } else {
-            standardParcelCount++;
-        }
+        if (type.includes("lipat") || id.startsWith("LBH-")) lipatBahayCount++;
+        else if (type.includes("cargo") || id.startsWith("CRG-")) heavyCargoCount++;
+        else standardParcelCount++;
     });
 
     if (metricTotalBookings) metricTotalBookings.textContent = totalCount;
     if (metricLipatBahay) metricLipatBahay.textContent = lipatBahayCount;
     if (metricStandardParcel) metricStandardParcel.textContent = standardParcelCount;
     if (metricHeavyCargo) metricHeavyCargo.textContent = heavyCargoCount;
-
-    if (welcomeSummaryLabel) {
-        welcomeSummaryLabel.textContent = `You have ${activeCount} active shipment${activeCount === 1 ? '' : 's'} recorded.`;
-    }
+    if (welcomeSummaryLabel) welcomeSummaryLabel.textContent = `You have ${activeCount} active shipment${activeCount === 1 ? '' : 's'} recorded.`;
 }
 
-/**
- * 📇 GENERATES THE ACTIVE TRACKER CARD LAYOUT (Using Clean CSS Classes)
- */
 function renderActiveProgressCards() {
     if (!activeShipmentsProgressContainer) return;
     activeShipmentsProgressContainer.innerHTML = ""; 
@@ -307,25 +338,20 @@ function renderActiveProgressCards() {
     activeShipments.forEach(parcel => {
         const service = (parcel.serviceType || "").toLowerCase();
         const trackingId = parcel.trackingId || "Awaiting ID...";
-        const destinationText = parcel.destination || "Unknown Destination";
         
         let iconClass = "fas fa-box-open";
-        let iconColorModifier = "icon-green"; 
+        let iconColorModifier = "icon-blue"; 
         
         if (service.includes("lipat") || trackingId.startsWith("LBH-")) {
             iconClass = "fas fa-truck-ramp-box";
             iconColorModifier = "icon-purple";
-        } else if (service.includes("heavy") || service.includes("cargo") || trackingId.startsWith("CRG-")) {
+        } else if (service.includes("cargo") || trackingId.startsWith("CRG-")) {
             iconClass = "fas fa-dolly";
             iconColorModifier = "icon-orange";
-        } else {
-            iconClass = "fas fa-box-open";
-            iconColorModifier = "icon-blue";
         }
 
         const statusRaw = parcel.status || "Pending Dispatch";
-        const statusClean = statusRaw.toLowerCase();
-        const statusClassModifier = statusClean.includes("pending") ? "status-pending" : "status-transit";
+        const statusClassModifier = statusRaw.toLowerCase().includes("pending") ? "status-pending" : "status-transit";
         
         const cardMarkup = `
             <div class="active-shipment-card">
@@ -335,7 +361,7 @@ function renderActiveProgressCards() {
                     </div>
                     <div class="card-details">
                         <span class="tracking-id">${trackingId}</span>
-                        <span class="destination-text">To: ${destinationText}</span>
+                        <span class="destination-text">To: ${parcel.destination}</span>
                     </div>
                 </div>
                 <div class="card-progress-wrapper">
@@ -344,20 +370,12 @@ function renderActiveProgressCards() {
                     </div>
                     <span class="progress-percentage">15%</span>
                 </div>
-                <div>
-                    <span class="status-btn-pill ${statusClassModifier}">
-                        ${statusRaw}
-                    </span>
-                </div>
-            </div>
-        `;
+                <div><span class="status-btn-pill ${statusClassModifier}">${statusRaw}</span></div>
+            </div>`;
         activeShipmentsProgressContainer.insertAdjacentHTML("beforeend", cardMarkup);
     });
 }
 
-/**
- * 📊 GENERATES RECENT BOOKINGS LEDROW LAYOUT
- */
 function renderLedgerTable() {
     if (!bookingsTableBody) return;
     bookingsTableBody.innerHTML = "";
@@ -370,54 +388,41 @@ function renderLedgerTable() {
     shipments.forEach(parcel => {
         const trackingId = parcel.trackingId || "Awaiting ID...";
         const serviceText = parcel.serviceType || "Standard Parcel";
-        const destinationText = parcel.destination || "Unknown Destination";
-        const dateText = parcel.dateBooked || "Recent";
+        const dateText = formatTimestampToDateTime(parcel.timestamp);
         const statusRaw = parcel.status || "Pending Dispatch";
-        
-        const statusClean = statusRaw.toLowerCase();
-        const statusClassModifier = statusClean.includes("pending") ? "status-pending" : "status-transit";
+        const statusClassModifier = statusRaw.toLowerCase().includes("pending") ? "status-pending" : "status-transit";
+
+        const serviceLower = serviceText.toLowerCase();
+        let ledgerIconColor = "#3b82f6"; 
+        if (serviceLower.includes("lipat") || trackingId.startsWith("LBH-")) ledgerIconColor = "#a855f7";
+        else if (serviceLower.includes("cargo") || trackingId.startsWith("CRG-")) ledgerIconColor = "#f97316";
 
         const rowElementMarkup = `
             <tr>
                 <td style="font-weight: 700; color: #0c2340;">${trackingId}</td>
                 <td>
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-box" style="color: #64748b; font-size: 0.9rem;"></i>
+                        <i class="fas fa-box" style="color: ${ledgerIconColor}; font-size: 0.9rem;"></i>
                         <span>${serviceText}</span>
                     </div>
                 </td>
-                <td style="max-width: 250px; line-height: 1.4; word-break: break-word;">${destinationText}</td>
+                <td style="max-width: 250px; line-height: 1.4; word-break: break-word;">${parcel.destination}</td>
                 <td style="white-space: nowrap;">${dateText}</td>
-                <td>
-                    <span class="status-btn-pill ${statusClassModifier}" style="padding: 6px 14px; min-width: 120px; font-size: 0.78rem;">
-                        ${statusRaw}
-                    </span>
-                </td>
-            </tr>
-        `;
+                <td><span class="status-btn-pill ${statusClassModifier}" style="padding: 6px 14px; min-width: 120px; font-size: 0.78rem;">${statusRaw}</span></td>
+            </tr>`;
         bookingsTableBody.insertAdjacentHTML("beforeend", rowElementMarkup);
     });
 }
 
-/**
- * Installs event listeners for utility controls like Search/Quick tracking
- */
 function setupEventListeners() {
     if (quickTrackForm) {
         quickTrackForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            const controlNumber = quickTrackInput.value.trim();
-            if (controlNumber) {
-                alert(`Searching tracking matrix repository for: ${controlNumber}`);
-            }
+            if (quickTrackInput.value.trim()) alert(`Searching tracking matrix repository for: ${quickTrackInput.value.trim()}`);
         });
     }
-
-    // Connect form listener for modal/popup elements present on this page template
     const bookingForm = document.getElementById("bookingForm");
-    if (bookingForm) {
-        bookingForm.addEventListener("submit", handleBookingSubmission);
-    }
+    if (bookingForm) bookingForm.addEventListener("submit", handleBookingSubmission);
 }
 
 // ==========================================================================
@@ -425,42 +430,27 @@ function setupEventListeners() {
 // ==========================================================================
 async function handleBookingSubmission(e) {
     e.preventDefault();
-
     const user = auth.currentUser;
-    if (!user) {
-        alert("You must be logged in to create a booking.");
-        return;
-    }
+    if (!user) return alert("You must be logged in to create a booking.");
 
-    const serviceTypeInput = document.getElementById("serviceType");
-    const receiverCityInput = document.getElementById("receiverCity");
-    const displayDestinationInput = document.getElementById("displayDestination");
-
-    const serviceCategory = serviceTypeInput ? serviceTypeInput.value : "standardParcel";
-    const receiverCity = receiverCityInput ? receiverCityInput.value.trim() : "Unknown City";
-    const displayDestination = displayDestinationInput ? displayDestinationInput.value.trim() : "Unknown Destination";
+    const serviceCategory = document.getElementById("serviceType")?.value || "standardParcel";
+    const receiverCity = document.getElementById("receiverCity")?.value.trim() || "Unknown City";
+    const displayDestination = document.getElementById("displayDestination")?.value.trim() || "Unknown Destination";
 
     let trackingPrefix = "MPC";
     let formattedServiceType = "Standard Parcel";
-    
-    if (serviceCategory === "lipatbahay") {
-        trackingPrefix = "LBH";
-        formattedServiceType = "Lipat-Bahay";
-    }
-    if (serviceCategory === "cargo") {
-        trackingPrefix = "CRG";
-        formattedServiceType = "Heavy Cargo";
-    }
+    if (serviceCategory === "lipatbahay") { trackingPrefix = "LBH"; formattedServiceType = "Lipat-Bahay"; }
+    if (serviceCategory === "cargo") { trackingPrefix = "CRG"; formattedServiceType = "Commercial Cargo"; }
 
-    const generatedTrackingId = `${trackingPrefix}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const generatedTrackingId = `${trackingPrefix}-${Math.floor(10000000 + Math.random() * 90000000)}-PH`;
     const currentTimestamp = Date.now();
     const uniqueBookingKey = `booking_${currentTimestamp}`;
 
-    // Fixes overwrite bug by using dynamic nested paths: services.categoryName.booking_timestamp
     const bookingPayload = {
         [`services.${serviceCategory}.${uniqueBookingKey}`]: {
             "01_trackingId": generatedTrackingId,
             "idTimestamp": uniqueBookingKey,
+            "createdAtMillis": currentTimestamp, 
             "04_orderDetails": {
                 serviceType: formattedServiceType,
                 scheduledMoveDate: new Date().toLocaleDateString('en-US'),
@@ -475,17 +465,11 @@ async function handleBookingSubmission(e) {
     };
 
     try {
-        // Updated path from 10.0.0 mismatch to stay unified with global architecture hooks
         const { updateDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
-        const userDocRef = doc(db, "Customer", user.uid);
-
-        await updateDoc(userDocRef, bookingPayload);
+        await updateDoc(doc(db, "Customer", user.uid), bookingPayload);
         alert(`Booking success! Your tracking ID is: ${generatedTrackingId}`);
-        
-        const bookingForm = document.getElementById("bookingForm");
-        if (bookingForm) bookingForm.reset();
+        document.getElementById("bookingForm")?.reset();
     } catch (error) {
-        console.error("Error writing stacked transactional maps to Firestore instance:", error);
-        alert("Failed to save booking. Please check database read/write permissions rules.");
+        console.error("Firestore write failure:", error);
     }
 }

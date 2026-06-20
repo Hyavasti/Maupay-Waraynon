@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Maupay Waraynon Padala Center | Commercial Cargo</title>
+    <!-- Resource Hints for Firebase and PSGC Endpoints -->
+    <link rel="preconnect" href="https://www.gstatic.com">
+    <link rel="preconnect" href="https://psgc.gitlab.io">
+    
     <link rel="stylesheet" href="dashboard.css">
     <link rel="stylesheet" href="book-cargo-details.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -103,7 +107,7 @@
                     <div class="panel-header-with-action">
                         <h3 class="panel-section-title">Pickup Location</h3>
                         <select class="address-shortcut-select" id="pickupSavedShortcut">
-                            <option value="">Use saved address shortcut</option>
+                            <option value="">Use saved address</option>
                         </select>
                     </div>
                     
@@ -152,7 +156,7 @@
 
                     <div class="checkbox-element-wrapper">
                         <input type="checkbox" id="savePickupAddress">
-                        <label for="savePickupAddress">Save this address to my profile shortcut registry</label>
+                        <label for="savePickupAddress">Save this address</label>
                     </div>
                 </div>
 
@@ -160,7 +164,7 @@
                     <div class="panel-header-with-action">
                         <h3 class="panel-section-title">Delivery Location</h3>
                         <select class="address-shortcut-select" id="deliverySavedShortcut">
-                            <option value="">Use saved address shortcut</option>
+                            <option value="">Use saved address</option>
                         </select>
                     </div>
                     
@@ -209,7 +213,8 @@
 
                     <div class="checkbox-element-wrapper">
                         <input type="checkbox" id="saveDeliveryAddress">
-                        <label for="saveDeliveryAddress">Save this address to my profile shortcut registry</label>
+                        <!-- FIXED: Added explicit closing label tag here -->
+                        <label for="saveDeliveryAddress">Save this address</label>
                     </div>
                 </div>
 
@@ -223,6 +228,6 @@
         </main>
     </div>
 
-    <script src="book-cargo-details.js"></script>
+    <script type="module" src="book-cargo-details.js"></script>
 </body>
 </html>

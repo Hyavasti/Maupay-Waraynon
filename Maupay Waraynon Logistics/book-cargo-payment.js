@@ -32,19 +32,69 @@ document.addEventListener("DOMContentLoaded", () => {
     const gcashRefInput = document.getElementById("gcashRefNum");
     const bankRefInput = document.getElementById("bankRefNum");
 
+    // Target the input container elements directly by their unique HTML container IDs
+    const gcashInputWrapper = document.getElementById("gcashInputWrapperGroup");
+    const bankInputWrapper = document.getElementById("bankInputWrapperGroup");
+
     // Summary calculation UI values pointers
     const summaryBaseRate = document.getElementById("summaryBaseRate");
     const summarySurcharge = document.getElementById("summarySurcharge");
     const summaryInsurance = document.getElementById("summaryInsurance");
     const summaryGrandTotal = document.getElementById("summaryGrandTotal");
 
-    // Initialize Profile Header Badge
-    const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
-    if (savedAccountRaw && profileAvatar) {
-        const userAccount = JSON.parse(savedAccountRaw);
-        if (userAccount.firstName) {
-            profileAvatar.innerText = userAccount.firstName.charAt(0).toUpperCase();
-        }
+    // Global handles to bridge the async loaded database reference with your submit handler
+    let activeDatabaseInstance = null;
+    let currentlyLoggedInUser = null;
+
+    // ==========================================
+    // FIREBASE DATABASE PROFILE AVATAR SYNC
+    // ==========================================
+    if (profileAvatar) {
+        (async () => {
+            try {
+                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js");
+                const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+                const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
+
+                const firebaseConfig = {
+                    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+                    authDomain: "mpc-bacoor.firebaseapp.com",
+                    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+                    projectId: "mpc-bacoor",
+                    storageBucket: "mpc-bacoor.firebasestorage.app",
+                    messagingSenderId: "105917197007",
+                    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+                    measurementId: "G-GSF6CFML1Y"
+                };
+
+                const app = initializeApp(firebaseConfig);
+                const db = getFirestore(app);
+                const auth = getAuth(app);
+
+                // Cache reference instances globally for the form actions to hook into
+                activeDatabaseInstance = db;
+
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        currentlyLoggedInUser = user; // Bind authenticated context variables safely
+                        try {
+                            const userDoc = await getDoc(doc(db, "Customer", user.uid));
+                            if (userDoc.exists()) {
+                                const userData = userDoc.data();
+                                const profileName = userData.firstName || userData.name;
+                                if (profileName && profileName.trim().length > 0) {
+                                    profileAvatar.innerText = profileName.trim().charAt(0).toUpperCase();
+                                }
+                            }
+                        } catch (err) {
+                            console.warn("Database sync error, keeping fallback profile text:", err);
+                        }
+                    }
+                });
+            } catch (moduleErr) {
+                console.error("Firebase runtime engine failed to initialize:", moduleErr);
+            }
+        })();
     }
 
     // RECOVER CONSOLIDATED DATA MANIFEST
@@ -87,7 +137,26 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // PAYMENT METHOD
+    // REAL-TIME INPUT RESTRICTIONS AND ENFORCEMENT
+    if (gcashRefInput) {
+        gcashRefInput.addEventListener("input", (e) => {
+            e.target.value = e.target.value.replace(/[^0-9]/g, "");
+            if (e.target.value.length > 13) {
+                e.target.value = e.target.value.slice(0, 13);
+            }
+        });
+    }
+
+    if (bankRefInput) {
+        bankRefInput.addEventListener("input", (e) => {
+            e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g, "");
+            if (e.target.value.length > 16) {
+                e.target.value = e.target.value.slice(0, 16);
+            }
+        });
+    }
+
+    // PAYMENT METHOD SELECTION & DIRECT INPUT TOGGLE
     const methodRadios = document.querySelectorAll('input[name="paymentMethod"]');
     methodRadios.forEach(radio => {
         const wrapperCardFrame = radio.closest('.clickable-method-card');
@@ -105,8 +174,34 @@ document.addEventListener("DOMContentLoaded", () => {
             if (codNoticeWrapper) {
                 codNoticeWrapper.style.display = (radio.value === "Cash / COD") ? "flex" : "none";
             }
+
+            // Direct display toggle for GCash container block
+            if (gcashInputWrapper) {
+                if (radio.value === "GCash") {
+                    gcashInputWrapper.style.display = "block";
+                    if (gcashRefInput) gcashRefInput.focus();
+                } else {
+                    gcashInputWrapper.style.display = "none";
+                    if (gcashRefInput) gcashRefInput.value = ""; 
+                }
+            }
+
+            // Direct display toggle for Bank Transfer container block
+            if (bankInputWrapper) {
+                if (radio.value === "Bank Transfer") {
+                    bankInputWrapper.style.display = "block";
+                    if (bankRefInput) bankRefInput.focus();
+                } else {
+                    bankInputWrapper.style.display = "none";
+                    if (bankRefInput) bankRefInput.value = ""; 
+                }
+            }
         });
     });
+
+    // Run once at load to safely hide reference input elements by default
+    if (gcashInputWrapper) gcashInputWrapper.style.display = "none";
+    if (bankInputWrapper) bankInputWrapper.style.display = "none";
 
     // REVIEW POPUP INTERACTION INTERFACE HANDLERS
     function openReviewModalPopup() {
@@ -128,14 +223,20 @@ document.addEventListener("DOMContentLoaded", () => {
             const finalMethodChoice = selectedMethodRadio ? selectedMethodRadio.value : "Cash / COD";
             
             // Dynamic Verification Check Rules
-            if (finalMethodChoice === "GCash" && gcashRefInput && !gcashRefInput.value.trim()) {
-                alert("⚠️ Please fill out your 13-digit GCash transfer reference string code before finalizing booking details.");
-                gcashRefInput.focus();
-                return;
-            } else if (finalMethodChoice === "Bank Transfer" && bankRefInput && !bankRefInput.value.trim()) {
-                alert("⚠️ Please provide your bank transaction verification tracking number block.");
-                bankRefInput.focus();
-                return;
+            if (finalMethodChoice === "GCash") {
+                const gcashVal = gcashRefInput ? gcashRefInput.value.trim() : "";
+                if (!/^\d{13}$/.test(gcashVal)) {
+                    alert("⚠️ Invalid Reference Code. Please enter the exact 13-digit GCash transaction reference number containing numbers only.");
+                    if (gcashRefInput) gcashRefInput.focus();
+                    return;
+                }
+            } else if (finalMethodChoice === "Bank Transfer") {
+                const bankVal = bankRefInput ? bankRefInput.value.trim() : "";
+                if (!/^[A-Za-z0-9]{6,16}$/.test(bankVal)) {
+                    alert("⚠️ Invalid Bank Reference. Please provide your bank transaction verification reference code (6 to 16 characters, alphanumeric symbols only).");
+                    if (bankRefInput) bankRefInput.focus();
+                    return;
+                }
             }
 
             // DATA ADAPTER PARSING
@@ -176,14 +277,13 @@ document.addEventListener("DOMContentLoaded", () => {
             if (popMethod) popMethod.textContent = finalMethodChoice;
             if (popGrandTotal) popGrandTotal.textContent = summaryGrandTotal ? `PHP ${summaryGrandTotal.textContent}` : "PHP 150.00";
 
-            // Open up the confirmation dialog screen!
             openReviewModalPopup();
         });
     }
 
-    // FINAL SUBMISSION TO RE-COMMIT AND SAVE TO HISTORIC LEDGER
+// FINAL SUBMISSION TO RE-COMMIT AND SAVE TO HISTORIC LEDGER
     if (btnFinalSubmitModal) {
-        btnFinalSubmitModal.addEventListener("click", () => {
+        btnFinalSubmitModal.addEventListener("click", async () => {
             const selectedPayerRadio = document.querySelector('input[name="paymentOption"]:checked');
             const finalPayerChoice = selectedPayerRadio ? selectedPayerRadio.value : "Sender";
 
@@ -194,100 +294,162 @@ document.addEventListener("DOMContentLoaded", () => {
             if (finalMethodChoice === "GCash" && gcashRefInput) referenceVerificationCodeValue = gcashRefInput.value.trim();
             if (finalMethodChoice === "Bank Transfer" && bankRefInput) referenceVerificationCodeValue = bankRefInput.value.trim();
 
-            // Generate Unique Cargo Tracking ID String
             const uniqueTrackingId = "CRG-" + Math.floor(10000000 + Math.random() * 90000000) + "-PH";
 
-            // Extract references out from our Multi-step Manifest Buffer safely
+            // INTEGRATED RE-MAPPED DATA PARSING BLOCKS
             const s1 = currentBookingDataManifest.cargoStep1Details || {};
             const companyNode = s1.company || {};
+            const pickupNode = s1.pickup || {};
+            const deliveryNode = s1.delivery || {};
             const s2 = currentBookingDataManifest.cargoStep2Specifications || {};
             const dimensionsObj = s2.dimensions || {};
 
-            // Fallback total price formatting
+            // Synchronized keys directly matching step-1 outputs (.mobile)
+            const fetchedSenderPhone = companyNode.mobile || pickupNode.mobile || "N/A";
+            const fetchedReceiverPhone = deliveryNode.mobile || "N/A";
+
+            // Constructing formatted geographic fallback strings
+            const pureOriginAddress = pickupNode.street ? `${pickupNode.street}, ${pickupNode.barangay}, ${pickupNode.city}, ${pickupNode.province}` : (companyNode.address || "Main Corporate Terminal");
+            const pureDestinationAddress = deliveryNode.street ? `${deliveryNode.street}, ${deliveryNode.barangay}, ${deliveryNode.city}, ${deliveryNode.province}` : "Tacloban City, Leyte";
+
             let cleanNumericPrice = "1500";
             if (summaryGrandTotal && summaryGrandTotal.textContent) {
                 cleanNumericPrice = summaryGrandTotal.textContent.replace(/[^0-9.]/g, "");
             }
 
-            // FIXED: Set destination to pure address text matching ledger criteria across steps
-            const pureDestinationAddress = s1.destinationAddress || "Tacloban City, Leyte";
+            // Capture exact current Unix millisecond track for precise FIFO sorting
+            const currentTimestampMillis = Date.now();
 
-            // 🌟 DEEP OBJECT DATATYPE INJECTION: Matches your cards structure perfectly!
+            // 1. ORGANIZED PREFIXED SCHEMAS FOR FIRESTORE (WITH CHRONO KEYS ADDED)
+            const firebaseCargoPayload = {
+                "01_trackingId": uniqueTrackingId,
+                "idTimestamp": uniqueTrackingId,
+                "createdAtMillis": currentTimestampMillis, // <-- FIXED: Forces immediate sorting to absolute top
+                "02_companyDetails": {
+                    companyName: companyNode.name || "Company Origin Shipper",
+                    contactPerson: companyNode.contactPerson || "Authorized Receiver",
+                    phone: fetchedSenderPhone
+                },
+                "03_senderDetails": {
+                    name: pickupNode.contactPerson || companyNode.name || "Company Origin Shipper",
+                    phone: fetchedSenderPhone,
+                    address: pureOriginAddress
+                },
+                "04_receiverDetails": {
+                    name: deliveryNode.contactPerson || "Authorized Receiver",
+                    phone: fetchedReceiverPhone, 
+                    address: pureDestinationAddress
+                },
+                "05_packageDetails": {
+                    desc: `${s2.pieces || 1} pc(s) - ${s2.description || "General Cargo Goods"}`,
+                    category: "Commercial Cargo",
+                    dims: `${dimensionsObj.length || 0} × ${dimensionsObj.width || 0} × ${dimensionsObj.height || 0} cm`,
+                    weight: `${s2.weight || 0} kg`,
+                    value: "Assessed Value",
+                    handlingInstructions: s2.handlingInstructions || "None",
+                    documents: s2.documentationFiles || []
+                },
+                "06_orderDetails": {
+                    serviceType: currentBookingDataManifest.serviceType || "Heavy Cargo",
+                    dateBooked: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                    orderCreatedDateTime: new Date().toISOString(), // <-- FIXED: Backup ISO tracking
+                    estDelivery: "Pending Dispatch",
+                    status: "Pending Dispatch",
+                    payer: finalPayerChoice,
+                    method: finalMethodChoice,
+                    referenceCode: referenceVerificationCodeValue,
+                    amount: cleanNumericPrice
+                }
+            };
+
+            // 2. BACKWARD LOGICAL COMPATIBILITY: LOCAL LEDGER SYNCING
             const finalDashboardRecord = {
                 trackingId: uniqueTrackingId,
                 serviceType: currentBookingDataManifest.serviceType || "Heavy Cargo",
                 destination: pureDestinationAddress,
                 dateBooked: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+                timestamp: currentTimestampMillis, // <-- FIXED: Sync local storage array records natively
                 estDelivery: "Pending Dispatch",
                 totalAmount: cleanNumericPrice,
                 status: "Pending Dispatch",
-                
-                // Nesting data sub-nodes safely so detail render components don't crash
-                sender: {
-                    name: companyNode.name || "Company Origin Shipper",
-                    phone: companyNode.phone || "N/A",
-                    address: s1.originAddress || "Main Corporate Terminal"
-                },
-                receiver: {
-                    name: companyNode.contactPerson || "Authorized Receiver",
-                    phone: companyNode.phone || s1.receiverPhone || "N/A", // Fixed phone data mapping fallback
-                    address: pureDestinationAddress
-                },
-                package: {
-                    desc: `${s2.pieces || 1} pc(s) - ${s2.description || "General Cargo Goods"}`,
-                    category: "Commercial Cargo",
-                    dims: `${dimensionsObj.length || 0} × ${dimensionsObj.width || 0} × ${dimensionsObj.height || 0} cm`,
-                    weight: `${s2.weight || 0} kg`,
-                    value: "Assessed Value"
-                },
-                payment: {
-                    method: finalMethodChoice,
-                    amount: cleanNumericPrice
-                }
+                sender: firebaseCargoPayload["03_senderDetails"],
+                receiver: firebaseCargoPayload["04_receiverDetails"],
+                package: firebaseCargoPayload["05_packageDetails"],
+                payment: { method: finalMethodChoice, amount: cleanNumericPrice }
             };
 
-            // Append directly to Dashboard Master Array Ledger Storage
-            const masterShipmentsDatabase = JSON.parse(localStorage.getItem("maupayShipments")) || [];
-            masterShipmentsDatabase.push(finalDashboardRecord);
-            localStorage.setItem("maupayShipments", JSON.stringify(masterShipmentsDatabase));
+            // 3. EXECUTE SECURE ASYNC DATABASE SYNC USING CORRESPONDING LOADED ENVIRONMENT
+            if (currentlyLoggedInUser && activeDatabaseInstance) {
+                try {
+                    const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
+                    
+                    // Directly apply payload safely under target dynamic prefix layout node maps
+                    await setDoc(doc(activeDatabaseInstance, "Customer", currentlyLoggedInUser.uid), {
+                        services: {
+                            cargo: {
+                                [uniqueTrackingId]: firebaseCargoPayload
+                            }
+                        }
+                    }, { merge: true });
+                    console.log("🚀 Data securely appended directly to your live profile cargo maps!");
+                } catch (fsErr) {
+                    console.error("Firestore sync process encountered a direct error state:", fsErr);
+                }
+            } else {
+                console.warn("⚠️ No active user session discovered to write document states onto cloud clusters.");
+            }
 
-            // Append operational metadata fields to payload object parameters
+            // ================================================================
+            // SAFETY WRAPPER: PREVENT LOCALSTORAGE QUOTA CRASHES FROM BLOCKING UI
+            // ================================================================
+            try {
+                const masterShipmentsDatabase = JSON.parse(localStorage.getItem("maupayShipments")) || [];
+                masterShipmentsDatabase.push(finalDashboardRecord);
+                localStorage.setItem("maupayShipments", JSON.stringify(masterShipmentsDatabase));
+            } catch (err) {
+                console.error("⚠️ Failed to write to 'maupayShipments' (Storage Quota Exceeded)", err);
+            }
+
             currentBookingDataManifest.assignedPayer = finalPayerChoice;
             currentBookingDataManifest.paymentMethodSelected = finalMethodChoice;
             currentBookingDataManifest.transactionReferenceCode = referenceVerificationCodeValue;
             currentBookingDataManifest.bookingTimestamp = new Date().toISOString();
+            currentBookingDataManifest.createdAtMillis = currentTimestampMillis; // <-- FIXED
             currentBookingDataManifest.generatedTrackingId = uniqueTrackingId;
             currentBookingDataManifest.status = "Pending Dispatch";
 
-            // Save the complete manifest out to data memory space registry
-            localStorage.setItem('consolidatedBookingManifest', JSON.stringify(currentBookingDataManifest));
+            try {
+                localStorage.setItem('consolidatedBookingManifest', JSON.stringify(currentBookingDataManifest));
+            } catch (err) {
+                console.error("⚠️ Failed to update 'consolidatedBookingManifest' (Storage Quota Exceeded)", err);
+            }
             
-            // Move block dataset item array into historic record index storage pipeline
-            let globalLedger = JSON.parse(localStorage.getItem('globalShipmentsLedger') || "[]");
-            globalLedger.push(currentBookingDataManifest);
-            localStorage.setItem('globalShipmentsLedger', JSON.stringify(globalLedger));
+            try {
+                let globalLedger = JSON.parse(localStorage.getItem('globalShipmentsLedger') || "[]");
+                globalLedger.push(currentBookingDataManifest);
+                localStorage.setItem('globalShipmentsLedger', JSON.stringify(globalLedger));
+            } catch (err) {
+                console.error("⚠️ Failed to write to 'globalShipmentsLedger' (Storage Quota Exceeded)", err);
+            }
 
-            // Close down checkout review popup window block frame
+            // ================================================================
+            // MODAL DISPLAY TRANSITION (Now guaranteed to execute)
+            // ================================================================
             closeReviewModalPopup();
             
-            // POP OPEN THE CUSTOM MODAL EMBED OVERLAY CARD (Replaces standard window alert block)
             if (successTrackingId) successTrackingId.textContent = uniqueTrackingId;
             if (successModalOverlay) successModalOverlay.classList.add("display-modal-active");
         });
     }
 
-    // Handle redirection execution logic for the custom dashboard button hook
     if (btnSuccessDashboard) {
         btnSuccessDashboard.addEventListener("click", () => {
             if (successModalOverlay) successModalOverlay.classList.remove("display-modal-active");
-            
-            // Wipe session tracking memory block cache staging buffer out before returning
             localStorage.removeItem('consolidatedBookingManifest');
             window.location.href = "dashboard.html";
         });
     }
 
-    // Step Route Backtracking Execution
     if (btnBackToPackage) {
         btnBackToPackage.addEventListener("click", () => {
             window.location.href = "book-cargo-package.html";

@@ -90,6 +90,118 @@
     color: #64748b;
 }
 
+/* --- Added Layout Rules for image_c05260.png & image_c05226.png --- */
+
+/* Compound wrapper cards matching visual bounds */
+.payment-method-compound-card {
+    background-color: #ffffff;
+    border: 2px solid #1e3a8a; /* Styled matching card highlight color border */
+    border-radius: 12px;
+    margin-bottom: 16px;
+    padding: 4px;
+}
+
+/* Overriding individual standalone cards embedded inside layout container groups */
+.payment-method-compound-card .payment-option-card {
+    border: none !important;
+    box-shadow: none !important;
+    margin-bottom: 0 !important;
+    background-color: transparent !important;
+}
+
+/* Internal separator dashed rule lines */
+.method-internal-divider {
+    border: none;
+    border-top: 1px dashed #cbd5e1;
+    margin: 8px 16px 16px 16px;
+}
+
+/* Dropdown instruction text formatting wrapper layout hooks */
+.payment-method-details {
+    padding: 0 16px 16px 16px;
+}
+
+.instruction-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.instruction-icon {
+    color: #0f172a;
+    font-size: 1.1rem;
+}
+
+.instruction-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: #0f172a;
+}
+
+.instruction-subtitle {
+    font-size: 0.88rem;
+    color: #475569;
+    margin: 0 0 12px 0;
+    line-height: 1.4;
+}
+
+/* Inner highlight layout blocks displaying banking identifiers */
+.account-details-display-card {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+}
+
+.detail-row {
+    font-size: 0.92rem;
+    color: #334155;
+    margin: 0 0 6px 0;
+}
+
+.detail-row:last-child {
+    margin-bottom: 0;
+}
+
+.detail-row strong {
+    color: #0f172a;
+    font-weight: 700;
+}
+
+/* Dynamic reference input components */
+.input-field-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field-label {
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #334155;
+}
+
+.payment-text-input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    color: #0f172a;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.payment-text-input:focus {
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.08);
+}
+
+/* ------------------------------------------------------------------ */
+
 /* COD Context Block Window */
 .cod-notice-box {
     width: 100%;
@@ -508,7 +620,6 @@
     width: 100%;
     transition: background-color 0.2s ease;
 }
-
 
 .btn-success-redirect:hover { background-color: #27ae60; }
 

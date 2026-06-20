@@ -91,7 +91,7 @@
 
                     <h3 class="panel-section-title">Payment Method</h3>
                     <div class="payment-options-stack">
-                        <label class="payment-option-card checked clickable-method-card">
+                        <label class="payment-option-card checked clickable-method-card" style="margin-bottom: 16px;">
                             <input type="radio" name="paymentMethod" value="Cash / COD" checked>
                             <div class="option-meta-text">
                                 <strong>Cash / COD</strong>
@@ -102,22 +102,67 @@
                                 <p><strong>COD Notice:</strong> Please prepare the complete calculated payment balance to hand over directly to our agents/drivers once shipment operations reach the target address.</p>
                             </div>
                         </label>
+                        
+                        <div class="payment-method-compound-card">
+                            <label class="payment-option-card clickable-method-card">
+                                <input type="radio" name="paymentMethod" value="GCash">
+                                <div class="option-meta-text">
+                                    <strong>GCash</strong>
+                                    <span>Settle instantly using GCash mobile wallet transfer</span>
+                                </div>
+                            </label>
+                            
+                            <div class="input-element-group payment-method-details" id="gcashInputWrapperGroup">
+                                <hr class="method-internal-divider">
+                                
+                                <div class="instruction-header">
+                                    <i class="fas fa-wallet instruction-icon"></i>
+                                    <span class="instruction-title">GCash Transfer Instructions</span>
+                                </div>
+                                <p class="instruction-subtitle">Settle your calculated grand total balance to our verified corporate merchant number:</p>
+                                
+                                <div class="account-details-display-card">
+                                    <p class="detail-row"><strong>Account Name:</strong> Maupay Waraynon Padala Center</p>
+                                    <p class="detail-row"><strong>Account Number:</strong> 0917 123 4567</p>
+                                </div>
 
-                        <label class="payment-option-card clickable-method-card">
-                            <input type="radio" name="paymentMethod" value="GCash">
-                            <div class="option-meta-text">
-                                <strong>GCash</strong>
-                                <span>Settle instantly using GCash mobile wallet transfer</span>
+                                <div class="input-field-container">
+                                    <label for="gcashRefNum" class="field-label">Reference Number</label>
+                                    <input type="text" id="gcashRefNum" class="payment-text-input" placeholder="Enter 13-digit reference code" maxlength="13">
+                                </div>
                             </div>
-                        </label>
+                        </div>
 
-                        <label class="payment-option-card clickable-method-card">
-                            <input type="radio" name="paymentMethod" value="Bank Transfer">
-                            <div class="option-meta-text">
-                                <strong>Bank Transfer</strong>
-                                <span>Transfer directly to our secure banking endpoints</span>
+                        <div class="payment-method-compound-card">
+                            <label class="payment-option-card clickable-method-card">
+                                <input type="radio" name="paymentMethod" value="Bank Transfer">
+                                <div class="option-meta-text">
+                                    <strong>Bank Transfer</strong>
+                                    <span>Transfer directly to our secure banking endpoints</span>
+                                </div>
+                            </label>
+                            
+                            <div class="input-element-group payment-method-details" id="bankInputWrapperGroup">
+                                <hr class="method-internal-divider">
+                                
+                                <div class="instruction-header">
+                                    <i class="fas fa-university instruction-icon"></i>
+                                    <span class="instruction-title">Bank Transfer Details</span>
+                                </div>
+                                <p class="instruction-subtitle">Deposit invoice total securely through standard bank transfer pathways:</p>
+                                
+                                <div class="account-details-display-card">
+                                    <p class="detail-row"><strong>Bank Vendor:</strong> BDO Unibank (Banco de Oro)</p>
+                                    <p class="detail-row"><strong>Account Name:</strong> Maupay Waraynon Padala Center</p>
+                                    <p class="detail-row"><strong>Account Number:</strong> 0012 3456 7890</p>
+                                </div>
+
+                                <div class="input-field-container">
+                                    <label for="bankRefNum" class="field-label">Transaction Reference / Reference Code</label>
+                                    <input type="text" id="bankRefNum" class="payment-text-input" placeholder="Enter bank authorization tracker value">
+                                </div>
                             </div>
-                        </label>
+                        </div>
                     </div>
 
                     <div style="margin-top: 30px;">
@@ -230,6 +275,6 @@
         </div>
     </div>
 
-    <script src="book-cargo-payment.js"></script>
+    <script type="module" src="book-cargo-payment.js"></script>
 </body>
 </html>

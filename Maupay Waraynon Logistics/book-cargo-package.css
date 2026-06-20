@@ -191,6 +191,74 @@
     margin: 25px 0 30px 0;
 }
 
+/* ==========================================================================
+   DOCUMENTATION REQUIREMENT DRAG & DROP UI COMPONENTS
+   ========================================================================== */
+.upload-container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.upload-container label {
+    font-size: 0.86rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+/* Base Drop Zone Layout and Styling Anchor */
+.drop-zone {
+    width: 100%;
+    min-height: 110px;
+    border: 2px dashed #cbd5e1;
+    border-radius: 8px;
+    background-color: #f8fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.drop-zone:hover {
+    border-color: #1e3a8a;
+    background-color: #f1f5f9;
+}
+
+/* Prompt inner instructional context */
+.drop-zone__prompt {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #64748b;
+    line-height: 1.5;
+    pointer-events: none; /* Passes clicking events safely to the core drop zone */
+}
+
+/* Live Dynamic Files Render Container Grid */
+.file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.file-list div {
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    font-family: inherit;
+    transition: background-color 0.15s ease;
+}
+
+.file-list div:hover {
+    background-color: #e2e8f0;
+}
+
 .progress-step { display: flex; align-items: center; gap: 8px; }
 .progress-step .step-dot { width: 20px; height: 20px; border-radius: 50%; background-color: #cbd5e1; display: flex; align-items: center; justify-content: center; }
 .progress-step .step-label { font-size: 0.95rem; color: #64748b; }

@@ -10,6 +10,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const txtWeight = document.getElementById("cargoWeight");
     const txtValue = document.getElementById("declaredValue");
     const txtPieces = document.getElementById("numPieces");
+    const txtDesc = document.getElementById("cargoDescription");
+
+    // Drag and Drop Selectors
+    const dropZone = document.getElementById("dropZone");
+    const fileInput = document.getElementById("docRequirements");
+    const fileListContainer = document.getElementById("fileList");
+    let uploadedFilesBase64 = []; // Stores compiled files for manifest persistence
 
     const lblBaseRate = document.getElementById("lblBaseRate");
     const lblWeightSurcharge = document.getElementById("lblWeightSurcharge");
@@ -32,7 +39,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-
     // INLINE FORM EXTRA VALIDATION & SMART ZERO CLEARING
     function showInlineError(element, message) {
         removeInlineError(element);
@@ -49,70 +55,114 @@ document.addEventListener("DOMContentLoaded", () => {
         element.style.borderColor = "";
     }
 
-    // Force values back to 0 or min instead of negative numbers, and handle smart clearing
+    // Cargo Description validation restriction (Letters and spaces only)
+    if (txtDesc) {
+        txtDesc.addEventListener("input", (e) => {
+            const sanitizedValue = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+            if (e.target.value !== sanitizedValue) {
+                e.target.value = sanitizedValue;
+            }
+            if (sanitizedValue.trim().length > 0) {
+                removeInlineError(txtDesc);
+            }
+        });
+    }
+
+    // DRAG & DROP INTEGRATION MECHANICS
+    if (dropZone && fileInput) {
+        // Click to trigger hidden input pick window
+        dropZone.addEventListener("click", () => fileInput.click());
+
+        // Dragover state styles
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "#f0fdf4";
+            dropZone.style.borderColor = "#16a34a";
+        });
+
+        ["dragleave", "dragend"].forEach(type => {
+            dropZone.addEventListener(type, () => {
+                dropZone.style.backgroundColor = "";
+                dropZone.style.borderColor = "";
+            });
+        });
+
+        // Drop file drop capture handler
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.style.backgroundColor = "";
+            dropZone.style.borderColor = "";
+            
+            if (e.dataTransfer.files.length) {
+                fileInput.files = e.dataTransfer.files;
+                handleFilesProcessing(e.dataTransfer.files);
+            }
+        });
+
+        // Standard file input selection change engine
+        fileInput.addEventListener("change", () => {
+            if (fileInput.files.length) {
+                handleFilesProcessing(fileInput.files);
+            }
+        });
+    }
+
+    // Process files visually and compile text conversions for local storage storage operations
+    function handleFilesProcessing(files) {
+        fileListContainer.innerHTML = ""; 
+        uploadedFilesBase64 = [];
+        removeInlineError(dropZone);
+
+        Array.from(files).forEach(file => {
+            // Visual element confirmation card row
+            const fileItem = document.createElement("div");
+            fileItem.style.padding = "4px 8px";
+            fileItem.style.fontSize = "13px";
+            fileItem.style.color = "#4b5563";
+            fileItem.textContent = `📄 ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+            fileListContainer.appendChild(fileItem);
+
+            // Convert to Base64 data strings for manifest transmission
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                uploadedFilesBase64.push({
+                    name: file.name,
+                    type: file.type,
+                    base64Data: reader.result
+                });
+            };
+        });
+    }
+
+    // Standardized numeric input tracking (Dimensions, Weight, Value, and Pieces)
     const numericInputs = [txtLength, txtWidth, txtHeight, txtWeight, txtValue, txtPieces];
     numericInputs.forEach(input => {
         if (!input) return;
 
-        // Special treatment for the Pieces Input to allow smooth typing but block 0/negatives
-        if (input === txtPieces) {
-            
-            // 1. Automatically select the text on click so typing a new number replaces the 1 instantly
-            input.addEventListener("focus", () => {
-                input.select();
-            });
+        input.addEventListener("focus", () => {
+            if (parseFloat(input.value) === 0) {
+                input.value = "";
+            }
+        });
 
-            // 2. Prevent entering 0 if the field is empty
-            input.addEventListener("keydown", (e) => {
-                if (input.value === "" && e.key === "0") {
-                    e.preventDefault();
-                }
-            });
+        input.addEventListener("blur", () => {
+            if (input.value.trim() === "" || parseFloat(input.value) < 0) {
+                input.value = 0;
+            }
+            calculateLiveRates();
+        });
 
-            // 3. Monitor live inputs to clear out negatives or leading zeros
-            input.addEventListener("input", () => {
-                let val = parseInt(input.value);
-                
-                // If they typed a negative or invalid setup, reset to 1
-                if (val < 0) {
-                    input.value = 1;
-                }
-                calculateLiveRates();
-            });
-
-            // 4. The safety net: If they leave it blank or 0 when clicking away, force it back to 1
-            input.addEventListener("blur", () => {
-                let val = parseInt(input.value);
-                if (isNaN(val) || val <= 0) {
-                    input.value = 1;
-                }
-                calculateLiveRates();
-            });
-
-        } else {
-            // Default handling for other fields (Length, Width, Height, Weight, Value)
-            input.addEventListener("focus", () => {
-                if (parseFloat(input.value) === 0) {
-                    input.value = "";
-                }
-            });
-
-            input.addEventListener("blur", () => {
-                if (input.value.trim() === "" || parseFloat(input.value) < 0) {
-                    input.value = 0;
-                }
-                calculateLiveRates();
-            });
-
-            input.addEventListener("input", () => {
-                if (parseFloat(input.value) < 0) {
-                    input.value = 0;
-                }
-                calculateLiveRates();
-            });
-        }
+        input.addEventListener("input", () => {
+            if (parseFloat(input.value) < 0) {
+                input.value = 0;
+            }
+            if (parseFloat(input.value) > 0) {
+                removeInlineError(input);
+            }
+            calculateLiveRates();
+        });
     });
-
 
     // LIVE ESTIMATED FARE REACTION ENGINE
     function calculateLiveRates() {
@@ -121,44 +171,34 @@ document.addEventListener("DOMContentLoaded", () => {
         const height = parseFloat(txtHeight.value) || 0;
         const weight = parseFloat(txtWeight.value) || 0;
         const declaredVal = parseFloat(txtValue.value) || 0;
-        const pieces = parseInt(txtPieces.value) || 1;
+        const pieces = parseInt(txtPieces.value) || 0;
 
-        //Base Rate
         const baseRateValue = 150.00;
-
-        //Weight Surcharge Calculation
         let weightSurchargeValue = 0;
         if (weight > 5) {
             weightSurchargeValue = (weight - 5) * 20;
         }
 
-        //Volumetric Weight Calculation backup check (L * W * H / 3500)
         const volumetricWeight = (length * width * height) / 3500;
         if (volumetricWeight > weight) {
-            // Apply alternative volume premium if volume exceeds actual scale weight
             weightSurchargeValue += (volumetricWeight - weight) * 15;
         }
 
-        //Cargo Valuation Insurance premium structure (10% of total value declared)
         const insuranceValue = declaredVal * 0.10;
 
-        // Multiply calculations against item counts
         const computedBase = baseRateValue * pieces;
         const computedSurcharge = weightSurchargeValue * pieces;
         const computedInsurance = insuranceValue;
 
         const masterTotalCalculated = computedBase + computedSurcharge + computedInsurance;
 
-        // Reflect into visual summary view tracking panels
         lblBaseRate.textContent = `PHP ${computedBase.toFixed(2)}`;
         lblWeightSurcharge.textContent = `PHP ${computedSurcharge.toFixed(2)}`;
         lblCargoInsurance.textContent = `PHP ${computedInsurance.toFixed(2)}`;
         lblMasterTotal.textContent = `PHP ${masterTotalCalculated.toFixed(2)}`;
     }
 
-    // Run rate engine calculation right away at launch
     calculateLiveRates();
-
 
     // FORM TRANSIT PROCESSOR
     if (cargoPackageForm) {
@@ -167,13 +207,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let holdsErrors = false;
 
-            // Ensure items have dimensions assigned
             if (parseFloat(txtLength.value) <= 0 || txtLength.value === "") { showInlineError(txtLength, "⚠️ Length must be greater than 0."); holdsErrors = true; } else { removeInlineError(txtLength); }
             if (parseFloat(txtWidth.value) <= 0 || txtWidth.value === "") { showInlineError(txtWidth, "⚠️ Width must be greater than 0."); holdsErrors = true; } else { removeInlineError(txtWidth); }
             if (parseFloat(txtHeight.value) <= 0 || txtHeight.value === "") { showInlineError(txtHeight, "⚠️ Height must be greater than 0."); holdsErrors = true; } else { removeInlineError(txtHeight); }
             if (parseFloat(txtWeight.value) <= 0 || txtWeight.value === "") { showInlineError(txtWeight, "⚠️ Weight must be greater than 0."); holdsErrors = true; } else { removeInlineError(txtWeight); }
             
-            // Hard Validation check against Number of Pieces explicitly equaling 0
+            if (parseFloat(txtValue.value) <= 0 || txtValue.value === "") { 
+                showInlineError(txtValue, "⚠️ Declared value must be greater than 0."); 
+                holdsErrors = true; 
+            } else { 
+                removeInlineError(txtValue); 
+            }
+
             if (parseInt(txtPieces.value) <= 0 || txtPieces.value === "") { 
                 showInlineError(txtPieces, "⚠️ Total pieces configuration value must be 1 or higher."); 
                 holdsErrors = true; 
@@ -181,7 +226,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 removeInlineError(txtPieces); 
             }
 
-            const txtDesc = document.getElementById("cargoDescription");
             if (!txtDesc.value.trim()) {
                 showInlineError(txtDesc, "⚠️ Please enter a descriptive label for the parcel cargo.");
                 holdsErrors = true;
@@ -189,13 +233,20 @@ document.addEventListener("DOMContentLoaded", () => {
                 removeInlineError(txtDesc);
             }
 
+            // Document Requirements Drop Box Validation Sentry
+            if (uploadedFilesBase64.length === 0) {
+                showInlineError(dropZone, "⚠️ You must upload at least one mandatory documentation requirement file.");
+                holdsErrors = true;
+            } else {
+                removeInlineError(dropZone);
+            }
+
             if (holdsErrors) {
                 const firstFault = document.querySelector(".error-note");
-                if (firstFault) firstFault.parentElement.querySelector("input").focus();
+                if (firstFault) firstFault.parentElement.querySelector("input, textarea").focus();
                 return;
             }
 
-            // Extract pricing metrics strings cleanly
             const pricingBreakdownPayload = {
                 baseRate: lblBaseRate.textContent,
                 weightSurcharge: lblWeightSurcharge.textContent,
@@ -203,7 +254,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 estimatedTotal: lblMasterTotal.textContent
             };
 
-            // Package final step dataset object
             const cargoSpecificationsDataset = {
                 description: txtDesc.value.trim(),
                 type: document.getElementById("cargoType").value,
@@ -215,12 +265,11 @@ document.addEventListener("DOMContentLoaded", () => {
                 weight: txtWeight.value,
                 declaredValue: txtValue.value,
                 pieces: txtPieces.value,
-                documentation: document.getElementById("docRequirements").value.trim(),
+                documentationFiles: uploadedFilesBase64, // Saved converted file payload directly
                 handlingInstructions: document.getElementById("handlingInstructions").value.trim(),
                 pricing: pricingBreakdownPayload
             };
 
-            // Load master operational storage block manifest, attach updates, commit back
             let consolidatedManifest = JSON.parse(localStorage.getItem('consolidatedBookingManifest') || "{}");
             consolidatedManifest.cargoStep2Specifications = cargoSpecificationsDataset;
             localStorage.setItem('consolidatedBookingManifest', JSON.stringify(consolidatedManifest));

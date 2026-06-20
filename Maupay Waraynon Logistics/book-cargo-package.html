@@ -109,18 +109,23 @@
                     <div class="form-row-grid split-2">
                         <div class="input-element-group">
                             <label>Declared Value (PHP)</label>
-                            <input type="number" id="declaredValue" placeholder="0" min="0" value="0" required>
+                            <input type="number" id="declaredValue" placeholder="0" min="1" value="0" required>
                         </div>
                         <div class="input-element-group">
                             <label>Number of Pieces</label>
-                            <input type="number" id="numPieces" placeholder="0" min="1" value="1" required>
+                            <input type="number" id="numPieces" placeholder="0" min="1" value="0" required>
                         </div>
                     </div>
 
-                    <div class="input-element-group" style="margin-bottom: 16px;">
+                    <div class="upload-container">
                         <label>Documentation Requirements</label>
-                        <input type="text" id="docRequirements" placeholder="e.g., Invoices, Customs documents, Certificates of Origin">
+                        <div id="dropZone" class="drop-zone">
+                            <span class="drop-zone__prompt">Drag & Drop Business Permits/Images here or click to upload</span>
+                            <input type="file" id="docRequirements" class="drop-zone__input" accept="image/*,application/pdf" multiple style="display: none;">
+                        </div>
+                        <div id="fileList" class="file-list"></div>
                     </div>
+
 
                     <div class="input-element-group" style="margin-bottom: 24px;">
                         <label>Special Handling Instructions</label>
