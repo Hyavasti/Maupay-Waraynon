@@ -1,8 +1,4 @@
-// ==========================================================================
-// 📦 MAUPAY WARAYNON PADALA CENTER - LIPATBAHAY ROUTING INFRASTRUCTURE
-// ==========================================================================
-
-// 1. Modern Modular Firebase Imports matching your setup
+// 1. Modern Modular Firebase Imports
 import { getFirestore, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 import { initializeApp, getApps, getApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
@@ -64,27 +60,63 @@ document.addEventListener("DOMContentLoaded", () => {
     let valuableItemsValue = "None stated";
 
     const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+
+    //Capture tracking context securely
+    let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
 
     // Profile State Check via Modern SDK
-    onAuthStateChanged(auth, async (user) => {
-        if (user && profileAvatar) {
-            try {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
+
+            if (profileAvatar) {
                 const userDocRef = doc(db, "Customer", user.uid);
-                const snapshot = await getDoc(userDocRef);
-                if (snapshot.exists()) {
-                    const userData = snapshot.data();
-                    const firstName = userData.firstName || userData.name || "";
-                    if (firstName) {
-                        profileAvatar.innerText = firstName.trim().charAt(0).toUpperCase();
-                        return;
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
+
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
+
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
+                        }
                     }
-                }
-            } catch (err) {
-                console.warn("Database avatar read error:", err);
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
+                });
             }
+        } else {
+            console.warn("No active auth state detected on page load.");
         }
-        fallbackLocalStorageAvatar();
     });
+
 
     function fallbackLocalStorageAvatar() {
         const savedAccountRaw = localStorage.getItem('dummyTestingAccount');

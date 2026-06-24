@@ -259,4 +259,45 @@
             margin-top: 4px;
             font-weight: 500;
             display: block;
-        }
+}
+
+/* Container to help position the tooltip absolute relative to the avatar */
+.user-avatar-wrapper {
+    cursor: pointer;
+}
+
+/* Tooltip container properties (Hidden by default) */
+.avatar-tooltip {
+    position: absolute;
+    top: 115%; /* Places it cleanly right underneath the avatar circle */
+    right: 0;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+    min-width: 180px;
+    text-align: left;
+    display: none; /* Hide by default */
+}
+
+/* 🌟 HOVER TRIGGER: Shows the tooltip cleanly when the mouse enters the wrapper area */
+.user-avatar-wrapper:hover .avatar-tooltip {
+    display: block;
+}
+
+/* Styling rules for the text elements populated by Firebase */
+.tooltip-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 2px;
+    white-space: nowrap;
+}
+
+.tooltip-email {
+    font-size: 0.8rem;
+    color: #64748b;
+    white-space: nowrap;
+}

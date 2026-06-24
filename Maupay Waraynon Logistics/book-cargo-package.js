@@ -1,7 +1,30 @@
+// Import the necessary Firebase SDK functions matching your dashboard environment
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+// =========================================================
+// FIREBASE CONFIGURATION & INITIALIZATION
+// =========================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+    authDomain: "mpc-bacoor.firebaseapp.com",
+    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mpc-bacoor",
+    storageBucket: "mpc-bacoor.firebasestorage.app",
+    messagingSenderId: "105917197007",
+    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+    measurementId: "G-GSF6CFML1Y"
+};
+
+// Initialize Core Engines
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", () => {
     const cargoPackageForm = document.getElementById("cargoPackageForm");
     const btnBackToDetails = document.getElementById("btnBackToDetails");
-    const profileAvatar = document.getElementById("profileAvatar");
 
     // Pricing Element Selectors
     const txtLength = document.getElementById("cargoLength");
@@ -22,6 +45,12 @@ document.addEventListener("DOMContentLoaded", () => {
     const lblWeightSurcharge = document.getElementById("lblWeightSurcharge");
     const lblCargoInsurance = document.getElementById("lblCargoInsurance");
     const lblMasterTotal = document.getElementById("lblMasterTotal");
+    const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+
+
+    //Capture tracking context securely
+    let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
 
     // Initialize Profile Initials Badge
     const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
@@ -31,6 +60,60 @@ document.addEventListener("DOMContentLoaded", () => {
             profileAvatar.innerText = userAccount.firstName.charAt(0).toUpperCase();
         }
     }
+
+        // =========================================================
+        // Section 1 LIVE FIRESTORE CUSTOMER SYNC ENGINE
+        // =========================================================
+onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
+
+            if (profileAvatar) {
+                const userDocRef = doc(db, "Customer", user.uid);
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
+
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
+
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
+                        }
+                    }
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
+                });
+            }
+        } else {
+            console.warn("No active auth state detected on page load.");
+        }
+    });
 
     // Navigation Back Button Route
     if (btnBackToDetails) {
@@ -164,6 +247,28 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
+    // 2. Strip Leading Zeros Hook (Converts "02" -> "2")
+    function sanitizeLeadingZeros(inputElement) {
+        if (!inputElement) return;
+        inputElement.addEventListener("input", (e) => {
+            let val = e.target.value;
+            // If it's a multi-digit string starting with 0, drop the leading zero
+            if (val.length > 1 && val.startsWith("0") && !val.startsWith("0.")) {
+                e.target.value = val.replace(/^0+/, "");
+            }
+            if (e.target.value.trim() !== "" && parseFloat(e.target.value) > 0) {
+                toggleFieldError(inputElement, false);
+            }
+        });
+    }
+
+    sanitizeLeadingZeros(txtLength);
+    sanitizeLeadingZeros(txtWidth);
+    sanitizeLeadingZeros(txtHeight);
+    sanitizeLeadingZeros(txtWeight);
+    sanitizeLeadingZeros(txtValue);
+    sanitizeLeadingZeros(txtPieces);
+
     // LIVE ESTIMATED FARE REACTION ENGINE
     function calculateLiveRates() {
         const length = parseFloat(txtLength.value) || 0;
@@ -220,14 +325,14 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if (parseInt(txtPieces.value) <= 0 || txtPieces.value === "") { 
-                showInlineError(txtPieces, "⚠️ Total pieces configuration value must be 1 or higher."); 
+                showInlineError(txtPieces, "⚠️ Total pieces value must be 1 or higher."); 
                 holdsErrors = true; 
             } else { 
                 removeInlineError(txtPieces); 
             }
 
             if (!txtDesc.value.trim()) {
-                showInlineError(txtDesc, "⚠️ Please enter a descriptive label for the parcel cargo.");
+                showInlineError(txtDesc, "⚠️  This field cannot be left blank ");
                 holdsErrors = true;
             } else {
                 removeInlineError(txtDesc);

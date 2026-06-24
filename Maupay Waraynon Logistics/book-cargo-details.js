@@ -1,7 +1,35 @@
+// Import the necessary Firebase SDK functions matching your dashboard environment
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+// =========================================================
+// FIREBASE CONFIGURATION & INITIALIZATION
+// =========================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+    authDomain: "mpc-bacoor.firebaseapp.com",
+    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mpc-bacoor",
+    storageBucket: "mpc-bacoor.firebasestorage.app",
+    messagingSenderId: "105917197007",
+    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+    measurementId: "G-GSF6CFML1Y"
+};
+
+// Initialize Core Engines
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", () => {
     const cargoDetailsForm = document.getElementById("cargoDetailsForm");
     const btnBackToSelection = document.getElementById("btnBackToSelection");
     const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+
+    //Capture tracking context securely
+    let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
     
     //PROFILE AVATAR DISPLAY INITIALIZER
     const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
@@ -12,50 +40,60 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    // LIVE DATABASE INTEGRATION (Updated to strictly override storage fallbacks instantly)
-    if (profileAvatar) {
-        (async () => {
-            try {
-                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js");
-                const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
-                const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
+    // =========================================================
+    // Section 1 LIVE FIRESTORE CUSTOMER SYNC ENGINE
+    // =========================================================
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
 
-                const firebaseConfig = {
-                    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
-                    authDomain: "mpc-bacoor.firebaseapp.com",
-                    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
-                    projectId: "mpc-bacoor",
-                    storageBucket: "mpc-bacoor.firebasestorage.app",
-                    messagingSenderId: "105917197007",
-                    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
-                    measurementId: "G-GSF6CFML1Y"
-                };
+            if (profileAvatar) {
+                const userDocRef = doc(db, "Customer", user.uid);
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
 
-                const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
-                const auth = getAuth(app);
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
 
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        try {
-                            const userDoc = await getDoc(doc(db, "Customer", user.uid));
-                            if (userDoc.exists()) {
-                                const userData = userDoc.data();
-                                const profileName = userData.firstName || userData.name;
-                                if (profileName && profileName.trim().length > 0) {
-                                    profileAvatar.innerText = profileName.trim().charAt(0).toUpperCase();
-                                }
-                            }
-                        } catch (err) {
-                            console.warn("Database sync error, keeping fallback profile text:", err);
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
+
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
                         }
                     }
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
                 });
-            } catch (moduleErr) {
-                console.error("Firebase runtime engine failed to initialize:", moduleErr);
             }
-        })();
-    }
+        } else {
+            console.warn("No active auth state detected on page load.");
+        }
+    });
+
 
     if (btnBackToSelection) {
         btnBackToSelection.addEventListener("click", () => {
@@ -109,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             // Real-time checks while typing
             if (sanitizedValue.length >= 2 && !sanitizedValue.startsWith("09")) {
-                showInlineError(field, "⚠️ Mobile numbers must start with 09.");
+                showInlineError(field, "⚠️ Invalid Phone Number");
             } else if (sanitizedValue.length === 11 && sanitizedValue.startsWith("09")) {
                 removeInlineError(field);
             }
@@ -120,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (val.length === 0) {
                 showInlineError(field, "⚠️ This field is required.");
             } else if (!val.startsWith("09") || val.length !== 11) {
-                showInlineError(field, "⚠️ Mobile number must start with 09 and be exactly 11 digits.");
+                showInlineError(field, "⚠️ Invalid Phone Number");
             } else {
                 removeInlineError(field);
             }
@@ -331,7 +369,7 @@ document.addEventListener("DOMContentLoaded", () => {
             mobileFields.forEach(field => {
                 if (field && field.value.trim() !== "") {
                     if (!field.value.startsWith("09") || field.value.length !== 11) {
-                        showInlineError(field, "⚠️ Mobile number must start with 09 and be exactly 11 digits.");
+                        showInlineError(field, "⚠️  Invalid Phone Number");
                         hasErrors = true;
                     }
                 }
@@ -345,7 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
             requiredDropdowns.forEach(id => {
                 const selectElement = document.getElementById(id);
                 if (selectElement && !selectElement.value) {
-                    showInlineError(selectElement, "⚠️ Please make a valid geographic selection.");
+                    showInlineError(selectElement, "⚠️ This field cannot be left blank");
                     hasErrors = true;
                 }
             });

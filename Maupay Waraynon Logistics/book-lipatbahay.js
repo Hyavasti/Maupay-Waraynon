@@ -1,7 +1,7 @@
 // Import the necessary Firebase SDK functions matching your dashboard environment
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 
 // =========================================================
 // FIREBASE CONFIGURATION & INITIALIZATION
@@ -48,64 +48,82 @@ document.addEventListener("DOMContentLoaded", () => {
     const btnBack = document.getElementById("btnBackToServices");
     const formWizard = document.getElementById("lipatBahayDetailsForm");
     const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+
+    //Capture tracking context securely
+    let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
 
     // Global data placeholder for session data 
     let userAccountData = null;
 
     // =========================================================
-    // 1. LIVE FIRESTORE CUSTOMER SYNC ENGINE
+    // Section 1 LIVE FIRESTORE CUSTOMER SYNC ENGINE
     // =========================================================
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            const userDocRef = doc(db, "Customer", user.uid);
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
 
-            // Using live snapshot listener symmetrically with your dashboard script
-            onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists()) {
-                    userAccountData = docSnap.data();
+            if (profileAvatar) {
+                const userDocRef = doc(db, "Customer", user.uid);
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
 
-                    const firstName = userAccountData.firstName || userAccountData.fullName || "";
-                    if (firstName && profileAvatar) {
-                        profileAvatar.textContent = firstName.charAt(0).toUpperCase();
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
+
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
+                        }
                     }
-                } else {
-                    console.log("No customer layout record found for this active UID.");
-                    fallbackAvatarBadge();
-                }
-            });
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
+                });
+            }
         } else {
-            console.log("No authenticated session context detected. Running static fallback.");
-            const fallbackUid = "oZ55xPFsSYWyVTD5R8G1kYmx43";
-            const fallbackRef = doc(db, "Customer", fallbackUid);
-            onSnapshot(fallbackRef, (docSnap) => {
-                if (!auth.currentUser && docSnap.exists()) {
-                    userAccountData = docSnap.data();
-                    const firstName = userAccountData.firstName || "";
-                    if (profileAvatar && firstName) {
-                        profileAvatar.textContent = firstName.charAt(0).toUpperCase();
-                    }
-                }
-            });
+            console.warn("No active auth state detected on page load.");
         }
     });
 
-    function fallbackAvatarBadge() {
-        if (profileAvatar && (profileAvatar.textContent === "" || profileAvatar.textContent === "U")) {
-            profileAvatar.textContent = "M"; 
-        }
-    }
-
     // =========================================================
-    // 2. LIVE INPUT RESTRICTIONS & REGEX FILTERS
+    // Section 2 LIVE INPUT RESTRICTIONS & REGEX FILTERS
     // =========================================================
     function restrictToLettersOnly(element) {
         if (!element) return;
         element.addEventListener("input", (e) => {
             e.target.value = e.target.value.replace(/[^a-zA-Z\s\-]/g, "");
+            if (e.target.value.trim() !== "") {
+                clearInlineFieldError(element);
+            }
         });
     }
 
-    function restrictToMobileNumbersOnly(element) {
+function restrictToMobileNumbersOnly(element) {
         if (!element) return;
         element.addEventListener("input", (e) => {
             let clearedValue = e.target.value.replace(/\D/g, ""); 
@@ -114,19 +132,38 @@ document.addEventListener("DOMContentLoaded", () => {
             }
             e.target.value = clearedValue;
 
-            if (clearedValue.length === 11 && clearedValue.startsWith("09")) {
+            
+            if (clearedValue.length > 0) {
+    
+                if (clearedValue === "0") {
+                    clearInlineFieldError(element);
+                }
+                //2nd digit isn't 9 Error!
+                else if (clearedValue.startsWith("0") && clearedValue.length >= 2 && clearedValue[1] !== "9") {
+                    showInlineFieldError(element, "Invalid Phone Number.");
+                }
+                //1st digit doesn't start with 0 Error!
+                else if (!clearedValue.startsWith("0")) {
+                    showInlineFieldError(element, "Invalid Phone Number.");
+                }
+                //If starts with 09 but hasn't reached 11 digits yet Error!
+                else if (clearedValue.length < 11) {
+                    showInlineFieldError(element, "Invalid Phone Number.");
+                }
+                //Exactly 11 digits and starts with 09
+                else if (clearedValue.length === 11 && clearedValue.startsWith("09")) {
+                    clearInlineFieldError(element);
+                }
+            } else {
+                // If they clear the input box completely, reset the error banner
                 clearInlineFieldError(element);
             }
         });
 
         element.addEventListener("blur", (e) => {
-            const value = e.target.value;
-            if (value.length > 0) {
-                if (value.length < 11 || !value.startsWith("09")) {
-                    showInlineFieldError(element, "❌ Invalid number");
-                } else {
-                    clearInlineFieldError(element);
-                }
+            const value = e.target.value.trim();
+            if (value.length < 11 || !value.startsWith("09")) {
+                showInlineFieldError(element, "Invalid Phone Number.");
             } else {
                 clearInlineFieldError(element);
             }
@@ -138,20 +175,31 @@ document.addEventListener("DOMContentLoaded", () => {
     restrictToMobileNumbersOnly(pickupMobile);
     restrictToMobileNumbersOnly(dropoffMobile);
 
+    // Setup real-time clearing for dropdowns and street inputs on interaction
+    [pickupProvince, pickupCity, pickupBarangay, pickupStreet, dropoffProvince, dropoffCity, dropoffBarangay, dropoffStreet].forEach(el => {
+        if(el) {
+            el.addEventListener("change", () => clearInlineFieldError(el));
+            el.addEventListener("input", () => clearInlineFieldError(el));
+        }
+    });
+
     function showInlineFieldError(element, textMessage) {
         clearInlineFieldError(element);
         
         const parentCell = element.closest(".form-input-cell") || element.parentNode;
-        element.style.borderColor = "#ef4444";
+        element.style.borderColor = "#dc2626";
         
         const noteContainer = document.createElement("div");
         noteContainer.className = "live-field-error-note";
-        noteContainer.style.color = "#ef4444";
-        noteContainer.style.fontSize = "0.78rem";
-        noteContainer.style.marginTop = "6px";
-        noteContainer.style.fontWeight = "600";
-        noteContainer.style.display = "block";
-        noteContainer.innerText = textMessage;
+        
+        //styling layout
+        noteContainer.style.color = "#b91c1c"; 
+        noteContainer.style.fontSize = "0.82rem";
+        noteContainer.style.marginTop = "5px";
+        noteContainer.style.display = "flex";
+        noteContainer.style.alignItems = "center";
+        noteContainer.style.gap = "4px";
+        noteContainer.innerHTML = `<span>⚠️</span> <span>${textMessage}</span>`;
         
         parentCell.appendChild(noteContainer);
     }
@@ -165,7 +213,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================================================
-    // 3. REGION-FIRST CARGO-STYLE PSGC ENGINE
+    // Section 3 REGION-FIRST CARGO-STYLE PSGC ENGINE
     // =========================================================
     fetch('https://psgc.gitlab.io/api/regions.json')
         .then(res => res.json())
@@ -237,7 +285,7 @@ document.addEventListener("DOMContentLoaded", () => {
     wireRegionalCargoDropdowns(dropoffProvince, dropoffCity, dropoffBarangay);
 
     // =========================================================
-    // 4. SHORTCUT AUTO-FILL DATA UTILITIES
+    // Section 4 SHORTCUT AUTO-FILL DATA UTILITIES
     // =========================================================
     pickupShortcut.addEventListener("change", () => {
         if (pickupShortcut.value === "profile") {
@@ -283,7 +331,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================================================
-    // 5. STATE PERSISTENCE ENGINE (RESTORE ON BACK NAVIGATION)
+    // Section 5 STATE PERSISTENCE ENGINE (RESTORE ON BACK NAVIGATION)
     // =========================================================
     function restoreCachedFormData() {
         const activeDetailsCache = localStorage.getItem('activeBookingFormStep2');
@@ -367,7 +415,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // =========================================================
-    // 6. ACTION CONTROL NAVIGATION & TIMELINE ENGINE
+    // Section 6 ACTION CONTROL NAVIGATION & TIMELINE ENGINE
     // =========================================================
     btnBack.addEventListener("click", () => {
         window.location.href = "book-shipment.html";
@@ -378,14 +426,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
         let blockFormRoute = false;
 
-        if (pickupMobile.value.length < 11 || !pickupMobile.value.startsWith("09")) {
-            showInlineFieldError(pickupMobile, "❌ Invalid number");
-            blockFormRoute = true;
-        }
-        if (dropoffMobile.value.length < 11 || !dropoffMobile.value.startsWith("09")) {
-            showInlineFieldError(dropoffMobile, "❌ Invalid number");
-            blockFormRoute = true;
-        }
+        // Structured array validation matching target layout schema
+        const requiredInputs = [
+            { el: pickupContact, msg: "This field cannot be left blank." },
+            { el: pickupMobile, msg: "This field cannot be left blank.", isMobile: true },
+            { el: pickupProvince, msg: "This field cannot be left blank." },
+            { el: pickupCity, msg: "This field cannot be left blank." },
+            { el: pickupBarangay, msg: "This field cannot be left blank." },
+            { el: pickupStreet, msg: "This field cannot be left blank." },
+            { el: dropoffContact, msg: "This field cannot be left blank." },
+            { el: dropoffMobile, msg: "This field cannot be left blank.", isMobile: true },
+            { el: dropoffProvince, msg: "This field cannot be left blank." },
+            { el: dropoffCity, msg: "This field cannot be left blank." },
+            { el: dropoffBarangay, msg: "This field cannot be left blank." },
+            { el: dropoffStreet, msg: "This field cannot be left blank." }
+        ];
+
+        // Validate Blanks & Geographics first
+        requiredInputs.forEach(item => {
+            if (item.el) {
+                if (!item.el.value || item.el.value.trim() === "") {
+                    showInlineFieldError(item.el, item.msg);
+                    blockFormRoute = true;
+                } else if (item.isMobile) {
+                    if (item.el.value.length < 11 || !item.el.value.startsWith("09")) {
+                        showInlineFieldError(item.el, "Invalid Phone Number");
+                        blockFormRoute = true;
+                    }
+                }
+            }
+        });
 
         if (blockFormRoute) {
             const targetedNote = document.querySelector(".live-field-error-note");

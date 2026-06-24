@@ -1,8 +1,38 @@
+// 1. Modern Modular Firebase Imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+// Changed from firebase-database to firebase-firestore
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js"; 
+
+// 2. Web App's Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+    authDomain: "mpc-bacoor.firebaseapp.com",
+    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mpc-bacoor",
+    storageBucket: "mpc-bacoor.firebasestorage.app",
+    messagingSenderId: "105917197007",
+    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+    measurementId: "G-GSF6CFML1Y"
+};
+
+// Initialize Firebase Services
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app); // Initializing Firestore instead of Realtime DB
+
+
+
 document.addEventListener("DOMContentLoaded", () => {
     const packageForm = document.getElementById("packageDetailsForm");
     const btnBackToDetails = document.getElementById("btnBackToDetails");
     const btnNextStep = document.getElementById("btnNextStep");
     
+    // Disable native browser validation tooltips so our custom errors display immediately
+    if (packageForm) {
+        packageForm.setAttribute("novalidate", "true");
+    }
+
     // Element Input Model Track Targets
     const itemDescription = document.getElementById("itemDescription");
     const itemCategory = document.getElementById("itemCategory");
@@ -30,6 +60,34 @@ document.addEventListener("DOMContentLoaded", () => {
     if (declaredValue) declaredValue.required = true;
 
     // ==========================================================================
+    // DYNAMIC EMPTY FIELD VALIDATION ENGINE (Uniform Design)
+    // ==========================================================================
+    function toggleFieldError(inputElement, show, message = "This field cannot be left blank.") {
+        if (!inputElement) return;
+        
+        let errorNote = inputElement.parentNode.querySelector(".blank-error-note");
+        
+        if (show) {
+            inputElement.style.borderColor = "#dc3545";
+            if (!errorNote) {
+                errorNote = document.createElement("div");
+                errorNote.className = "blank-error-note";
+                errorNote.style.color = "#dc3545";
+                errorNote.style.fontSize = "12px";
+                errorNote.style.marginTop = "4px";
+                inputElement.parentNode.appendChild(errorNote);
+            }
+            errorNote.innerText = `⚠️ ${message}`;
+            errorNote.style.display = "block";
+        } else {
+            inputElement.style.borderColor = "";
+            if (errorNote) {
+                errorNote.style.display = "none";
+            }
+        }
+    }
+
+    // ==========================================================================
     // REAL-TIME INPUT SANITIZATION CONTROLS
     // ==========================================================================
     
@@ -37,6 +95,17 @@ document.addEventListener("DOMContentLoaded", () => {
     if (itemDescription) {
         itemDescription.addEventListener("input", (e) => {
             e.target.value = e.target.value.replace(/[^a-zA-Z\s]/g, "");
+            if (e.target.value.trim() !== "") {
+                toggleFieldError(itemDescription, false);
+            }
+        });
+    }
+
+    if (itemCategory) {
+        itemCategory.addEventListener("change", () => {
+            if (itemCategory.value.trim() !== "") {
+                toggleFieldError(itemCategory, false);
+            }
         });
     }
 
@@ -49,6 +118,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (val.length > 1 && val.startsWith("0") && !val.startsWith("0.")) {
                 e.target.value = val.replace(/^0+/, "");
             }
+            if (e.target.value.trim() !== "" && parseFloat(e.target.value) > 0) {
+                toggleFieldError(inputElement, false);
+            }
         });
     }
 
@@ -58,32 +130,15 @@ document.addEventListener("DOMContentLoaded", () => {
     sanitizeLeadingZeros(pkgWeight);
     sanitizeLeadingZeros(declaredValue);
 
+    // DYNAMIC MODULAR FIREBASE REAL-TIME ACCOUNT AVATAR SYNC
     // ==========================================================================
-    // DYNAMIC ERROR NOTE ENGINE
-    // ==========================================================================
-    function createFieldErrorNote(inputElement, errorMessage) {
-        if (!inputElement) return null;
-        const errorNote = document.createElement("div");
-        errorNote.className = "field-error-note";
-        errorNote.style.color = "#dc3545";
-        errorNote.style.fontSize = "12px";
-        errorNote.style.marginTop = "4px";
-        errorNote.style.display = "none";
-        errorNote.innerText = `❌ ${errorMessage}`;
-        inputElement.parentNode.appendChild(errorNote);
-        return errorNote;
-    }
-
-    const descError = createFieldErrorNote(itemDescription, "Item description is required (Letters only).");
-    const catError = createFieldErrorNote(itemCategory, "Please select an item category.");
-    const lengthError = createFieldErrorNote(pkgLength, "Length is required (min 1 cm).");
-    const widthError = createFieldErrorNote(pkgWidth, "Width is required (min 1 cm).");
-    const heightError = createFieldErrorNote(pkgHeight, "Height is required (min 1 cm).");
-    const weightError = createFieldErrorNote(pkgWeight, "Weight is required (must be greater than 0).");
-    const declaredError = createFieldErrorNote(declaredValue, "Declared value is required (must be greater than 0).");
-
-    // Profile Avatar Letter Display Configs
     const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+
+        // 🌟 Capture tracking context securely from event lifecycle streams
+    let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
+
+    // STEP 1: Fast Immediate Offline Fallback (while connection loads)
     const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
     if (savedAccountRaw && profileAvatar) {
         try {
@@ -91,8 +146,60 @@ document.addEventListener("DOMContentLoaded", () => {
             if (userAccount && userAccount.firstName) {
                 profileAvatar.innerText = userAccount.firstName.charAt(0).toUpperCase();
             }
-        } catch (e) { console.error("Error setting avatar display initial:", e); }
+        } catch (e) { console.error("Error setting avatar initial:", e); }
     }
+
+    // STEP 2: Modern Cloud Firestore Sync Lookups with Native Hover Title
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
+
+            if (profileAvatar) {
+                const userDocRef = doc(db, "Customer", user.uid);
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
+
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
+
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
+                        }
+                    }
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
+                });
+            }
+        } else {
+            console.warn("No active auth state detected on page load.");
+        }
+    });
 
     // ==========================================================================
     // RESTORE EXISTING PRE-FILLED VALUES FROM PREVIOUS SESSIONS
@@ -174,29 +281,35 @@ document.addEventListener("DOMContentLoaded", () => {
     // ==========================================================================
     function advanceToNextStep() {
         let formIsValid = true;
+        let firstInvalidElement = null;
 
-        function checkValidation(field, errorEl, conditions = true) {
-            if (!field || !conditions || !field.value.trim() || parseFloat(field.value) <= 0) {
-                if (errorEl) errorEl.style.display = "block";
-                if (field) field.style.borderColor = "#dc3545";
-                formIsValid = false;
+        function checkField(element, customMsg = "This field cannot be left blank.") {
+            if (!element) return true;
+            
+            const isZeroOrLess = (element.tagName !== "SELECT" && (!element.value.trim() || parseFloat(element.value) <= 0));
+            const isEmptySelect = (element.tagName === "SELECT" && !element.value.trim());
+
+            if (isZeroOrLess || isEmptySelect) {
+                toggleFieldError(element, true, customMsg);
+                if (!firstInvalidElement) firstInvalidElement = element;
+                return false;
             } else {
-                if (errorEl) errorEl.style.display = "none";
-                if (field) field.style.borderColor = "";
+                toggleFieldError(element, false);
+                return true;
             }
         }
 
-        checkValidation(itemDescription, descError);
-        checkValidation(itemCategory, catError);
-        checkValidation(pkgLength, lengthError);
-        checkValidation(pkgWidth, widthError);
-        checkValidation(pkgHeight, heightError);
-        checkValidation(pkgWeight, weightError);
-        checkValidation(declaredValue, declaredError);
+        // Validate all required configurations sequentially
+        if (!checkField(itemDescription)) formIsValid = false;
+        if (!checkField(itemCategory, "Please select an item category.")) formIsValid = false;
+        if (!checkField(pkgLength, "Length must be greater than 0 cm.")) formIsValid = false;
+        if (!checkField(pkgWidth, "Width must be greater than 0 cm.")) formIsValid = false;
+        if (!checkField(pkgHeight, "Height must be greater than 0 cm.")) formIsValid = false;
+        if (!checkField(pkgWeight, "Weight must be greater than 0 kg.")) formIsValid = false;
+        if (!checkField(declaredValue, "Declared value must be greater than 0.")) formIsValid = false;
 
         if (!formIsValid) {
-            const firstErrorField = document.querySelector('[style*="border-color: rgb(220, 53, 69)"]');
-            if (firstErrorField) firstErrorField.focus();
+            if (firstInvalidElement) firstInvalidElement.focus();
             return;
         }
 

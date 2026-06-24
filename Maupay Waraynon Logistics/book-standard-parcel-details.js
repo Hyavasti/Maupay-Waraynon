@@ -1,8 +1,36 @@
+// 1. Modern Modular Firebase Imports
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+// Changed from firebase-database to firebase-firestore
+import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js"; 
+
+// 2. Web App's Firebase Configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+    authDomain: "mpc-bacoor.firebaseapp.com",
+    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mpc-bacoor",
+    storageBucket: "mpc-bacoor.firebasestorage.app",
+    messagingSenderId: "105917197007",
+    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+    measurementId: "G-GSF6CFML1Y"
+};
+
+// Initialize Firebase Services
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app); // Initializing Firestore instead of Realtime DB
+
 document.addEventListener("DOMContentLoaded", () => {
     const detailsForm = document.getElementById("standardParcelDetailsForm");
     const btnBackToShipmentMenu = document.getElementById("btnBackToShipmentMenu");
     const deliveryCards = document.querySelectorAll('.delivery-option-card');
     
+    // Disable native browser validation tooltips so our custom messages can display
+    if (detailsForm) {
+        detailsForm.setAttribute("novalidate", "true");
+    }
+
     // Form Dropdown Element References (Region -> Province -> City -> Barangay)
     const senderRegion = document.getElementById("senderRegion");
     const senderProvince = document.getElementById("senderProvince");
@@ -49,8 +77,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (receiverBarangay) receiverBarangay.required = true;
     if (receiverStreet) receiverStreet.required = true;
 
-    // Profile Avatar Display Setup
+    // ==========================================================================
+    // DYNAMIC MODULAR FIREBASE REAL-TIME ACCOUNT AVATAR SYNC
+    // ==========================================================================
     const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+
+    // 🌟 Capture tracking context securely from event lifecycle streams
+    let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
+
+    // STEP 1: Fast Immediate Offline Fallback (while connection loads)
     const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
     if (savedAccountRaw && profileAvatar) {
         try {
@@ -61,12 +97,96 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (e) { console.error("Error setting avatar initial:", e); }
     }
 
+    // STEP 2: Modern Cloud Firestore Sync Lookups with Native Hover Title
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
+
+            if (profileAvatar) {
+                const userDocRef = doc(db, "Customer", user.uid);
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
+
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
+
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
+                        }
+                    }
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
+                });
+            }
+        } else {
+            console.warn("No active auth state detected on page load.");
+        }
+    });
+
+    // ==========================================================================
+    // DYNAMIC EMPTY FIELD VALIDATION ENGINE (Matches layout design)
+    // ==========================================================================
+    function toggleFieldError(inputElement, show, message) {
+        if (!inputElement) return;
+        
+        let errorNote = inputElement.parentNode.querySelector(".blank-error-note");
+        
+        if (show) {
+            inputElement.style.borderColor = "#dc3545";
+            if (!errorNote) {
+                errorNote = document.createElement("div");
+                errorNote.className = "blank-error-note";
+                errorNote.style.color = "#dc3545";
+                errorNote.style.fontSize = "12px";
+                errorNote.style.marginTop = "4px";
+                inputElement.parentNode.appendChild(errorNote);
+            }
+            errorNote.innerText = `⚠️ ${message}`;
+            errorNote.style.display = "block";
+        } else {
+            inputElement.style.borderColor = "";
+            if (errorNote) {
+                errorNote.style.display = "none";
+            }
+        }
+    }
+
     // CONTACT PERSON STRICT NAME VALIDATION
     function sanitizeContactNameInput(inputElement) {
         if (!inputElement) return;
         inputElement.addEventListener("input", (e) => {
             let sanitizedValue = e.target.value.replace(/[0-9]/g, "");
             e.target.value = sanitizedValue;
+            
+            if (sanitizedValue.trim() !== "") {
+                toggleFieldError(inputElement, false);
+            }
         });
     }
 
@@ -81,7 +201,7 @@ document.addEventListener("DOMContentLoaded", () => {
         errorNote.style.fontSize = "12px";
         errorNote.style.marginTop = "4px";
         errorNote.style.display = "none";
-        errorNote.innerText = "❌ Mobile number must start with 09 and be exactly 11 digits long.";
+        errorNote.innerText = "Invalid Phone Number";
         inputElement.parentNode.appendChild(errorNote);
         return errorNote;
     }
@@ -112,6 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
             } else {
                 if (errorElement) errorElement.style.display = "none";
                 inputElement.style.borderColor = "";
+                toggleFieldError(inputElement, false);
             }
         });
     }
@@ -158,6 +279,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function handleRegionSelectionChange(regionSelect, provinceSelect, citySelect, barangaySelect = null) {
+        toggleFieldError(regionSelect, false);
         const selectedRegionCode = regionSelect.value;
         provinceSelect.innerHTML = '<option value="" disabled selected>Select province</option>';
         citySelect.innerHTML = '<option value="" disabled selected>Select city/municipality</option>';
@@ -190,6 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function handleProvinceSelectionChange(provinceSelect, citySelect, barangaySelect = null) {
+        toggleFieldError(provinceSelect, false);
         const selectedProvCode = provinceSelect.value;
         citySelect.innerHTML = '<option value="" disabled selected>Select city/municipality</option>';
         if (barangaySelect) barangaySelect.innerHTML = '<option value="" disabled selected>Select barangay</option>';
@@ -215,6 +338,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     async function handleCitySelectionChange(citySelect, barangaySelect) {
+        toggleFieldError(citySelect, false);
         if (!barangaySelect) return;
         const selectedCityCode = citySelect.value;
         barangaySelect.innerHTML = '<option value="" disabled selected>Select barangay</option>';
@@ -240,11 +364,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (senderRegion) senderRegion.addEventListener("change", () => handleRegionSelectionChange(senderRegion, senderProvince, senderCity, senderBarangay));
     if (senderProvince) senderProvince.addEventListener("change", () => handleProvinceSelectionChange(senderProvince, senderCity, senderBarangay));
-    if (senderCity) senderCity.addEventListener("change", () => handleCitySelectionChange(senderCity, senderBarangay));
+    if (senderCity) senderCity.addEventListener("change", () => { handleCitySelectionChange(senderCity, senderBarangay); });
+    if (senderBarangay) senderBarangay.addEventListener("change", () => toggleFieldError(senderBarangay, false));
+    if (senderStreet) senderStreet.addEventListener("input", () => toggleFieldError(senderStreet, false));
 
     if (receiverRegion) receiverRegion.addEventListener("change", () => handleRegionSelectionChange(receiverRegion, receiverProvince, receiverCity, receiverBarangay));
     if (receiverProvince) receiverProvince.addEventListener("change", () => handleProvinceSelectionChange(receiverProvince, receiverCity, receiverBarangay));
-    if (receiverCity) receiverCity.addEventListener("change", () => handleCitySelectionChange(receiverCity, receiverBarangay));
+    if (receiverCity) receiverCity.addEventListener("change", () => { handleCitySelectionChange(receiverCity, receiverBarangay); });
+    if (receiverBarangay) receiverBarangay.addEventListener("change", () => toggleFieldError(receiverBarangay, false));
+    if (receiverStreet) receiverStreet.addEventListener("input", () => toggleFieldError(receiverStreet, false));
+    if (receiverOutlet) receiverOutlet.addEventListener("change", () => toggleFieldError(receiverOutlet, false));
 
     prefetchNationalGeographicRegistry();
 
@@ -263,6 +392,8 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function toggleReceiverFormLayout(option) {
+        [receiverRegion, receiverProvince, receiverCity, receiverBarangay, receiverStreet, receiverOutlet].forEach(el => toggleFieldError(el, false));
+
         if (option === "PickupOutlet") {
             if (receiverDoorToDoorFields) receiverDoorToDoorFields.classList.add("hidden-field-block");
             if (receiverPickupOutletFields) receiverPickupOutletFields.classList.remove("hidden-field-block");
@@ -293,45 +424,71 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ==========================================================================
-    // FORM SUBMIT HANDLER: FIELD VALIDATIONS
+    // FORM SUBMIT HANDLER: FIELD VALIDATIONS WITH CUSTOM LABELS
     // ==========================================================================
     if (detailsForm) {
         detailsForm.addEventListener("submit", (e) => {
             e.preventDefault();
             let formsAreValid = true;
+            let firstInvalidElement = null;
 
-            if (senderMobile && !validatePhilippineMobile(senderMobile.value)) {
+            function checkField(element, isDropdown = false) {
+                if (!element) return true;
+                if (!element.value || element.value.trim() === "") {
+                    const dynamicMsg = isDropdown ? "This field cannot be left blank" : "This field cannot be left blank.";
+                    toggleFieldError(element, true, dynamicMsg);
+                    if (!firstInvalidElement) firstInvalidElement = element;
+                    return false;
+                } else {
+                    toggleFieldError(element, false);
+                    return true;
+                }
+            }
+
+            if (!checkField(senderName)) formsAreValid = false;
+            if (!checkField(senderMobile)) formsAreValid = false;
+            if (!checkField(receiverName)) formsAreValid = false;
+            if (!checkField(receiverMobile)) formsAreValid = false;
+
+            if (senderMobile && senderMobile.value && !validatePhilippineMobile(senderMobile.value)) {
                 if (senderMobileError) senderMobileError.style.display = "block";
                 senderMobile.style.borderColor = "#dc3545";
-                senderMobile.focus();
+                if (!firstInvalidElement) firstInvalidElement = senderMobile;
                 formsAreValid = false;
+            } else if (senderMobileError) {
+                senderMobileError.style.display = "none";
             }
 
-            if (receiverMobile && !validatePhilippineMobile(receiverMobile.value)) {
+            if (receiverMobile && receiverMobile.value && !validatePhilippineMobile(receiverMobile.value)) {
                 if (receiverMobileError) receiverMobileError.style.display = "block";
                 receiverMobile.style.borderColor = "#dc3545";
-                if (formsAreValid) receiverMobile.focus();
+                if (!firstInvalidElement) firstInvalidElement = receiverMobile;
                 formsAreValid = false;
+            } else if (receiverMobileError) {
+                receiverMobileError.style.display = "none";
             }
+
+            if (!checkField(senderRegion, true)) formsAreValid = false;
+            if (!checkField(senderProvince, true)) formsAreValid = false;
+            if (!checkField(senderCity, true)) formsAreValid = false;
+            if (!checkField(senderBarangay, true)) formsAreValid = false;
+            if (!checkField(senderStreet)) formsAreValid = false;
 
             const activeRadio = document.querySelector('input[name="deliveryOption"]:checked');
             const selectedOption = activeRadio ? activeRadio.value : "DoorToDoor";
 
-            if (!senderRegion.value || !senderProvince.value || !senderCity.value || !senderBarangay.value) {
-                formsAreValid = false;
-            }
-
             if (selectedOption === "DoorToDoor") {
-                if (!receiverRegion.value || !receiverProvince.value || !receiverCity.value || !receiverBarangay.value) {
-                    formsAreValid = false;
-                }
+                if (!checkField(receiverRegion, true)) formsAreValid = false;
+                if (!checkField(receiverProvince, true)) formsAreValid = false;
+                if (!checkField(receiverCity, true)) formsAreValid = false;
+                if (!checkField(receiverBarangay, true)) formsAreValid = false;
+                if (!checkField(receiverStreet)) formsAreValid = false;
             } else if (selectedOption === "PickupOutlet") {
-                if (!receiverOutlet.value) {
-                    formsAreValid = false;
-                }
+                if (!checkField(receiverOutlet)) formsAreValid = false;
             }
 
             if (!formsAreValid) {
+                if (firstInvalidElement) firstInvalidElement.focus();
                 return;
             }
 
@@ -348,7 +505,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
             let receiverDestinationSummary = "";
             let simplifiedDestinationString = "";
-
             let assignedOutletHubVal = "";
             let isOutletDropoffVal = false;
 
@@ -365,7 +521,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 const receiverStreetVal = receiverStreet ? receiverStreet.value.trim() : "";
 
                 simplifiedDestinationString = `${receiverCityName}, ${receiverProvName}`;
-                
                 const receiverAddressParts = [receiverStreetVal, receiverBrgyName, receiverCityName, receiverProvName].filter(p => p && p.trim() !== "");
                 receiverDestinationSummary = receiverAddressParts.join(", ");
             }
@@ -374,16 +529,12 @@ document.addEventListener("DOMContentLoaded", () => {
             const shouldSaveReceiver = saveReceiverAddress ? saveReceiverAddress.checked : false;
             const resolvedServiceType = sessionStorage.getItem("activeBookingServiceType") || "Standard Parcel";
 
-            // ⚡ COMPILING INTO THE 5 TARGET VISUAL BUCKETS NESTED INSIDE THE SERVICES MAP
             const tempDetailsPayload = {
                 services: {
                     standardParcel: {
-                        // 1. TRACKING DATA
-                        trackingId: "", // Will be filled dynamically by your generator during checkout
+                        trackingId: "", 
                         serviceWorkflowType: resolvedServiceType,
                         deliveryArrangementOption: selectedOption,
-
-                        // 2. SENDER DETAILS
                         senderDetails: {
                             fullName: senderName.value.trim(),
                             phoneNumber: senderMobile.value,
@@ -395,8 +546,6 @@ document.addEventListener("DOMContentLoaded", () => {
                             fullAddress: combinedSenderAddress,
                             saveSenderToAddressBook: shouldSaveSender
                         },
-
-                        // 3. RECEIVER DETAILS
                         receiverDetails: {
                             fullName: receiverName.value.trim(),
                             phoneNumber: receiverMobile.value,
@@ -410,16 +559,12 @@ document.addEventListener("DOMContentLoaded", () => {
                             isOutletDropoff: isOutletDropoffVal,
                             saveReceiverToAddressBook: shouldSaveReceiver
                         },
-
-                        // 4. PARCEL DETAILS (Placeholders to be merged on the next step)
                         parcelDetails: {
                             category: "",
                             weight: "",
                             dimensions: "",
                             dashboardDisplayDestination: simplifiedDestinationString
                         },
-
-                        // 5. PAYMENT DETAILS (Placeholders to be merged on the final step)
                         paymentDetails: {
                             assignedPayer: "Sender", 
                             modeOfPayment: "Cash",

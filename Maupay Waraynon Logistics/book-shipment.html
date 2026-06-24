@@ -42,11 +42,22 @@
         <main class="main-content">
             
             <header class="content-header">
-                <h2>Book a Shipment</h2>
-                <div class="user-profile-badge">
-                    <div class="avatar-circle" id="profileAvatar">M</div>
-                </div>
-            </header>
+    <h2>Book Shipment</h2>
+    <div class="user-profile-badge">
+        
+        <div class="user-avatar-wrapper" style="position: relative; display: inline-block;">
+            
+            <div class="avatar-circle" id="profileAvatar">U</div>
+            
+            <div id="avatarTooltip" class="avatar-tooltip">
+                <div class="tooltip-name">Loading...</div>
+                <div class="tooltip-email">Loading...</div>
+            </div>
+
+        </div>
+
+    </div>
+</header>
 
             <div class="booking-wizard-card">
                 
@@ -117,6 +128,6 @@
         </main>
     </div>
 
-    <script src="book-shipment.js"></script>
+    <script type="module" src="book-shipment.js"></script>
 </body>
 </html>

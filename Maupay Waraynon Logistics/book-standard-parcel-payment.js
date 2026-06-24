@@ -1,7 +1,7 @@
 // 1. Modern Modular Firebase Imports
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getFirestore, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-import { getAuth } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+import { getFirestore, doc, updateDoc, getDoc } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
 // 2. Your Web App's Firebase Configuration
 const firebaseConfig = {
@@ -55,6 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
     const summaryGrandTotal = document.getElementById("summaryGrandTotal");
 
     const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+
+    // 🌟 Capture tracking context securely from event lifecycle streams
+let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
+
     const savedAccountRaw = localStorage.getItem('dummyTestingAccount');
     if (savedAccountRaw && profileAvatar) {
         try {
@@ -64,6 +69,58 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         } catch (e) { console.error("Error setting avatar display initial:", e); }
     }
+
+    // 🌟 LIVE CLOUD FIRESTORE AVATAR LOOKUP (With Tooltip safety guards)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
+
+            if (profileAvatar) {
+                const userDocRef = doc(db, "Customer", user.uid);
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
+
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
+
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
+                        }
+                    }
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
+                });
+            }
+        } else {
+            console.warn("No active auth state detected on page load.");
+        }
+    });
 
     // Extract Session Data Memory Blocks safely
     const savedDetails = JSON.parse(localStorage.getItem('tempDetails') || '{}');
@@ -137,11 +194,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const finalMethodChoice = checkedMethod.value;
             if (finalMethodChoice === "GCash" && (!gcashRefInput || !gcashRefInput.value.trim())) {
-                alert("⚠️ Please fill out your 13-digit GCash transfer reference string code.");
+                alert("⚠️ Invalid Gcash reference.");
                 if (gcashRefInput) gcashRefInput.focus();
                 return;
             } else if (finalMethodChoice === "BankTransfer" && (!bankRefInput || !bankRefInput.value.trim())) {
-                alert("⚠️ Please provide your bank transaction verification tracking number block.");
+                alert("⚠️ Invalid bank transfer reference.");
                 if (bankRefInput) bankRefInput.focus();
                 return;
             }

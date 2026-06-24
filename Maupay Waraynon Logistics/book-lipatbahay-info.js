@@ -1,9 +1,6 @@
-// ==========================================================================
-// 📦 MAUPAY WARAYNON PADALA CENTER - LIPATBAHAY ROUTING INFRASTRUCTURE
-// ==========================================================================
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+import { getFirestore, doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
 const firebaseConfig = {
@@ -38,6 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const vehicleRadios = document.querySelectorAll('input[name="vehicleType"]');
     const addonCheckboxes = document.querySelectorAll('.addon-calc-trigger');
     const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+
+     //Capture tracking context securely
+    let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
 
     // Prevent past date selectors
     const todayISO = new Date().toISOString().split('T')[0];
@@ -50,29 +51,88 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================================================
     onAuthStateChanged(auth, (user) => {
         if (user) {
-            const userDocRef = doc(db, "Customer", user.uid);
-            onSnapshot(userDocRef, (docSnap) => {
-                if (docSnap.exists() && profileAvatar) {
-                    const userData = docSnap.data();
-                    const firstName = userData.firstName || userData.fullName || "";
-                    if (firstName) {
-                        profileAvatar.textContent = firstName.charAt(0).toUpperCase();
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
+
+            if (profileAvatar) {
+                const userDocRef = doc(db, "Customer", user.uid);
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
+
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
+
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
+                        }
                     }
-                }
-            }, (err) => {
-                console.error("Live listener connection failed for avatar meta:", err);
-            });
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
+                });
+            }
+        } else {
+            console.warn("No active auth state detected on page load.");
         }
     });
 
     // =========================================================
     // 🛡️ INPUT VALIDATION & CHARACTER RESTRICTIONS
     // =========================================================
+// Real-Time Sanitization Engine Hook
+    function handleNumericSanitization(e, inputElement) {
+        let cleanedValue = e.target.value.replace(/\D/g, "");
+        
+        // Strip out leading zeros (e.g., "020" -> "20")
+        if (cleanedValue.length > 1 && cleanedValue.startsWith("0")) {
+            cleanedValue = cleanedValue.replace(/^0+/, "");
+        }
+        
+        // Cap upper threshold strictly at 100 on the fly
+        if (cleanedValue !== "") {
+            const numericVal = parseInt(cleanedValue, 10);
+            if (numericVal > 100) {
+                cleanedValue = "100";
+            }
+        }
+        
+        e.target.value = cleanedValue;
+        
+        // Clear errors in real-time only if value falls inside valid 1-100 bounds
+        const finalParsed = parseInt(cleanedValue, 10);
+        if (!isNaN(finalParsed) && finalParsed >= 1 && finalParsed <= 100) {
+            clearInlineError(inputElement); 
+        }
+    }
+
+    // Attach the input listener hook to your Estimated Items field
     if (estimatedItems) {
         estimatedItems.addEventListener("input", (e) => {
-            // Drop EVERYTHING except pure numbers (removes text, spaces, hyphens completely)
-            e.target.value = e.target.value.replace(/\D/g, "");
-            clearInlineError(estimatedItems);
+            handleNumericSanitization(e, estimatedItems);
         });
     }
 
@@ -88,19 +148,27 @@ document.addEventListener("DOMContentLoaded", () => {
         moveDate.addEventListener("change", () => clearInlineError(moveDate));
     }
 
-    function showInlineError(inputElement, errorMessage) {
+        function showInlineError(inputElement, errorMessage) {
         clearInlineError(inputElement);
-        inputElement.style.borderColor = "#ef4444";
+        
+        // Find cell parent block container
+        const parentCell = inputElement.closest(".form-input-cell") || inputElement.parentNode;
+        inputElement.style.borderColor = "#ef4444"; // Matches error red border
         
         const errorContainer = document.createElement("div");
         errorContainer.className = "form-inline-error-msg";
-        errorContainer.style.color = "#ef4444";
-        errorContainer.style.fontSize = "0.78rem";
-        errorContainer.style.marginTop = "4px";
-        errorContainer.style.fontWeight = "600";
-        errorContainer.innerText = errorMessage;
+        errorContainer.style.color = "#b91c1c"; // Clean darker text red
+        errorContainer.style.fontSize = "0.8rem";
+        errorContainer.style.marginTop = "6px";
+        errorContainer.style.fontWeight = "500";
+        errorContainer.style.display = "flex";
+        errorContainer.style.alignItems = "center";
+        errorContainer.style.gap = "4px";
         
-        inputElement.parentNode.appendChild(errorContainer);
+        // Append the matching icon layout format 
+        errorContainer.innerHTML = `<span>⚠️</span> <span>${errorMessage}</span>`;
+        
+        parentCell.appendChild(errorContainer);
     }
 
     function clearInlineError(inputElement) {
@@ -171,13 +239,25 @@ document.addEventListener("DOMContentLoaded", () => {
             let clientSideValidationHasErrors = false;
 
             if (moveDate && !moveDate.value) {
-                showInlineError(moveDate, "Please choose a deployment booking timeline option.");
+                showInlineError(moveDate, "Please select date");
                 clientSideValidationHasErrors = true;
             }
-            if (estimatedItems && !estimatedItems.value.trim()) {
-                showInlineError(estimatedItems, "Please specify an estimated item density headcount.");
+
+            if (estimatedItems) {
+                const itemValue = estimatedItems.value.trim();
+                const numericItems = parseInt(itemValue, 10);
+
+                if (!itemValue || isNaN(numericItems) || numericItems < 1 || numericItems > 100) {
+                    showInlineError(estimatedItems, "Please specify an estimated item headcount between 1 and 100.");
+                    clientSideValidationHasErrors = true;
+                }
+            }
+
+            if (valuableItems && !valuableItems.value.trim()) {
+                showInlineError(valuableItems, "Please specify any valuable items."); 
                 clientSideValidationHasErrors = true;
             }
+            
 
             if (clientSideValidationHasErrors) {
                 const targetFirstError = document.querySelector(".form-inline-error-msg");

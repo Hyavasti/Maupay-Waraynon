@@ -1,8 +1,31 @@
+// Import the necessary Firebase SDK functions matching your dashboard environment
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+// =========================================================
+// FIREBASE CONFIGURATION & INITIALIZATION
+// =========================================================
+const firebaseConfig = {
+    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
+    authDomain: "mpc-bacoor.firebaseapp.com",
+    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "mpc-bacoor",
+    storageBucket: "mpc-bacoor.firebasestorage.app",
+    messagingSenderId: "105917197007",
+    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
+    measurementId: "G-GSF6CFML1Y"
+};
+
+// Initialize Core Engines
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 document.addEventListener("DOMContentLoaded", () => {
     const btnBackToPackage = document.getElementById("btnBackToPackage");
     const btnConfirmBooking = document.getElementById("btnConfirmBooking");
     const summaryPayer = document.getElementById("summaryPayer");
-    const profileAvatar = document.getElementById("profileAvatar");
     const codNoticeWrapper = document.getElementById("codNoticeWrapper");
 
     // Modal Control element hooks references
@@ -42,60 +65,72 @@ document.addEventListener("DOMContentLoaded", () => {
     const summaryInsurance = document.getElementById("summaryInsurance");
     const summaryGrandTotal = document.getElementById("summaryGrandTotal");
 
+    const profileAvatar = document.getElementById("profileAvatar");
+    const avatarTooltip = document.getElementById("avatarTooltip");
+    
+    
+
     // Global handles to bridge the async loaded database reference with your submit handler
-    let activeDatabaseInstance = null;
+    let activeDatabaseInstance = db;
     let currentlyLoggedInUser = null;
+    let currentAuthenticatedUID = "oZ55xPFsSYWyVTD5R8G1kYmx43";
 
     // ==========================================
     // FIREBASE DATABASE PROFILE AVATAR SYNC
     // ==========================================
-    if (profileAvatar) {
-        (async () => {
-            try {
-                const { initializeApp } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js");
-                const { getFirestore, doc, getDoc } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js");
-                const { getAuth, onAuthStateChanged } = await import("https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js");
+onAuthStateChanged(auth, (user) => {
+        if (user) {
+            // FIXED: Populate your validation anchors so they aren't null during submission
+            currentlyLoggedInUser = user;
+            currentAuthenticatedUID = user.uid; 
+            console.log("Firebase Auth detected active UID:", currentAuthenticatedUID);
 
-                const firebaseConfig = {
-                    apiKey: "AIzaSyBVUVvHJfsZGvaZmOq2Sz23kI8dnml4dI0",
-                    authDomain: "mpc-bacoor.firebaseapp.com",
-                    databaseURL: "https://mpc-bacoor-default-rtdb.asia-southeast1.firebasedatabase.app",
-                    projectId: "mpc-bacoor",
-                    storageBucket: "mpc-bacoor.firebasestorage.app",
-                    messagingSenderId: "105917197007",
-                    appId: "1:105917197007:web:ec34d45a969be00a30e5ba",
-                    measurementId: "G-GSF6CFML1Y"
-                };
+            if (profileAvatar) {
+                const userDocRef = doc(db, "Customer", user.uid);
+                
+                getDoc(userDocRef).then((docSnapshot) => {
+                    if (docSnapshot.exists()) {
+                        const userData = docSnapshot.data();
+                        console.log("Profile data retrieved successfully:", userData);
+                        
+                        // Update main text circle letter initial
+                        if (userData && userData.firstName) {
+                            profileAvatar.innerText = userData.firstName.charAt(0).toUpperCase();
+                        }
 
-                const app = initializeApp(firebaseConfig);
-                const db = getFirestore(app);
-                const auth = getAuth(app);
+                        // 🔒 SAFETY GUARD: Populate Tooltip fields ONLY if it exists in HTML
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
 
-                // Cache reference instances globally for the form actions to hook into
-                activeDatabaseInstance = db;
+                            const fName = userData.firstName || "";
+                            const lName = userData.lastName || "";
+                            const email = userData.emailAddress || user.email || "";
 
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        currentlyLoggedInUser = user; // Bind authenticated context variables safely
-                        try {
-                            const userDoc = await getDoc(doc(db, "Customer", user.uid));
-                            if (userDoc.exists()) {
-                                const userData = userDoc.data();
-                                const profileName = userData.firstName || userData.name;
-                                if (profileName && profileName.trim().length > 0) {
-                                    profileAvatar.innerText = profileName.trim().charAt(0).toUpperCase();
-                                }
-                            }
-                        } catch (err) {
-                            console.warn("Database sync error, keeping fallback profile text:", err);
+                            if (nameEl) nameEl.innerText = `${fName} ${lName}`.trim();
+                            if (emailEl) emailEl.innerText = email;
+                        }
+                    } else if (user.displayName) {
+                        // Auth display name backup fallback channel
+                        profileAvatar.innerText = user.displayName.charAt(0).toUpperCase();
+                        
+                        // 🔒 SAFETY GUARD: Backup channel check
+                        if (avatarTooltip) {
+                            const nameEl = avatarTooltip.querySelector(".tooltip-name");
+                            const emailEl = avatarTooltip.querySelector(".tooltip-email");
+                            if (nameEl) nameEl.innerText = user.displayName;
+                            if (emailEl) emailEl.innerText = user.email || "";
                         }
                     }
+                }).catch((error) => {
+                    console.error("Error reading profile document from Cloud Firestore:", error);
                 });
-            } catch (moduleErr) {
-                console.error("Firebase runtime engine failed to initialize:", moduleErr);
             }
-        })();
-    }
+        } else {
+            console.warn("No active auth state detected on page load.");
+            currentlyLoggedInUser = null;
+        }
+    });
 
     // RECOVER CONSOLIDATED DATA MANIFEST
     const rawManifestStringData = localStorage.getItem('consolidatedBookingManifest');

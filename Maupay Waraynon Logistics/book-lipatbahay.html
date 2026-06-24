@@ -43,14 +43,25 @@
 
         <main class="main-content">
             
-            <header class="content-header">
-                <h2>Lipat Bahay (Moving Services)</h2>
-                <div class="user-profile-badge">
-                    <div class="avatar-circle" id="profileAvatar">U</div>
-                </div>
-            </header>
+<header class="content-header">
+    <h2>Lipat Bahay (Moving Services)</h2>
+    <div class="user-profile-badge">
+        
+        <div class="user-avatar-wrapper" style="position: relative; display: inline-block;">
+            
+            <div class="avatar-circle" id="profileAvatar">U</div>
+            
+            <div id="avatarTooltip" class="avatar-tooltip">
+                <div class="tooltip-name">Loading...</div>
+                <div class="tooltip-email">Loading...</div>
+            </div>
 
-            <form id="lipatBahayDetailsForm" class="booking-wizard-card" style="align-items: stretch; padding-top: 30px;">
+        </div>
+
+    </div>
+</header>
+
+            <form id="lipatBahayDetailsForm" class="booking-wizard-card" style="align-items: stretch; padding-top: 30px;" novalidate>
                 
                 <div class="wizard-progress-bar" style="margin-bottom: 35px;">
                     <div class="progress-step current">
